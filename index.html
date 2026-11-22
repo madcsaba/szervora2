@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F6FBF6">
+<title>Szervóra 2.0</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600&text=%E5%BF%83%E6%9C%A8%E7%81%AB%E5%9C%9F%E9%87%91%E6%B0%B4%E8%83%86%E8%82%9D%E8%82%BA%E5%A4%A7%E8%82%A0%E8%83%83%E8%84%BE%E5%B0%8F%E8%86%80%E8%83%B1%E8%82%BE%E5%8C%85%E4%B8%89%E7%84%A6&display=swap">
+<style>
+/* VOICE: nyugodt, gondos, rövid mondatok – egy jó gyógytornász hangja
+   IDEA: az idő színe – a mostani szerv eleme színezi az egész felületet, este sötétre vált
+   PICTURE: a nap szervszalagja, rétegezhető test, csukott szemmel is követhető lejátszó, tudásgráf
+   COLOUR and TYPE: tonális elem-paletták (M3 Expressive szellemben), Inter Tight címek, Inter szöveg
+   LAYOUT: telefonos oszlop, lebegő alsó navigáció, nagy kerekítés, egy fő teendő képernyőnként */
+:root{color-scheme:light;--r-xl:28px;--r-l:20px;--r-m:16px}
+:root[data-mode=d]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--on);font:16px/1.5 Inter,system-ui,sans-serif;overflow-x:clip;transition:background-color .6s ease,color .6s ease}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+#app{max-width:520px;margin:0 auto;min-height:100vh;padding-bottom:104px;position:relative}
+body.immersive #app{padding-bottom:0}
+body.immersive nav.tabs{display:none}
+.display{font-family:'Inter Tight',Inter,sans-serif;font-weight:700;letter-spacing:-.4px;margin:0}
+.han{font-family:'Noto Serif SC',serif;font-weight:600}
+.grow{flex:1}
+.pad{padding:0 16px}
+.stack{display:flex;flex-direction:column;gap:12px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.sub{font-size:13px;color:var(--mut);line-height:18px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:1.1px;color:var(--mut);display:flex;align-items:center;gap:6px}
+.eyebrow.acc{color:var(--acc)}
+h2{margin:0;font-size:16px;font-weight:700}
+/* fejléc */
+.top{display:flex;align-items:center;gap:8px;padding:18px 16px 10px}
+.top h1{margin:0;font-family:'Inter Tight',Inter,sans-serif;font-weight:700;font-size:30px;line-height:1.1;letter-spacing:-.5px}
+.iconbtn{width:48px;height:48px;flex:none;border-radius:24px;border:0;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--on)}
+.iconbtn.tonal{background:var(--surf2)}
+.iconbtn[aria-pressed=true]{background:var(--acc);color:var(--onacc)}
+/* nap-szalag */
+.arcwrap{position:relative;padding:4px 8px 0;margin-bottom:14px}
+.arcwrap a path{transition:opacity .2s}.arcwrap a:hover path{opacity:.9}
+.arccenter{position:absolute;left:0;right:0;bottom:6px;text-align:center;pointer-events:none}
+.arccenter .organ{font-family:'Inter Tight',Inter,sans-serif;font-weight:800;line-height:1.05;letter-spacing:-1px;margin:4px 0 2px}
+.arccenter .eyebrow{justify-content:center;color:var(--acc)}
+/* kártyák */
+.card{background:var(--surf);border-radius:var(--r-l);padding:16px}
+.card.quiet{background:var(--surf2)}
+.card .t,.row .t,.rcard .t{display:block;font-size:16px;font-weight:600;line-height:21px}
+.card .s,.row .s,.rcard .s{display:block;font-size:14px;color:var(--mut);line-height:20px;margin-top:2px}
+.hero{background:var(--cont);border-radius:var(--r-xl);padding:20px;position:relative;overflow:hidden}
+.hero p{margin:6px 0 0;font-size:15px;line-height:22px;color:var(--on)}
+.hero .display{font-size:26px;line-height:31px;margin-top:6px}
+.hero .t{font-size:17px;font-weight:700}
+.hero .bgglyph{position:absolute;right:14px;top:-6px;font-size:110px;line-height:1;color:var(--acc);opacity:.13;pointer-events:none}
+.hero .chips{display:flex;gap:6px;flex-wrap:wrap;position:relative}
+.hero .chips span{padding:5px 12px;border-radius:14px;background:var(--surf);font-size:13px;font-weight:600}
+.hero.solid{margin:4px 16px 0;color:#fff;background:var(--acc)}
+.hero.solid .big{font-family:'Inter Tight',Inter,sans-serif;font-weight:800;font-size:36px;line-height:1.1}
+.hero.solid .bg{position:absolute;right:16px;top:0;font-size:100px;line-height:120px;opacity:.22}
+.hero.solid .chips span{background:rgba(0,0,0,.22);color:#fff}
+:root[data-mode=d] .hero.solid{color:#10140F}
+:root[data-mode=d] .hero.solid .chips span{background:rgba(255,255,255,.35);color:#10140F}
+.tag{display:block;font-size:11px;font-weight:700;letter-spacing:.8px;color:var(--acc);text-transform:uppercase}
+.row{display:flex;align-items:center;gap:12px;padding:12px 14px 12px 12px;background:var(--surf);border-radius:var(--r-l);min-height:64px;color:var(--on)}
+.row.flat{background:var(--surf2)}
+.ic{width:42px;height:42px;border-radius:14px;background:var(--surf2);display:flex;align-items:center;justify-content:center;flex:none;color:var(--acc)}
+.rcard{display:flex;align-items:center;gap:12px;padding:14px;background:var(--surf);border-radius:var(--r-l)}
+.rcard.hl{background:var(--cont)}
+.rcard .meta{display:block;font-size:12px;font-weight:600;color:var(--acc);margin-top:4px}
+.playdot{width:44px;height:44px;border-radius:22px;background:var(--acc);color:var(--onacc);display:flex;align-items:center;justify-content:center;flex:none}
+.sec{display:flex;align-items:baseline;justify-content:space-between;padding:8px 4px 0;gap:8px}
+.sec span{font-size:12px;color:var(--mut)}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.tile{padding:10px 12px;border-radius:var(--r-m);background:var(--surf);display:block}
+.tile .k{font-size:11px;color:var(--mut);line-height:15px}
+.tile .v{font-size:14px;font-weight:600;line-height:19px}
+.tile.big .v{font-family:'Inter Tight',Inter,sans-serif;font-size:20px;font-weight:700;line-height:25px;margin-top:2px}
+/* gombok */
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center}
+.btn{min-height:52px;padding:0 22px;border-radius:26px;border:0;background:var(--acc);color:var(--onacc);font-size:15px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer}
+.btn.tonal,.btn.ghost{background:var(--surf);color:var(--on)}
+.card .btn.tonal,.hero .btn.tonal{background:var(--surf2)}
+.hero .btn.tonal{background:var(--surf)}
+.btn[disabled]{opacity:.45;cursor:default}
+.note{font-size:12px;line-height:17px;color:var(--mut);margin:8px 4px 0;display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap}
+.warnbox{display:flex;gap:8px;align-items:flex-start;padding:10px 12px;border-radius:14px;background:var(--warn);border:1px solid var(--warn-line);font-size:14px;font-weight:600}
+.search{display:flex;align-items:center;gap:8px;height:52px;padding:0 16px;border-radius:26px;background:var(--surf2);color:var(--mut)}
+.search input{flex:1;border:0;background:transparent;font:inherit;font-size:16px;color:var(--on);outline:none}
+.list{background:var(--surf);border-radius:var(--r-l);overflow:hidden}
+.li{display:flex;align-items:center;gap:10px;padding:10px 16px;min-height:56px;border-top:1px solid var(--line)}
+.li:first-child{border-top:0}
+.li .t{display:block;font-size:15px;font-weight:600}.li .s{display:block;font-size:13px;color:var(--mut)}
+.dot{width:10px;height:10px;border-radius:5px;flex:none;display:inline-block}
+.echip{flex:none;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600;background:var(--surf);display:inline-flex;align-items:center}
+.chiprow{display:flex;gap:6px;flex-wrap:wrap}
+.pills{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:8px 16px}
+.pills::-webkit-scrollbar{display:none}
+.pill{flex:none;min-height:40px;padding:0 14px;border-radius:20px;border:0;background:var(--surf2);font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px;color:var(--on)}
+.pill[aria-pressed=true]{background:var(--acc);color:var(--onacc)}
+.pill[aria-pressed=true] .dot{box-shadow:0 0 0 2px var(--onacc)}
+.seg{display:flex;gap:4px;padding:4px;border-radius:26px;background:var(--surf2)}
+.seg>button,.seg>a{flex:1;min-height:44px;border:0;border-radius:22px;background:transparent;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;padding:0 8px;color:var(--on)}
+.seg>[aria-pressed=true],.seg>[aria-checked=true],.seg>[aria-selected=true]{background:var(--surf);box-shadow:0 1px 3px rgba(0,0,0,.12);color:var(--acc)}
+.card .seg{background:var(--bg)}
+.field{margin-top:14px}.flabel{font-size:13px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px;color:var(--mut)}
+.kv{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.kv .k{width:84px;flex:none;font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--mut);line-height:20px;text-transform:uppercase}
+.kv .v{font-size:14px;line-height:20px}
+.switch{appearance:none;-webkit-appearance:none;width:52px;height:32px;border-radius:16px;background:var(--line);border:2px solid var(--mut);position:relative;flex:none;margin:0;cursor:pointer;transition:background .15s}
+.switch::after{content:"";position:absolute;left:4px;top:4px;width:20px;height:20px;border-radius:10px;background:var(--mut);transition:all .15s}
+.switch:checked{background:var(--acc);border-color:var(--acc)}
+.switch:checked::after{left:22px;top:2px;width:24px;height:24px;border-radius:12px;background:var(--onacc)}
+.swl{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600}
+.tinput{height:48px;border-radius:14px;border:0;background:var(--surf2);color:var(--on);font:inherit;font-size:16px;padding:0 12px}
+.crumbs{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--mut)}
+.crumbs a{padding:4px 12px;border-radius:12px;background:var(--surf);font-weight:600;color:var(--on);border-left:4px solid var(--dotc)}
+.crumbs a.on{background:var(--cont)}
+.tabs.seg>a{text-decoration:none}
+/* alsó navigáció */
+nav.tabs{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);width:calc(100% - 24px);max-width:496px;height:76px;display:flex;background:var(--surf);border-radius:30px;box-shadow:0 6px 24px rgba(0,0,0,.14);z-index:20;padding:0 6px;transition:background-color .6s}
+nav.tabs a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:600;color:var(--mut);text-align:center;line-height:1.2}
+nav.tabs .ind{width:58px;height:32px;border-radius:16px;display:flex;align-items:center;justify-content:center;transition:background .2s}
+nav.tabs a[aria-current=page]{color:var(--on)}
+nav.tabs a[aria-current=page] .ind{background:var(--cont);color:var(--acc)}
+/* check-in lap */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:40;animation:fade .2s}
+.sheet{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:520px;max-height:92vh;overflow:auto;background:var(--bg);border-radius:28px 28px 0 0;padding:8px 20px 24px;z-index:41;animation:up .25s ease}
+.grip{width:36px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 12px}
+.sheet .hero{margin-top:16px}
+@keyframes fade{from{opacity:0}}@keyframes up{from{transform:translate(-50%,40px);opacity:0}}
+/* testtérkép */
+.map{position:relative;height:min(52vh,480px);min-height:360px;margin:4px 16px 0;border-radius:var(--r-xl);background:var(--map);overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+.stage{position:absolute;left:0;top:0;width:310px;height:480px;transform-origin:0 0}
+.stage svg{width:310px;height:480px;display:block}
+.stage .bg{transition:opacity .3s}
+.anim{transition:transform .35s ease}
+.ptl{position:absolute;inset:0;pointer-events:none}
+.pt{position:absolute;left:0;top:0;width:44px;height:44px;margin:-22px 0 0 -22px;padding:0;border:0;background:transparent;cursor:pointer;pointer-events:auto;display:flex;align-items:center;justify-content:center}
+.pt i{display:block;width:13px;height:13px;border-radius:50%;background:var(--c);border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.35)}
+.pt b{position:absolute;left:31px;top:13px;white-space:nowrap;padding:1px 6px;border-radius:8px;font-size:11px;font-weight:600;line-height:16px;background:var(--surf);color:var(--on);box-shadow:0 0 0 1px var(--line);display:none}
+.ptl.labels .pt b,.pt.sel b{display:block}
+.pt.sel{z-index:3}.pt.sel i{width:19px;height:19px;box-shadow:0 0 0 6px color-mix(in srgb,var(--c) 35%,transparent)}
+.pt.sel b{background:var(--c);color:var(--onel);box-shadow:none}
+.pt.dim{opacity:.2}.pt.done i{opacity:.55}
+.mapctl{position:absolute;right:10px;bottom:10px;z-index:5;display:flex;flex-direction:column;align-items:center;background:var(--surf);border-radius:24px}
+.mapctl button{width:46px;height:46px;border:0;background:transparent;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--on)}
+.mapctl span{font-size:11px;font-weight:600;color:var(--mut)}
+.mapview{position:absolute;left:10px;top:10px;z-index:5;display:flex;gap:4px;padding:4px;border-radius:24px;background:var(--surf)}
+.mapview .pill{min-height:36px;padding:0 12px;background:transparent}
+.mapview .pill[aria-pressed=true]{background:var(--acc)}
+.layerbox{position:absolute;right:10px;top:10px;z-index:5;display:flex;flex-direction:column;gap:2px;padding:4px;border-radius:22px;background:var(--surf)}
+.layerbox button{width:62px;min-height:52px;border:0;border-radius:18px;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:11px;font-weight:600;color:var(--mut)}
+.layerbox button[aria-pressed=true]{background:var(--cont);color:var(--acc)}
+/* élő meridián, csontváz, mérés */
+.fbase{fill:none;stroke-width:4;opacity:.35;stroke-linecap:round;stroke-linejoin:round}
+.fdots{fill:none;stroke-width:7;stroke-linecap:round;stroke-dasharray:.1 16;animation:flow 1.5s linear infinite}
+.fcore{fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-dasharray:.1 16;animation:flow 1.5s linear infinite;opacity:.9}
+@keyframes flow{to{stroke-dashoffset:-16.1}}
+.livecard{display:flex;gap:12px;align-items:center;padding:10px 14px 10px 8px}
+.livecard>svg:first-child{width:96px;height:150px;flex:none;display:block}
+.bo{stroke:var(--bone-line);fill:none;stroke-linecap:round}.bf{stroke:var(--bone);fill:none;stroke-linecap:round}
+.bs{fill:var(--bone);stroke:var(--bone-line);stroke-width:1}.br{stroke:var(--bone-line);stroke-width:1.3;fill:none;stroke-linecap:round}.bh{fill:var(--bone-line);opacity:.55}
+.mline{stroke:var(--acc);stroke-width:1.8;fill:none;stroke-linecap:round}.mtk{stroke:var(--acc);stroke-width:1.4}.mseg{stroke:var(--acc);stroke-width:1.2;opacity:.5;stroke-dasharray:3 3}
+.mo{fill:none;stroke:var(--acc);stroke-width:1.6}.mt{font-weight:600;fill:var(--acc);stroke:var(--map);stroke-width:1.4px;paint-order:stroke;font-family:Inter,sans-serif}
+.crop{width:100%;height:auto;display:block;background:var(--map);border-radius:var(--r-l)}
+.ring{width:150px;height:150px;margin:0 auto;display:block}
+.prog{height:6px;border-radius:3px;background:var(--line)}
+.prog i{display:block;height:6px;border-radius:3px;background:var(--acc);width:0}
+.clockwrap{display:none}
+/* légzés */
+.breath{position:relative;width:min(260px,70vw);aspect-ratio:1;margin:12px auto 0}
+.breath .r1,.breath .r2,.breath .core{position:absolute;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%)}
+.breath .r1{width:100%;height:100%;background:var(--bl)}
+.breath .r2{width:78%;height:78%;background:color-mix(in srgb,var(--bc) 30%,var(--bl))}
+.breath .core{width:56%;height:56%;background:var(--bc);color:var(--onacc);display:flex;flex-direction:column;align-items:center;justify-content:center;transform:translate(-50%,-50%) scale(.6)}
+.breath .core .n{font-family:'Inter Tight',Inter,sans-serif;font-weight:700;font-size:48px;line-height:1.1}
+/* lejátszó */
+.player{min-height:100vh;background:var(--bg);color:var(--on);display:flex;flex-direction:column;padding:0 16px 24px}
+.phead{display:flex;align-items:center;gap:8px;padding:14px 0 4px}
+.phead .t{font-size:15px;font-weight:700}
+.pring{position:relative;width:min(270px,72vw);aspect-ratio:1;margin:8px auto 0;transition:opacity .3s}
+.pring svg{width:100%;height:100%;display:block}
+#pringc{transition:stroke-dashoffset .25s linear}
+.pmid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.ptime{font-family:'Inter Tight',Inter,sans-serif;font-weight:800;font-size:64px;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-1.5px}
+.pside{margin-top:8px;padding:5px 14px;border-radius:14px;background:var(--surf2);font-size:14px;font-weight:700;color:var(--acc)}
+.pside:empty{display:none}
+.pbody{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+.pinfo{display:flex;gap:12px;align-items:center}
+.pcropbox{width:112px;flex:none;border-radius:18px;overflow:hidden;background:var(--map)}
+.pcrop{width:100%;height:auto;display:block}
+.parea{font-family:'Inter Tight',Inter,sans-serif;font-weight:700;font-size:26px;line-height:30px;letter-spacing:-.3px}
+.ptech{font-size:15px;line-height:21px;color:var(--mut);margin-top:4px}
+.pctl{display:flex;align-items:center;justify-content:center;gap:22px;margin-top:4px}
+.round{width:64px;height:64px;border-radius:32px;border:0;background:var(--surf2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--on)}
+.bigplay{width:96px;height:96px;border-radius:34px;border:0;background:var(--acc);color:var(--onacc);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.pdots{display:flex;justify-content:center;gap:8px}
+.pdots span{width:10px;height:10px;border-radius:5px;background:var(--surf2)}
+.pdots span.on{width:28px;background:var(--acc)}.pdots span.ok{background:var(--mut)}
+.ptoggles{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.pdone{text-align:center;padding:8px 0}
+.pdone p{margin:6px 0 0;font-size:16px}
+.pover{background:var(--surf);border-radius:var(--r-l);padding:12px 16px}
+.pover summary{cursor:pointer;font-weight:700;font-size:14px;min-height:28px}
+.psteps{margin:10px 0 0;padding-left:20px;font-size:14px;line-height:24px}
+.player.eyes .ph{display:none}
+.player.eyes .parea{font-size:34px;line-height:40px;text-align:center}
+.player.eyes .pinfo{justify-content:center}
+.player.eyes .ptech{display:none}
+.player.eyes .bigplay{width:140px;height:140px;border-radius:48px}
+@media (prefers-reduced-motion:reduce){.anim,.breath .core,#pringc,body{transition:none!important}.fdots,.fcore{animation:none}.sheet,.scrim{animation:none}}
+
+/* kijelző mód */
+.kij{position:fixed;inset:0;background:var(--bg);color:var(--on);overflow:hidden;z-index:30;display:flex;flex-direction:column;cursor:default}
+.kij.dim .kbody{opacity:.55}
+.kctl{position:absolute;left:0;right:0;top:0;display:flex;gap:8px;padding:14px 16px;opacity:0;transition:opacity .4s;z-index:2}
+.kij.show .kctl,.kij.show .kstatus{opacity:1}
+.kbody{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;transition:transform 2s ease,opacity .6s}
+.kclock{font-family:'Inter Tight',Inter,sans-serif;font-weight:700;font-size:min(26vw,120px);line-height:1;letter-spacing:-3px;font-variant-numeric:tabular-nums}
+.kdate{font-size:15px;color:var(--mut);margin-top:6px}
+.kmain{display:flex;flex-direction:column;align-items:center;gap:14px;margin-top:22px;width:100%;max-width:640px}
+.kfig svg{height:min(34vh,300px);width:auto;display:block}
+.kinfo{width:100%;max-width:360px}
+.korg{font-family:'Inter Tight',Inter,sans-serif;font-weight:800;font-size:38px;line-height:1.05;letter-spacing:-1px;color:var(--acc);margin:4px 0 4px}
+.kbar{height:6px;border-radius:3px;background:var(--surf2);margin:10px 0 12px}.kbar i{display:block;height:6px;border-radius:3px;background:var(--acc)}
+.kline{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600}
+.kmut{color:var(--mut);margin-top:10px;font-weight:500}
+.kstatus{position:absolute;left:0;right:0;bottom:14px;text-align:center;font-size:12px;color:var(--mut);padding:0 24px;opacity:0;transition:opacity .4s}
+@media (orientation:landscape) and (max-height:600px){.kbody{flex-direction:row;gap:32px}.kmain{flex-direction:row;margin-top:0;width:auto}.kclock{font-size:min(16vw,110px)}.kfig svg{height:min(64vh,280px)}.kleft{display:flex;flex-direction:column}}
+@media (prefers-reduced-motion:reduce){.kbody{transition:none}}
+
+/* asztrológia */
+.pillars{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.pillar{background:var(--surf);border-radius:18px;padding:10px 6px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:3px}
+.pillar.dm{background:var(--cont)}
+.pillar .k{font-size:11px;font-weight:700;letter-spacing:.6px;color:var(--mut);text-transform:uppercase}
+.pz{font-size:30px;line-height:36px;color:var(--on)}
+.pe{font-size:12px;display:flex;align-items:center;gap:4px;line-height:16px;text-align:left}
+.pw{font-size:11px;color:var(--acc);font-weight:600;line-height:14px;margin-top:2px}
+.ebar{display:grid;grid-template-columns:52px 1fr 40px auto;align-items:center;gap:8px;font-size:14px}
+.ebar .en{font-weight:600}.ebar .et{height:10px;border-radius:5px;background:var(--surf2);display:flex;overflow:hidden}.ebar .et i{display:block;height:10px}
+.ebar .ev{font-weight:700;font-variant-numeric:tabular-nums}
+.hl{margin:8px 0 0;padding-left:18px;font-size:15px;line-height:22px}.hl li{margin-bottom:8px}
+.agrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:10px}
+.agrid a{background:var(--surf);border-radius:14px;padding:8px 4px;text-align:center;display:flex;flex-direction:column;font-size:11px;line-height:14px;color:var(--mut)}
+.agrid a b{font-size:13px;color:var(--on);margin:2px 0}.agrid a .han{font-size:18px;color:var(--on);line-height:22px}
+.agrid a.my{background:var(--cont);box-shadow:inset 0 0 0 2px var(--acc)}
+.agrid a span{overflow-wrap:anywhere;hyphens:auto}
+
+/* 3D és fotó */
+.map3{cursor:grab}.map3 canvas{position:absolute;inset:0;display:block;touch-action:none}
+
+.hint3{position:absolute;left:12px;bottom:12px;font-size:12px;color:var(--mut);background:var(--surf);padding:4px 10px;border-radius:12px;pointer-events:none}
+.fstage{border-radius:var(--r-l);overflow:hidden;background:var(--map)}.fstage canvas{display:block;cursor:crosshair;touch-action:manipulation}
+.fstep{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+.map3{height:min(64vh,580px)}
+
+</style>
+</head>
+<body>
+<div id="app"><main id="view"></main></div>
+<nav class="tabs" id="nav"></nav>
+<script src="lang/hu.js"></script>
+<script src="lang/en.js"></script>
+<script>
+{
+/* ================= alapok ================= */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const slug = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('szervora.' + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('szervora.' + k, JSON.stringify(v)); } catch (e) {} }
+};
+
+/* ================= nyelv ================= */
+const PACK = window.SZ_LANG || {};
+const LANGS = Object.keys(PACK);
+let lang = store.get('lang', null) || ((navigator.language || '').toLowerCase().startsWith('hu') ? 'hu' : 'en');
+if (!PACK[lang]) lang = 'hu';
+const t = (k, v = {}) => { let s = PACK[lang].ui[k] ?? PACK.hu.ui[k] ?? k; if (Array.isArray(s)) s = s[v.n === 1 ? 0 : 1]; return String(s).replace(/\{(\w+)\}/g, (_, x) => (v[x] ?? '')); };
+const C = (sec, key) => { const a = PACK[lang].c[sec], b = PACK.hu.c[sec]; if (key === undefined) return a || b; return (a && a[key] !== undefined) ? a[key] : b[key]; };
+const loc = () => PACK[lang].locale;
+const isWho = () => PACK[lang].codes === 'who';
+const WHO_CH = { T: 'LU', Vab: 'LI', Gy: 'ST', Lh: 'SP', Sz: 'HT', 'Véb': 'SI', H: 'BL', V: 'KI', Szb: 'PC', Hm: 'TE', Eh: 'GB', M: 'LR', Kor: 'GV', Bef: 'CV' };
+const chA = (c) => isWho() ? WHO_CH[c] : c;
+const pc = (p) => isWho() ? p.who : p.id;
+const pc2 = (p) => isWho() ? p.id : p.who;
+const orgN = (c) => C('org', c)[0];
+const elT = (k) => C('el', k);
+const chT = (c) => C('ch', c);
+const ptT = (id) => C('pts', id);
+const num = (n) => n.toLocaleString(loc(), { maximumFractionDigits: 1 });
+
+/* ================= ikonok ================= */
+const IC = {
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', practice: '<path d="M3 8h11a3 3 0 1 0-3-3M3 12h16a3 3 0 1 1-3 3M3 16h8"/>',
+  layers: '<path d="M12 3 3 8l9 5 9-5-9-5zM3 13l9 5 9-5"/>', elements: '<path d="M12 3l8.6 6.2-3.3 10.1H6.7L3.4 9.2z"/><circle cx="12" cy="12" r="2.5"/>',
+  body: '<circle cx="12" cy="4" r="2"/><path d="M8 8h8l-1 7h-1.5l-.5 6h-2l-.5-6H9z"/>', move: '<circle cx="12" cy="5" r="2"/><path d="M12 8v6M6 11l6-1 6 1M12 14l-4 6M12 14l4 6"/>',
+  breath: '<path d="M3 9h10a3 3 0 1 0-3-3M3 13h15a3 3 0 1 1-3 3M3 17h6"/>', food: '<path d="M3 11h18a9 9 0 0 1-18 0zM8 7c0-1.5 1-1.5 1-3M13 7c0-1.5 1-1.5 1-3"/>',
+  point: '<circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/>', emotion: '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',
+  herb: '<path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15M5 19l8-8"/>', season: '<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>',
+  sleep: '<path d="M20 14A8 8 0 1 1 10 4a6.5 6.5 0 0 0 10 10z"/>', book: '<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM4 5v16M8 7h7"/>',
+  hand: '<path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11M11 10V4.5a1.5 1.5 0 0 1 3 0V11M14 10.5V6a1.5 1.5 0 0 1 3 0v7c0 4-2.5 7-6 7-2.5 0-4-1.5-5.5-4L4 13a1.5 1.5 0 0 1 2.5-1.5L8 13"/>',
+  eye: '<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>', travel: '<path d="M3 13l18-7-7 18-3-8z"/>',
+  sun: '<circle cx="12" cy="14" r="4"/><path d="M12 4v3M4.9 8.9l2.1 2.1M19.1 8.9 17 11M3 20h18"/>', search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
+  warn: '<path d="M12 3.5l9 16H3z"/><path d="M12 10v4M12 17h.01"/>', play: '<path d="M7 5l12 7-12 7z"/>', pause: '<path d="M8 5v14M16 5v14"/>', stop: '<rect x="6" y="6" width="12" height="12" rx="2"/>',
+  chev: '<path d="M9 6l6 6-6 6"/>', back: '<path d="M15 6l-6 6 6 6"/>', reset: '<path d="M4 12a8 8 0 1 0 2.3-5.7M4 4v4h4"/>',
+  prev: '<path d="M18 6l-8 6 8 6zM6 6v12"/>', bone: '<path d="M8.5 15.5l7-7"/><path d="M6.5 13.5a2.2 2.2 0 1 0-1.8 3.4 2.2 2.2 0 1 0 3.4 1.8M17.5 10.5a2.2 2.2 0 1 0 1.8-3.4 2.2 2.2 0 1 0-3.4-1.8"/>', nofood: '<path d="M7 3v8M5 3v4a2 2 0 0 0 4 0V3M7 11v10M16 3c-1.7 1.5-2.5 4-2.5 7h3V21M3 3l18 18"/>', next: '<path d="M6 6l8 6-8 6zM18 6v12"/>', globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/>'
+};
+const ic = (n, s = 22, w = 1.8) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
+
+/* ================= nyelvfüggetlen adatok ================= */
+const ELK = ['fa', 'tuz', 'fold', 'fem', 'viz'];
+const HAN = { fa: '木', tuz: '火', fold: '土', fem: '金', viz: '水' };
+const PY = { fa: 'Mù', tuz: 'Huǒ', fold: 'Tǔ', fem: 'Jīn', viz: 'Shuǐ' };
+const ELORG = { fa: ['M', 'Eh'], tuz: ['Sz', 'Véb', 'Szb', 'Hm'], fold: ['Lh', 'Gy'], fem: ['T', 'Vab'], viz: ['V', 'H'] };
+const GEN = { fa: 'tuz', tuz: 'fold', fold: 'fem', fem: 'viz', viz: 'fa' };
+const CTRL = { fa: 'fold', fold: 'viz', viz: 'tuz', tuz: 'fem', fem: 'fa' };
+const ORG = [['Eh', 'Dǎn', '胆', 'fa', 'yang', 23], ['M', 'Gān', '肝', 'fa', 'yin', 1], ['T', 'Fèi', '肺', 'fem', 'yin', 3], ['Vab', 'Dàcháng', '大肠', 'fem', 'yang', 5], ['Gy', 'Wèi', '胃', 'fold', 'yang', 7], ['Lh', 'Pí', '脾', 'fold', 'yin', 9], ['Sz', 'Xīn', '心', 'tuz', 'yin', 11], ['Véb', 'Xiǎocháng', '小肠', 'tuz', 'yang', 13], ['H', 'Pángguāng', '膀胱', 'viz', 'yang', 15], ['V', 'Shèn', '肾', 'viz', 'yin', 17], ['Szb', 'Xīnbāo', '心包', 'tuz', 'yin', 19], ['Hm', 'Sānjiāo', '三焦', 'tuz', 'yang', 21]]
+  .map(([c, py, han, el, yy, s]) => ({ c, py, han, el, yy, s }));
+const OBY = Object.fromEntries(ORG.map((o) => [o.c, o]));
+const PAIR = { Eh: 'M', M: 'Eh', T: 'Vab', Vab: 'T', Gy: 'Lh', Lh: 'Gy', Sz: 'Véb', 'Véb': 'Sz', H: 'V', V: 'H', Szb: 'Hm', Hm: 'Szb' };
+const CHEL = { T: 'fem', Vab: 'fem', Gy: 'fold', Lh: 'fold', Sz: 'tuz', 'Véb': 'tuz', H: 'viz', V: 'viz', Szb: 'tuz', Hm: 'tuz', Eh: 'fa', M: 'fa', Kor: 'er', Bef: 'er' };
+const CHN = { T: 11, Vab: 20, Gy: 45, Lh: 21, Sz: 9, 'Véb': 19, H: 67, V: 27, Szb: 9, Hm: 23, Eh: 44, M: 14, Kor: 28, Bef: 24 };
+const CHORDER = ['T', 'Vab', 'Gy', 'Lh', 'Sz', 'Véb', 'H', 'V', 'Szb', 'Hm', 'Eh', 'M', 'Kor', 'Bef'];
+const SOUND_OF = { T: 'T', Vab: 'T', V: 'V', H: 'V', M: 'M', Eh: 'M', Sz: 'Sz', 'Véb': 'Sz', Lh: 'Lh', Gy: 'Lh', Szb: 'Hm', Hm: 'Hm' };
+/* sematikus csatornautak a 310×480-as testrajzon, az áramlás irányában */
+const CHP = {
+  T: ['f', 'M@T-1 Q201 114 202 124 L@T-5 L@T-7 L@T-9 L262 262 L267 280'],
+  Vab: ['f', 'M263 287 L@Vab-4 L259 250 L247 205 L@Vab-11 L206 120 L196 96 Q180 84 162 72 Q158 60 157 52 L@Vab-20'],
+  Gy: ['f', 'M157 40 L159 54 Q163 62 160 70 L160 80 Q164 88 168 96 L172 128 L163 170 L162 230 L161 246 L172 300 L178 352 L@Gy-36 L@Gy-40 L179 448 L186 469'],
+  Lh: ['f', 'M171 467 L169 458 L166 446 L@Lh-6 L164 405 L@Lh-9 L@Lh-10 L157 290 L163 252 L174 215 L180 170 L186 118 Q192 132 194 150'],
+  Sz: ['f', 'M165 126 Q186 124 201 140 L213.4 165.7 L@Sz-3 L@Sz-7 L252.7 271.2 L256 288'],
+  'Véb': ['b', 'M251 289 L@Véb-3 L242 248 L219.7 181 L198 136 L188 112 L168 120 L182 128 L164 108 L158 82 Q166 70 168 60 L170 46'],
+  H: ['b', 'M150 14 Q153 30 155 50 L157 70 L159 90 L@H-23 L158 240 L163 254 L168 300 L@H-40 L175 400 L182 440 L@H-60 L192 466'],
+  V: ['f', 'M174 469 L169 458 L@V-3 L165 420 L162 358 L157 300 L153 248 L153 175 L160 150 L160 98'],
+  Szb: ['f', 'M182 128 Q192 132 198 140 L213 162 L225.5 177.5 L@Szb-6 L@Szb-8 L258 290'],
+  Hm: ['b', 'M256 289 L256 270 L@Hm-5 L226 178 L206 136 L192 98 Q174 84 164 72 Q168 56 170 44 Q166 32 160 30'],
+  Eh: ['f', 'M163 36 Q170 32 169 26 Q174 40 170 52 Q166 62 162 68 L172 90 L195 130 L193 200 L190 250 L185 300 L185 358 L@Eh-34 L186 420 L186 448 L190 469'],
+  M: ['f', 'M176 469 L@M-3 L170 447 L166 410 L162 360 L157 300 L160 252 L176 205 L190 188 L172 150'],
+  Kor: ['b', 'M150 250 L@Kor-4 L@Kor-14 L150 60 L@Kor-20'],
+  Bef: ['f', 'M150 248 L@Bef-4 L@Bef-6 L@Bef-12 L@Bef-17 L150 66']
+};
+const PTS = [
+  ['Kor-20', 'GV20', 'Baihui', 'fb', 150, 16], ['H-1', 'BL1', 'Jingming', 'f', 153.5, 35], ['Kor-26', 'GV26', 'Renzhong', 'f', 150, 50], ['Vab-20', 'LI20', 'Yingxiang', 'f', 155.5, 46],
+  ['T-1', 'LU1', 'Zhongfu', 'f', 180, 106], ['Bef-17', 'CV17', 'Shanzhong', 'f', 150, 128], ['Bef-12', 'CV12', 'Zhongwan', 'f', 150, 183], ['Bef-6', 'CV6', 'Qihai', 'f', 150, 213],
+  ['Bef-4', 'CV4', 'Guanyuan', 'f', 150, 222], ['T-5', 'LU5', 'Chize', 'f', 230.6, 174.2], ['Vab-11', 'LI11', 'Quchi', 'f', 235.3, 172.3], ['T-7', 'LU7', 'Lieque', 'f', 253.7, 238.5],
+  ['T-9', 'LU9', 'Taiyuan', 'f', 256.7, 247.8], ['Szb-6', 'PC6', 'Neiguan', 'f', 246, 237.6], ['Szb-8', 'PC8', 'Laogong', 'f', 259.5, 268.5], ['Sz-3', 'HT3', 'Shaohai', 'f', 219.7, 179.5],
+  ['Sz-7', 'HT7', 'Shenmen', 'f', 243.3, 252.2], ['Lh-10', 'SP10', 'Xuehai', 'f', 160, 335], ['Lh-9', 'SP9', 'Yinlingquan', 'f', 164, 370], ['Gy-36', 'ST36', 'Zusanli', 'f', 181, 378],
+  ['Eh-34', 'GB34', 'Yanglingquan', 'f', 183, 368], ['Gy-40', 'ST40', 'Fenglong', 'f', 183, 406], ['Lh-6', 'SP6', 'Sanyinjiao', 'f', 167, 435], ['V-3', 'KI3', 'Taixi', 'f', 167, 451],
+  ['M-3', 'LR3', 'Taichong', 'f', 178, 463], ['Eh-20', 'GB20', 'Fengchi', 'b', 158, 63], ['Kor-14', 'GV14', 'Dazhui', 'b', 150, 86], ['Eh-21', 'GB21', 'Jianjing', 'b', 172, 92],
+  ['H-23', 'BL23', 'Shenshu', 'b', 159, 205], ['Kor-4', 'GV4', 'Mingmen', 'b', 150, 205], ['H-40', 'BL40', 'Weizhong', 'b', 172, 358], ['H-60', 'BL60', 'Kunlun', 'b', 184, 451],
+  ['Hm-5', 'TE5', 'Waiguan', 'b', 246, 237.6], ['Vab-4', 'LI4', 'Hegu', 'b', 262, 266], ['Véb-3', 'SI3', 'Houxi', 'b', 251, 278]
+].map(([id, who, py, v, x, y]) => { const ch = id.split('-')[0]; return { id, who, py, v, x, y, ch, el: CHEL[ch], s: slug(id), goals: [] }; });
+const PBY = Object.fromEntries(PTS.map((p) => [p.id, p]));
+const PBS = Object.fromEntries(PTS.map((p) => [p.s, p]));
+const GOALS = [['alvas', ['Sz-7', 'Szb-6', 'Lh-6', 'V-3', 'Kor-20']], ['fesz', ['M-3', 'Szb-6', 'Bef-17', 'Sz-7', 'Eh-21']], ['izgul', ['Sz-7', 'Szb-8', 'Szb-6']], ['fej', ['Vab-4', 'Eh-20', 'M-3', 'Kor-20', 'T-7']], ['nyak', ['Eh-20', 'Eh-21', 'Kor-14', 'Véb-3']], ['derek', ['H-23', 'Kor-4', 'H-40', 'H-60']], ['emeszt', ['Bef-12', 'Gy-36', 'Szb-6', 'Lh-6', 'Lh-9']], ['hany', ['Szb-6', 'Bef-12']], ['legzes', ['T-1', 'Bef-17', 'T-9', 'T-5']], ['megf', ['T-7', 'Vab-4', 'Kor-14', 'Hm-5', 'Vab-20']], ['szem', ['H-1', 'Eh-20']], ['ero', ['Gy-36', 'Bef-6', 'V-3', 'Kor-4', 'Bef-4']], ['izom', ['Eh-34', 'H-40', 'Lh-9']], ['ajul', ['Kor-26']]].map(([k, ids]) => ({ k, ids }));
+GOALS.forEach((g) => g.ids.forEach((id) => PBY[id].goals.push(g.k)));
+const GBY = Object.fromEntries(GOALS.map((g) => [g.k, g]));
+/* vezetett rutinok: [pont, másodperc, kétoldali (váltás félidőben)] */
+const ROUT = [
+  { id: 'esti', icon: 'sleep', steps: [['Kor-20', 45, 0], ['Bef-17', 45, 0], ['Szb-6', 60, 1], ['Sz-7', 60, 1], ['Szb-8', 40, 1], ['V-3', 60, 1]] },
+  { id: 'reggel', icon: 'sun', steps: [['Kor-20', 30, 0], ['T-1', 40, 1], ['T-9', 30, 1], ['Gy-36', 60, 1], ['H-23', 45, 0]] },
+  { id: 'kepernyo', icon: 'eye', steps: [['H-1', 30, 0], ['Eh-20', 60, 0], ['Kor-14', 45, 0], ['Véb-3', 60, 1], ['T-7', 40, 1]] },
+  { id: 'utazas', icon: 'travel', steps: [['Szb-6', 120, 1], ['Gy-36', 60, 1]] },
+  { id: 'emesztes', icon: 'food', steps: [['Bef-12', 60, 0], ['Gy-36', 60, 1], ['Szb-6', 40, 1], ['Lh-9', 40, 1]] },
+  { id: 'lampalaz', icon: 'emotion', steps: [['Szb-8', 40, 1], ['Sz-7', 60, 1], ['Bef-17', 45, 0]] }
+];
+ROUT.forEach((r) => { r.sec = r.steps.reduce((s, x) => s + x[1], 0); });
+const RBY = Object.fromEntries(ROUT.map((r) => [r.id, r]));
+const routineFor = (h) => h >= 5 && h < 10 ? 'reggel' : h >= 13 && h < 16 ? 'emesztes' : h >= 20 || h < 5 ? 'esti' : 'kepernyo';
+const CYCST = { tap: { pairs: Object.entries(GEN), curve: true, c: 'var(--jade-t)', w: 2.5 }, szab: { pairs: Object.entries(CTRL), c: 'var(--ink)', w: 2.5 }, vissza: { pairs: Object.entries(CTRL).map(([a, b]) => [b, a]), c: 'var(--tuz)', w: 2.5, dash: '7 5' }, legy: { pairs: Object.entries(CTRL), c: 'var(--tuz)', w: 4.5 } };
+const LAYERS = [['', [['base', 'clock']]], ['g_know', [['elemek', 'elements'], ['kapcsolatok', 'book'], ['meridianok', 'body'], ['atlasz', 'point'], ['csontok', 'bone'], ['technikak', 'hand']]], ['g_prac', [['rutinok', 'hand'], ['mozgas', 'move'], ['legzes', 'breath'], ['taplalkozas', 'food']]], ['g_extra', [['erzelmek', 'emotion'], ['gyogynovenyek', 'herb'], ['evszak', 'season'], ['alvas', 'sleep']]]];
+const DEFAULT_LAYERS = { elemek: true, kapcsolatok: true, meridianok: true, atlasz: true, csontok: true, technikak: true, rutinok: true, mozgas: true, legzes: true, taplalkozas: true, erzelmek: false, gyogynovenyek: false, evszak: false, alvas: false };
+let L = Object.assign({}, DEFAULT_LAYERS, store.get('layers', {}));
+let MODEL = store.get('model', 'f');
+const ec = (el) => ({ c: `var(--${el})`, l: `var(--${el}-l)`, t: `var(--${el}-t)` });
+
+/* ================= idő ================= */
+const now = () => new Date();
+const orgAt = (d) => ORG[Math.floor(((d.getHours() + 1) % 24) / 2)];
+const seasonEl = (d) => { const m = d.getMonth() + 1; return m >= 3 && m <= 5 ? 'fa' : m <= 7 && m >= 6 ? 'tuz' : m === 8 ? 'fold' : m >= 9 && m <= 11 ? 'fem' : 'viz'; };
+const minsLeft = (o, d) => { const end = ((o.s + 2) % 24) * 60, cur = d.getHours() * 60 + d.getMinutes(); const diff = (end - cur + 1440) % 1440; return diff === 0 ? 120 : diff; };
+const fmtLeft = (m) => m >= 60 ? t('left_hm', { h: Math.floor(m / 60), m: m % 60 }) : t('left_m', { m });
+const win = (o) => `${o.s}–${(o.s + 2) % 24}`;
+const EAT = (h) => h >= 7 && h < 19;
+const nightOrg = (o) => o.s >= 19 || o.s < 7;
+const mmss = (s) => { s = Math.max(0, Math.round(s)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+const qt = (s) => lang === 'hu' ? `„${s}”` : `“${s}”`;
+
+/* ================= csontváz-adatbázis =================
+   A test tájékozódási pontjai (csontos jelek) modellenként, a 310×480-as rajz koordinátáiban.
+   A rajz, a pontok és a csatornák is ebből számolódnak. */
+const SKEL = { m: {
+  shoulder: [188, 96], elbow: [226, 176], wrist: [250, 250], hand: [256.5, 270], fingertip: [262, 289], hip: [166, 246], knee: [172, 360], ankle: [176, 452], foot: [182, 462],
+  vertex: [150, 16], canthus: [153.5, 35], philtrum: [150, 50], nostril: [155.5, 46], occiput: [150, 62], c7: [150, 86], acromion: [192, 90], shoulder_mid: [171, 91],
+  jugulum: [150, 92], xiphoid: [150, 164], navel: [150, 205], pubis: [150, 233], pubis_side: [154, 240], axfold: [199, 136],
+  patella_med: [161, 344], tibia_cond: [165, 367], mal_med: [169, 449], popliteal_l: [178, 360], popliteal_c: [172, 359], mal_lat: [185, 449], mt12: [178, 463]
+} };
+SKEL.f = Object.assign({}, SKEL.m, { shoulder: [185, 97], elbow: [222, 177], wrist: [246, 250], hand: [252.5, 270], fingertip: [258, 289], axfold: [195, 136], acromion: [188, 91], shoulder_mid: [169, 92] });
+const VERT = 8.5, HEADCUN = 4.7, BACKCUN = 8;
+/* csontarányos szakaszok: [kezdő jel, záró jel, hossz cunban, testtáj (t: törzs, a: kar, l: láb), közelítő] */
+const SEG = { sternum: ['jugulum', 'xiphoid', 9, 't'], abd_up: ['xiphoid', 'navel', 8, 't'], abd_lo: ['navel', 'pubis', 5, 't'], uarm: ['axfold', 'elbow', 9, 'a'], farm: ['elbow', 'wrist', 12, 'a'], hand: ['wrist', 'fingertip', 8, 'a', 1], thigh_m: ['pubis_side', 'patella_med', 18, 'l'], leg_m: ['tibia_cond', 'mal_med', 13, 'l'], leg_l: ['popliteal_l', 'mal_lat', 16, 'l'] };
+/* pontok helye: szakasz + távolság (cun) + oldalirányú eltolás (cun), vagy tájékozódási pont, vagy csigolya */
+const PSPEC = {
+  'Kor-20': { k: 'lm', lm: 'vertex', b: 'skull' }, 'H-1': { k: 'lm', lm: 'canthus', b: 'orbit' }, 'Kor-26': { k: 'lm', lm: 'philtrum', b: 'maxilla' }, 'Vab-20': { k: 'lm', lm: 'nostril', b: 'maxilla' },
+  'T-1': { k: 'seg', seg: 'sternum', d: 2, o: 6, b: 'clavicle' }, 'Bef-17': { k: 'seg', seg: 'sternum', d: 4.5, o: 0, b: 'sternum' }, 'Bef-12': { k: 'seg', seg: 'abd_up', d: 4, o: 0, b: 'sternum' },
+  'Bef-6': { k: 'seg', seg: 'abd_lo', d: 1.5, o: 0, b: 'pelvis' }, 'Bef-4': { k: 'seg', seg: 'abd_lo', d: 3, o: 0, b: 'pelvis' },
+  'T-5': { k: 'seg', seg: 'farm', d: 0, o: 0.5, b: 'humerus' }, 'Vab-11': { k: 'seg', seg: 'farm', d: 0, o: 1.5, b: 'humerus' }, 'Sz-3': { k: 'seg', seg: 'farm', d: 0, o: -1, b: 'humerus' },
+  'T-7': { k: 'seg', seg: 'farm', from: 'B', d: 1.5, o: 1, b: 'radius' }, 'T-9': { k: 'seg', seg: 'farm', from: 'B', d: 0, o: 1, b: 'radius' }, 'Szb-6': { k: 'seg', seg: 'farm', from: 'B', d: 2, o: 0, b: 'forearm' },
+  'Hm-5': { k: 'seg', seg: 'farm', from: 'B', d: 2, o: 0, b: 'forearm' }, 'Sz-7': { k: 'seg', seg: 'farm', from: 'B', d: 0, o: -1, b: 'ulna' },
+  'Szb-8': { k: 'seg', seg: 'hand', d: 3.5, o: 0, b: 'metacarpals' }, 'Vab-4': { k: 'seg', seg: 'hand', d: 3, o: 1.5, b: 'metacarpals' }, 'Véb-3': { k: 'seg', seg: 'hand', d: 4.5, o: -1.5, b: 'metacarpals' },
+  'Lh-10': { k: 'seg', seg: 'thigh_m', from: 'B', d: 2, o: 0, b: 'femur' }, 'Lh-9': { k: 'seg', seg: 'leg_m', d: 0, o: 0, b: 'tibia' }, 'Lh-6': { k: 'seg', seg: 'leg_m', from: 'B', d: 3, o: 0, b: 'tibia' },
+  'V-3': { k: 'seg', seg: 'leg_m', from: 'B', d: 0, o: -0.5, b: 'tibia' }, 'Gy-36': { k: 'seg', seg: 'leg_l', d: 3, o: 0, b: 'tibia' }, 'Gy-40': { k: 'seg', seg: 'leg_l', d: 8, o: 0.5, b: 'tibia' },
+  'Eh-34': { k: 'seg', seg: 'leg_l', d: 1, o: 1, b: 'fibula' }, 'H-60': { k: 'seg', seg: 'leg_l', from: 'B', d: 0, o: 0, b: 'fibula' },
+  'H-40': { k: 'lm', lm: 'popliteal_c', b: 'knee' }, 'M-3': { k: 'lm', lm: 'mt12', b: 'metatarsals' }, 'Eh-20': { k: 'lm', lm: 'occiput', dx: 2, b: 'skull' }, 'Eh-21': { k: 'lm', lm: 'shoulder_mid', b: 'scapula' },
+  'Kor-14': { k: 'sp', v: 0.5, o: 0, b: 'spine' }, 'Kor-4': { k: 'sp', v: 14.5, o: 0, b: 'spine' }, 'H-23': { k: 'sp', v: 14.5, o: 1.5, b: 'spine' }
+};
+const SK = () => SKEL[MODEL] || SKEL.m;
+function segGeo(S, k) { const [a, b, len] = SEG[k], A = S[a], B = S[b], dx = B[0] - A[0], dy = B[1] - A[1], Ln = Math.hypot(dx, dy); return { A, B, ux: dx / Ln, uy: dy / Ln, nx: dy / Ln, ny: -dx / Ln, s: Ln / len }; }
+function place(S, sp) {
+  if (sp.k === 'seg') { const g = segGeo(S, sp.seg), fb = sp.from === 'B', O = fb ? g.B : g.A, dir = fb ? -1 : 1; return [O[0] + dir * g.ux * sp.d * g.s + g.nx * sp.o * g.s, O[1] + dir * g.uy * sp.d * g.s + g.ny * sp.o * g.s]; }
+  if (sp.k === 'lm') { const P = S[sp.lm]; return [P[0] + (sp.dx || 0) * HEADCUN, P[1] + (sp.dy || 0) * HEADCUN]; }
+  return [S.c7[0] + (sp.o || 0) * BACKCUN, S.c7[1] + sp.v * VERT];
+}
+const r1 = (n) => Math.round(n * 10) / 10;
+function layout() { const S = SK(); PTS.forEach((p) => { const [x, y] = place(S, PSPEC[p.id]); p.x = r1(x); p.y = r1(y); }); pathCache = {}; }
+const VNAME = (v) => { const i = Math.floor(v); return i === 0 ? 'C7' : i <= 12 ? 'T' + i : 'L' + (i - 12); };
+const sideKey = (g, o) => g === 'a' ? (o > 0 ? 'side_rad' : 'side_uln') : g === 'l' ? (o > 0 ? 'side_lat' : 'side_med') : 'side_t';
+function measureText(p) {
+  const sp = PSPEC[p.id], S = SK(), meas = []; let from;
+  if (sp.k === 'seg') { const [a, b, , grp] = SEG[sp.seg], fb = sp.from === 'B', O = fb ? b : a, T2 = fb ? a : b; from = C('lm', O); if (sp.d) meas.push(t('m_along', { d: num(sp.d), dir: t(S[T2][1] < S[O][1] ? 'up' : 'down') })); if (sp.o) meas.push(t(sideKey(grp, sp.o), { o: num(Math.abs(sp.o)) })); }
+  else if (sp.k === 'lm') { from = C('lm', sp.lm); if (sp.dx) meas.push(t('side_t', { o: num(Math.abs(sp.dx)) })); }
+  else { from = C('lm', 'c7'); meas.push(t('m_below', { v: VNAME(sp.v) })); if (sp.o) meas.push(t('side_t', { o: num(sp.o) })); }
+  return { bone: C('bones', sp.b), from, meas: meas.length ? meas.join(' · ') : t('here') };
+}
+/* csatornautak: a számpárok a legközelebbi csonthoz horgonyozva, a @kód tokenek a pontok számított helyére esnek */
+const ANCH = [['shoulder', 'elbow'], ['elbow', 'wrist'], ['wrist', 'fingertip'], ['hip', 'knee'], ['knee', 'ankle'], ['ankle', 'foot'], ['jugulum', 'xiphoid'], ['xiphoid', 'navel'], ['navel', 'pubis'], ['vertex', 'c7'], ['jugulum', 'acromion'], ['acromion', 'shoulder']];
+function reanchor(x, y, S) {
+  if (S === SKEL.m) return [x, y];
+  const M0 = SKEL.m; let best = null;
+  for (const [a, b] of ANCH) { const A = M0[a], B = M0[b], dx = B[0] - A[0], dy = B[1] - A[1], L2 = dx * dx + dy * dy, tt = ((x - A[0]) * dx + (y - A[1]) * dy) / L2, tc = Math.max(0, Math.min(1, tt)), dist = Math.hypot(x - A[0] - tc * dx, y - A[1] - tc * dy); if (!best || dist < best.dist) { const Ln = Math.sqrt(L2); best = { a, b, tt, o: ((x - A[0]) * dy / Ln - (y - A[1]) * dx / Ln) / Ln, dist }; } }
+  const A = S[best.a], B = S[best.b], dx = B[0] - A[0], dy = B[1] - A[1], Ln = Math.hypot(dx, dy);
+  return [A[0] + best.tt * dx + (dy / Ln) * best.o * Ln, A[1] + best.tt * dy + (-dx / Ln) * best.o * Ln];
+}
+let pathCache = {};
+function chPath(c) {
+  if (pathCache[c]) return pathCache[c]; const p = CHP[c]; if (!p) return '';
+  const S = SK(), tk = p[1].match(/@[^\s]+|[MLQ]|-?\d+\.?\d*/g); const out = []; let pend = null;
+  for (const x of tk) {
+    if (x[0] === '@') { const q = PBY[x.slice(1)]; out.push(q.x + ' ' + q.y); }
+    else if (/[MLQ]/.test(x)) out.push(x);
+    else if (pend === null) pend = +x; else { const [a, b] = reanchor(pend, +x, S); out.push(r1(a) + ' ' + r1(b)); pend = null; }
+  }
+  return (pathCache[c] = out.join(' ').replace(/([MLQ]) /g, '$1'));
+}
+
+/* ================= testrajz (a csontvázból) ================= */
+const TORSO = { m: 'M106 88 Q150 80 194 88 Q200 120 196 156 Q190 200 190 250 Q150 262 110 250 Q110 200 104 156 Q100 120 106 88 Z', f: 'M110 88 Q150 82 190 88 Q197 118 192 150 Q183 182 186 205 Q195 228 195 252 Q150 268 105 252 Q105 228 114 205 Q117 182 108 150 Q103 118 110 88 Z' };
+const HAIR = 'M127 44 Q124 9 150 8 Q176 9 173 44 L175 72 Q163 76 158 66 L142 66 Q137 76 125 72 Z';
+const LN = 'style="stroke:var(--body-line);fill:none" stroke-linecap="round"';
+const mir = (P) => [300 - P[0], P[1]];
+function limbsOf(S) { const R = [[S.shoulder, S.elbow, 24], [S.elbow, S.wrist, 20], [S.hip, S.knee, 34], [S.knee, S.ankle, 26]]; return [[[150, 58], [150, 84], 18], ...R, ...R.map(([a, b, w]) => [mir(a), mir(b), w])]; }
+function ellsOf(S) { const r = Math.round(-Math.atan2(S.wrist[0] - S.elbow[0], S.wrist[1] - S.elbow[1]) * 180 / Math.PI); return [[150, 40, 21, 25, 0], [S.hand[0], S.hand[1], 10, 18, r], [300 - S.hand[0], S.hand[1], 10, 18, -r], [S.foot[0], S.foot[1], 15, 8, 0], [300 - S.foot[0], S.foot[1], 15, 8, 0]]; }
+function bodyInner(v, model = MODEL) {
+  const S = SKEL[model] || SKEL.m; let o = '', f = '';
+  if (model === 'f' && v === 'f') o += `<path d="${HAIR}" style="fill:var(--body-line)"/>`;
+  for (const [[a, b], [c, d], w] of limbsOf(S)) { o += `<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" style="stroke:var(--body-line)" stroke-width="${w + 3}" stroke-linecap="round"/>`; f += `<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" style="stroke:var(--body)" stroke-width="${w}" stroke-linecap="round"/>`; }
+  const tor = TORSO[model] || TORSO.m;
+  o += `<path d="${tor}" style="fill:var(--body-line);stroke:var(--body-line)" stroke-width="3" stroke-linejoin="round"/>`; f += `<path d="${tor}" style="fill:var(--body)"/>`;
+  for (const [cx, cy, rx, ry, r] of ellsOf(S)) { const tr = r ? ` transform="rotate(${r} ${cx} ${cy})"` : ''; o += `<ellipse cx="${cx}" cy="${cy}" rx="${rx + 1.5}" ry="${ry + 1.5}" style="fill:var(--body-line)"${tr}/>`; f += `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" style="fill:var(--body)"${tr}/>`; }
+  let x = '';
+  if (v === 'f') {
+    x += `<ellipse cx="143" cy="36" rx="3.2" ry="1.6" style="fill:var(--body-line)"/><ellipse cx="157" cy="36" rx="3.2" ry="1.6" style="fill:var(--body-line)"/><path d="M150 38 L148 46 Q150 48 153 46" ${LN} stroke-width="1.2"/><path d="M145 56 Q150 58 155 56" ${LN} stroke-width="1.2"/><circle cx="150" cy="205" r="1.8" style="fill:var(--body-line)"/>`;
+    if (model === 'f') x += `<path d="M126 132 Q137 146 148 136 M152 136 Q163 146 174 132" ${LN} stroke-width="1.2"/>`;
+  } else {
+    x += `<path d="M150 70 L150 245" ${LN} stroke-width="1.4" stroke-dasharray="3 3"/><path d="M122 112 Q130 140 138 150 M178 112 Q170 140 162 150" ${LN} stroke-width="1.2"/><path d="M120 356 Q128 360 136 356 M164 356 Q172 360 180 356" ${LN} stroke-width="1.2"/>`;
+    x += model === 'f' ? `<path d="${HAIR}" style="fill:var(--body-line)"/>` : `<path d="M132 22 Q150 12 168 22" ${LN} stroke-width="1.2"/>`;
+  }
+  return o + f + x;
+}
+/* csontváz-réteg */
+function skelSvg(v, S) {
+  const o = [], f = [];
+  const line = (A, B, w) => { o.push(`<line x1="${r1(A[0])}" y1="${r1(A[1])}" x2="${r1(B[0])}" y2="${r1(B[1])}" class="bo" stroke-width="${w + 1.6}"/>`); f.push(`<line x1="${r1(A[0])}" y1="${r1(A[1])}" x2="${r1(B[0])}" y2="${r1(B[1])}" class="bf" stroke-width="${w}"/>`); };
+  const off = (A, B, k, t0 = 0, t1 = 1) => { const dx = B[0] - A[0], dy = B[1] - A[1], l = Math.hypot(dx, dy), nx = dy / l, ny = -dx / l; return [[A[0] + dx * t0 + nx * k, A[1] + dy * t0 + ny * k], [A[0] + dx * t1 + nx * k, A[1] + dy * t1 + ny * k]]; };
+  let s = '';
+  for (const side of [0, 1]) {
+    const P = (n) => side ? mir(S[n]) : S[n], sg = side ? -1 : 1;
+    line(P('jugulum'), P('acromion'), 2.2);
+    line(...off(P('shoulder'), P('elbow'), 0, 0.04, 0.96), 4.4);
+    line(...off(P('elbow'), P('wrist'), 2.6 * sg, 0.04, 0.97), 2.3); line(...off(P('elbow'), P('wrist'), -2.3 * sg, 0.02, 0.97), 2.1);
+    const W = P('wrist'), T = P('fingertip'), dx = T[0] - W[0], dy = T[1] - W[1], l = Math.hypot(dx, dy), ux = dx / l, uy = dy / l, nx = uy, ny = -ux;
+    for (const k of [-3, -1, 1, 3]) line([W[0] + ux * 5 + nx * k * sg, W[1] + uy * 5 + ny * k * sg], [W[0] + ux * l * 0.62 + nx * k * 1.5 * sg, W[1] + uy * l * 0.62 + ny * k * 1.5 * sg], 1.3);
+    line([W[0] + ux * 4 + nx * 5 * sg, W[1] + uy * 4 + ny * 5 * sg], [W[0] + ux * 16 + nx * 11 * sg, W[1] + uy * 16 + ny * 11 * sg], 1.5);
+    line(...off(P('hip'), P('knee'), 0, 0.02, 0.95), 5.4);
+    line(...off(P('knee'), P('ankle'), -2.2 * sg, 0.05, 0.98), 3.6); line(...off(P('knee'), P('ankle'), 4.4 * sg, 0.08, 0.97), 1.8);
+    const A = P('ankle'), Fo = P('foot'); for (const k of [-4, 0, 4]) line([A[0] + k * 0.6, A[1] + 3], [Fo[0] + k * 1.3 * sg + 3 * sg, Fo[1] + 5], 1.3);
+    if (v === 'f') { const K = P('knee'); s += `<ellipse cx="${K[0]}" cy="${K[1] - 6}" rx="4.6" ry="5.6" class="bs"/>`; }
+    else { const sh = side ? -1 : 1; s += `<path d="M${150 + sh * 8} 102 L${150 + sh * 34} 98 L${150 + sh * 20} 150 Z" class="bs" stroke-linejoin="round"/>`; }
+    s += `<circle cx="${P('hip')[0]}" cy="${P('hip')[1] - 2}" r="4.5" class="bs"/>`;
+  }
+  for (let i = 0; i < 10; i++) { const y0 = S.jugulum[1] + 9 + i * 7.6, w = 40 - Math.abs(i - 4) * 1.6; for (const sh of [1, -1]) s += `<path d="M${150 + sh * 4} ${y0} Q${150 + sh * (w * 0.6)} ${y0 - 4} ${150 + sh * w} ${y0 + 11}" fill="none" class="br"/>`; }
+  s += `<path d="M118 222 Q110 238 124 252 Q138 258 150 251 Q162 258 176 252 Q190 238 182 222 Q166 233 150 238 Q134 233 118 222 Z" class="bs"/>`;
+  if (v === 'f') {
+    s += `<rect x="146.5" y="${S.jugulum[1]}" width="7" height="${S.xiphoid[1] - S.jugulum[1]}" rx="3" class="bs"/>`;
+    for (let i = 13; i <= 17; i++) { const y = S.c7[1] + i * VERT; s += `<rect x="146" y="${y - 2.8}" width="8" height="5.6" rx="2" class="bs" opacity=".7"/>`; }
+  } else {
+    for (let i = -6; i <= 17; i++) { const y = S.c7[1] + i * VERT, w = i < 1 ? 6 : i < 13 ? 7 : 8.5; s += `<rect x="${150 - w / 2}" y="${y - 2.9}" width="${w}" height="5.8" rx="2" class="bs"/>`; }
+    s += `<path d="M142 236 L158 236 L150 254 Z" class="bs" stroke-linejoin="round"/>`;
+  }
+  s += `<ellipse cx="150" cy="37" rx="17.5" ry="21.5" class="bs"/>`;
+  if (v === 'f') s += `<ellipse cx="143" cy="36" rx="4" ry="3.4" class="bh"/><ellipse cx="157" cy="36" rx="4" ry="3.4" class="bh"/><path d="M148.5 44 L150 40 L151.5 44 Z" class="bh"/><path d="M137 50 Q139 63 150 64 Q161 63 163 50" fill="none" class="br"/>`;
+  return o.join('') + f.join('') + s;
+}
+/* mérésrajz: honnan, hány cun, merre */
+function measureSvg(p, S, fs) {
+  const sp = PSPEC[p.id], ve = ' vector-effect="non-scaling-stroke"', R = (P) => `${r1(P[0])}" y="${r1(P[1])}`;
+  const lbl = (P, txt, anchorRight) => `<text x="${R(P)}" text-anchor="${anchorRight ? 'start' : 'end'}" class="mt" style="font-size:${fs}px">${txt}</text>`;
+  let s = '';
+  if (sp.k === 'seg') {
+    const g = segGeo(S, sp.seg), fb = sp.from === 'B', O = fb ? g.B : g.A, dir = fb ? -1 : 1, ux = dir * g.ux, uy = dir * g.uy;
+    const F = [O[0] + ux * sp.d * g.s, O[1] + uy * sp.d * g.s];
+    s += `<line x1="${r1(g.A[0])}" y1="${r1(g.A[1])}" x2="${r1(g.B[0])}" y2="${r1(g.B[1])}" class="mseg"${ve}/>`;
+    s += `<circle cx="${r1(O[0])}" cy="${r1(O[1])}" r="${fs * 0.5}" class="mo"${ve}/>`;
+    if (sp.d) {
+      s += `<line x1="${r1(O[0])}" y1="${r1(O[1])}" x2="${r1(F[0])}" y2="${r1(F[1])}" class="mline"${ve}/>`;
+      for (let i = 1; i <= Math.floor(sp.d + 1e-6); i++) { const T = [O[0] + ux * i * g.s, O[1] + uy * i * g.s]; s += `<line x1="${r1(T[0] - g.nx * 2.4)}" y1="${r1(T[1] - g.ny * 2.4)}" x2="${r1(T[0] + g.nx * 2.4)}" y2="${r1(T[1] + g.ny * 2.4)}" class="mtk"${ve}/>`; }
+      const M = [(O[0] + F[0]) / 2 - g.nx * 4, (O[1] + F[1]) / 2 - g.ny * 4]; s += lbl(M, `${num(sp.d)} cun`, g.nx < 0);
+    }
+    if (sp.o) { s += `<line x1="${r1(F[0])}" y1="${r1(F[1])}" x2="${p.x}" y2="${p.y}" class="mline" stroke-dasharray="2 2"${ve}/>`; const right = sp.o > 0; s += lbl([p.x + (right ? 4 : -4), p.y + fs * 1.4], `${num(Math.abs(sp.o))} cun`, right); }
+  } else if (sp.k === 'lm') {
+    const P = S[sp.lm]; s += `<circle cx="${P[0]}" cy="${P[1]}" r="${fs * 0.5}" class="mo"${ve}/>`;
+    if (sp.dx) { s += `<line x1="${P[0]}" y1="${P[1]}" x2="${p.x}" y2="${p.y}" class="mline"${ve}/>`; s += lbl([p.x + 4, p.y - 3], `${num(sp.dx)} cun`, true); }
+  } else {
+    const c7 = S.c7; for (let i = 0; i <= Math.floor(sp.v); i++) { const y = c7[1] + i * VERT; s += `<line x1="${c7[0] - 3}" y1="${y}" x2="${c7[0] + 3}" y2="${y}" class="mtk"${ve}/>`; }
+    s += `<line x1="${c7[0]}" y1="${c7[1]}" x2="${c7[0]}" y2="${c7[1] + sp.v * VERT}" class="mline"${ve}/>`;
+    s += lbl([c7[0] - 5, c7[1] + 2], 'C7', false) + lbl([c7[0] - 5, c7[1] + Math.floor(sp.v) * VERT + 2], VNAME(sp.v), false);
+    if (sp.o) { const F = [c7[0], c7[1] + sp.v * VERT]; s += `<line x1="${F[0]}" y1="${F[1]}" x2="${p.x}" y2="${p.y}" class="mline" stroke-dasharray="2 2"${ve}/>` + lbl([p.x + 4, p.y + fs * 1.4], `${num(sp.o)} cun`, true); }
+  }
+  return s;
+}
+const flowPath = (c, nonScale) => { const d = chPath(c); if (!d) return ''; const col = ec(CHEL[c]).c, ve = nonScale ? ' vector-effect="non-scaling-stroke"' : ''; return `<path d="${d}" class="fbase" style="stroke:${col}"${ve}/><path d="${d}" class="fdots" style="stroke:${col}"${ve}/><path d="${d}" class="fcore"${ve}/>`; };
+
+/* ================= Öt Elem ábra ================= */
+function cycleSvg(key) {
+  const PC = { x: 175, y: 160 }, PR = 108, CR = 38, ANG = { tuz: -90, fold: -18, fem: 54, viz: 126, fa: 198 }, P = {};
+  for (const [k, a] of Object.entries(ANG)) { const r = a * Math.PI / 180; P[k] = { x: PC.x + PR * Math.cos(r), y: PC.y + PR * Math.sin(r) }; }
+  const r1 = (n) => Math.round(n * 10) / 10, st = CYCST[key];
+  let s = '';
+  for (const [a, b] of st.pairs) {
+    const A = P[a], B = P[b], dx = B.x - A.x, dy = B.y - A.y, d = Math.hypot(dx, dy), ux = dx / d, uy = dy / d;
+    const sx = A.x + ux * (CR + 5), sy = A.y + uy * (CR + 5), ex = B.x - ux * (CR + 6), ey = B.y - uy * (CR + 6);
+    let tx = ux, ty = uy, path; const hl = 11, hw = 6;
+    if (st.curve) { const mx = (sx + ex) / 2, my = (sy + ey) / 2, nx = mx - PC.x, ny = my - PC.y, nd = Math.hypot(nx, ny), qx = mx + nx / nd * 22, qy = my + ny / nd * 22; tx = ex - qx; ty = ey - qy; const td = Math.hypot(tx, ty); tx /= td; ty /= td; path = `M${r1(sx)} ${r1(sy)} Q${r1(qx)} ${r1(qy)} ${r1(ex - tx * 7)} ${r1(ey - ty * 7)}`; }
+    else path = `M${r1(sx)} ${r1(sy)} L${r1(ex - tx * 7)} ${r1(ey - ty * 7)}`;
+    const bx = ex - tx * hl, by = ey - ty * hl;
+    s += `<path d="${path}" fill="none" style="stroke:${st.c}" stroke-width="${st.w}" stroke-linecap="round"${st.dash ? ` stroke-dasharray="${st.dash}"` : ''}/><polygon points="${r1(ex)},${r1(ey)} ${r1(bx - ty * hw)},${r1(by + tx * hw)} ${r1(bx + ty * hw)},${r1(by - tx * hw)}" style="fill:${st.c}"/>`;
+  }
+  for (const [k, p] of Object.entries(P)) {
+    const c = ec(k), o = ELORG[k], lines = o.length > 2 ? [o.slice(0, 2), o.slice(2)] : [o]; const ny = lines.length > 1 ? p.y - 8 : p.y - 2;
+    s += `<a href="#elem-${k}" aria-label="${elT(k).n}"><circle cx="${r1(p.x)}" cy="${r1(p.y)}" r="${CR}" style="fill:${c.l};stroke:${c.c}" stroke-width="2"/><text x="${r1(p.x)}" y="${r1(ny)}" text-anchor="middle" font-size="15" font-weight="600" style="fill:${c.t}">${elT(k).n}</text>`;
+    lines.forEach((ln, i) => { s += `<text x="${r1(p.x)}" y="${r1(ny + 15 + i * 13)}" text-anchor="middle" font-size="11" style="fill:var(--ink)">${ln.map(chA).join(' · ')}</text>`; });
+    s += `</a><text x="${r1(p.x)}" y="${r1(p.y + CR + 15)}" text-anchor="middle" font-size="11" style="fill:var(--muted);stroke:var(--bg)" stroke-width="4" paint-order="stroke" stroke-linejoin="round">${elT(k).fn}</text>`;
+  }
+  const cy = C('cyc', key);
+  return `<svg viewBox="0 0 350 312" role="img" aria-label="${esc(cy[1] + ': ' + cy[3])}" style="width:100%;max-width:400px;display:block;margin:0 auto;font-family:'Noto Sans',sans-serif">${s}</svg>`;
+}
+
+/* ================= szervóra ================= */
+function clockSvg(d) {
+  const CX = 170, CY = 170, R = 166, r = 102, cur = orgAt(d);
+  const pol = (rad, deg) => { const a = deg * Math.PI / 180; return [(CX + rad * Math.sin(a)).toFixed(2), (CY - rad * Math.cos(a)).toFixed(2)]; };
+  let s = '';
+  for (const o of ORG) {
+    const center = ((o.s + 1 - 12) * 15 + 360) % 360, a0 = center - 15, a1 = center + 15;
+    const [ox0, oy0] = pol(R, a0), [ox1, oy1] = pol(R, a1), [ix1, iy1] = pol(r, a1), [ix0, iy0] = pol(r, a0);
+    const on = o === cur, c = L.elemek ? ec(o.el) : { c: 'var(--jade)', l: 'var(--chip)' }, txt = on ? '#FFFFFF' : 'var(--ink)', [tx, ty] = pol((R + r) / 2, center);
+    s += `<a class="seg" href="#szerv-${slug(o.c)}" aria-label="${esc(orgN(o.c))}, ${t('hours', { w: win(o) })}${on ? ', ' + t('active_now') : ''}"><path d="M${ox0} ${oy0} A${R} ${R} 0 0 1 ${ox1} ${oy1} L${ix1} ${iy1} A${r} ${r} 0 0 0 ${ix0} ${iy0} Z" style="fill:${on ? c.c : c.l};stroke:var(--bg)" stroke-width="3"/>`;
+    s += `<text x="${tx}" y="${(+ty - 2).toFixed(1)}" text-anchor="middle" font-size="11" font-weight="600" style="fill:${txt}">${C('org', o.c)[1]}</text><text x="${tx}" y="${(+ty + 12).toFixed(1)}" text-anchor="middle" font-size="11" style="fill:${txt}">${win(o)}</text></a>`;
+  }
+  const [nx, ny] = pol(R + 1, ((d.getHours() + d.getMinutes() / 60) - 12) * 15);
+  s += `<circle cx="${nx}" cy="${ny}" r="8" style="fill:#fff;stroke:var(--ink)" stroke-width="3"/>`;
+  return `<svg viewBox="-14 -14 368 368" style="font-family:'Noto Sans',sans-serif">${s}</svg>`;
+}
+
+const chName = (c) => CHEL[c] === 'er' ? chT(c)[0] : t('channel_of', { o: chT(c)[0] });
+function miniFigure(c, cls = '') {
+  const p = CHP[c]; const v = p ? p[0] : 'f';
+  const pts = PTS.filter((q) => q.ch === c && q.v.includes(v)).map((q) => `<circle cx="${q.x}" cy="${q.y}" r="5" style="fill:${ec(q.el).c};stroke:#fff" stroke-width="2"/>`).join('');
+  return `<svg viewBox="-10 0 330 480" class="${cls}" role="img" aria-label="${esc(t('live_label', { c: chName(c) }))}">${bodyInner(v)}${flowPath(c, true)}${pts}</svg>`;
+}
+/* ================= BodyMap: nagyítható testtérkép ================= */
+function BodyMap(root, o) {
+  const M = { v: o.v || 'f', z: 1, tx: 0, ty: 0, sel: null, ch: null, nums: null, list: o.list || PTS, route: null };
+  root.insertAdjacentHTML('afterbegin', `<div class="stage"><svg viewBox="0 0 310 480" aria-hidden="true"><g class="bg"></g><g class="sk"></g><g class="cg"></g><g class="rg"></g><g class="ms"></g></svg></div><div class="ptl"></div>`);
+  const stage = $('.stage', root), ptl = $('.ptl', root), bgG = $('.bg', root), cg = $('.cg', root), rg = $('.rg', root), skG = $('.sk', root), msG = $('.ms', root), sig = o.signal;
+  M.bones = false; M.skin = true; M.pts = true; M.chOn = true;
+  M.drawSk = () => { bgG.style.opacity = !M.skin ? (M.bones ? .1 : .16) : M.bones ? .42 : 1; skG.innerHTML = M.bones ? skelSvg(M.v, SK()) : ''; msG.innerHTML = M.bones && M.sel && PBY[M.sel].v.includes(M.v) ? measureSvg(PBY[M.sel], SK(), 5.5) : ''; const bb = $('[data-mz=bones]', root); if (bb) bb.setAttribute('aria-pressed', M.bones); };
+  let W0 = 1, H0 = 1, k = 1, moved = false;
+  const fit = () => { const r = root.getBoundingClientRect(); W0 = r.width || 1; H0 = r.height || 1; k = Math.min(W0 / 310, H0 / 480); };
+  const clamp = () => { const cw = 310 * k * M.z, chh = 480 * k * M.z; M.tx = cw <= W0 ? (W0 - cw) / 2 : Math.min(0, Math.max(W0 - cw, M.tx)); M.ty = chh <= H0 ? (H0 - chh) / 2 : Math.min(0, Math.max(H0 - chh, M.ty)); };
+  M.apply = (anim) => {
+    clamp(); const sc = k * M.z;
+    stage.classList.toggle('anim', !!anim); stage.style.transform = `translate(${M.tx}px,${M.ty}px) scale(${sc})`;
+    for (const b of ptl.children) { const p = PBY[b.dataset.pt]; b.classList.toggle('anim', !!anim); b.style.transform = `translate(${M.tx + p.x * sc}px,${M.ty + p.y * sc}px)`; }
+    ptl.classList.toggle('labels', M.z >= 2.2 || !!M.nums);
+    const zl = $('[data-zl]', root); if (zl) zl.textContent = num(Math.round(M.z * 10) / 10) + '×';
+  };
+  M.drawCh = () => {
+    cg.innerHTML = M.ch && M.chOn && CHP[M.ch] && CHP[M.ch][0] === M.v ? flowPath(M.ch, true) : '';
+    const rp = (M.route || []).map((id) => PBY[id]).filter((p) => p.v.includes(M.v));
+    rg.innerHTML = rp.length > 1 ? `<polyline points="${rp.map((p) => p.x + ',' + p.y).join(' ')}" fill="none" style="stroke:var(--muted)" stroke-width="1.5" stroke-dasharray="3 4" vector-effect="non-scaling-stroke"/>` : '';
+  };
+  M.renderPts = () => {
+    ptl.innerHTML = M.list.filter((p) => p.v.includes(M.v) && (M.pts || p.id === M.sel)).map((p) => {
+      const cls = ['pt']; if (o.dim && o.dim(p)) cls.push('dim'); if (p.id === M.sel) cls.push('sel'); if (o.done && o.done(p)) cls.push('done');
+      const lbl = M.nums && M.nums[p.id] ? M.nums[p.id] : pc(p);
+      return `<button type="button" class="${cls.join(' ')}" data-pt="${p.id}" style="--c:${ec(p.el).c}" aria-label="${esc(pc(p) + ' ' + p.py + (p.id === M.sel ? ', ' + t('selected') : ''))}"><i></i><b>${lbl}</b></button>`;
+    }).join('');
+    M.apply(false);
+  };
+  M.setView = (v) => { M.v = v; bgG.innerHTML = bodyInner(v); M.drawSk(); $$('[data-mz^="view-"]', root).forEach((b) => b.setAttribute('aria-pressed', b.dataset.mz === 'view-' + v)); M.drawCh(); M.renderPts(); if (o.onView) o.onView(v); };
+  M.zoomAt = (f, cx, cy, anim) => { const nz = Math.min(6, Math.max(1, M.z * f)); M.tx = cx - (cx - M.tx) * (nz / M.z); M.ty = cy - (cy - M.ty) * (nz / M.z); M.z = nz; M.apply(anim); };
+  M.centerOn = (p, anim) => { const sc = k * M.z; M.tx = W0 / 2 - p.x * sc; M.ty = H0 / 2 - p.y * sc; M.apply(anim); };
+  M.select = (id, focus) => {
+    const p = PBY[id]; M.sel = id; if (o.channelOfSel) M.ch = p.ch;
+    if (!p.v.includes(M.v)) M.setView(p.v[0]); else { M.drawCh(); M.drawSk(); M.renderPts(); }
+    if (focus) { M.z = Math.max(M.z, typeof focus === 'number' ? focus : 2.4); M.centerOn(p, true); } else if (M.z > 1) M.centerOn(p, true);
+  };
+  M.reset = () => { M.z = 1; M.apply(true); };
+  fit(); M.setView(M.v);
+  const ro = new ResizeObserver(() => { fit(); M.apply(false); }); ro.observe(root); sig.addEventListener('abort', () => ro.disconnect());
+  root.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-mz],[data-pt]'); if (!b) return;
+    if (b.dataset.pt) { if (!moved && o.onPick) o.onPick(b.dataset.pt); return; }
+    const a = b.dataset.mz;
+    if (a === 'bones') { M.bones = !M.bones; store.set('bones', M.bones); M.drawSk(); if (M.bones && M.sel && M.z < 2.2 && PBY[M.sel].v.includes(M.v)) { M.z = 2.6; M.centerOn(PBY[M.sel], true); } return; }
+    if (a === 'zin') M.zoomAt(1.5, W0 / 2, H0 / 2, true); if (a === 'zout') M.zoomAt(1 / 1.5, W0 / 2, H0 / 2, true); if (a === 'zreset') M.reset();
+    if (a.startsWith('view-')) { M.setView(a.slice(5)); if (M.sel && PBY[M.sel].v.includes(M.v) && M.z > 1) M.centerOn(PBY[M.sel], false); }
+  }, { signal: sig });
+  root.addEventListener('wheel', (e) => { e.preventDefault(); const r = root.getBoundingClientRect(); M.zoomAt(Math.exp(-e.deltaY * 0.0018), e.clientX - r.left, e.clientY - r.top, false); }, { passive: false, signal: sig });
+  root.addEventListener('dblclick', (e) => { const r = root.getBoundingClientRect(); M.zoomAt(1.8, e.clientX - r.left, e.clientY - r.top, true); }, { signal: sig });
+  const ptrs = new Map(); let start = null, pinch = null;
+  root.addEventListener('pointerdown', (e) => {
+    if (e.target.closest('.mapctl,.mapview,.layerbox')) return;
+    ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (ptrs.size === 1) { start = { x: e.clientX, y: e.clientY, tx: M.tx, ty: M.ty }; moved = false; }
+    if (ptrs.size === 2) { const [a, b] = [...ptrs.values()], r = root.getBoundingClientRect(); pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), z: M.z, mx: (a.x + b.x) / 2 - r.left, my: (a.y + b.y) / 2 - r.top, tx: M.tx, ty: M.ty }; }
+  }, { signal: sig });
+  window.addEventListener('pointermove', (e) => {
+    if (!ptrs.has(e.pointerId)) return; ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (ptrs.size >= 2 && pinch) { const [a, b] = [...ptrs.values()], r = root.getBoundingClientRect(), d = Math.hypot(a.x - b.x, a.y - b.y), nz = Math.min(6, Math.max(1, pinch.z * d / pinch.d)), mx = (a.x + b.x) / 2 - r.left, my = (a.y + b.y) / 2 - r.top; M.tx = mx - (pinch.mx - pinch.tx) * (nz / pinch.z); M.ty = my - (pinch.my - pinch.ty) * (nz / pinch.z); M.z = nz; moved = true; M.apply(false); }
+    else if (start) { const dx = e.clientX - start.x, dy = e.clientY - start.y; if (Math.hypot(dx, dy) > 6) moved = true; if (moved) { M.tx = start.tx + dx; M.ty = start.ty + dy; M.apply(false); } }
+  }, { signal: sig });
+  const up = (e) => { if (!ptrs.has(e.pointerId)) return; ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch = null; if (ptrs.size === 1) { const p = [...ptrs.values()][0]; start = { x: p.x, y: p.y, tx: M.tx, ty: M.ty }; } if (ptrs.size === 0) { start = null; setTimeout(() => { moved = false; }, 0); } };
+  window.addEventListener('pointerup', up, { signal: sig }); window.addEventListener('pointercancel', up, { signal: sig });
+  root.addEventListener('keydown', (e) => {
+    const m = { ArrowLeft: [40, 0], ArrowRight: [-40, 0], ArrowUp: [0, 40], ArrowDown: [0, -40] };
+    if (m[e.key]) { e.preventDefault(); M.tx += m[e.key][0]; M.ty += m[e.key][1]; M.apply(true); }
+    if (e.key === '+' || e.key === '=') M.zoomAt(1.5, W0 / 2, H0 / 2, true); if (e.key === '-') M.zoomAt(1 / 1.5, W0 / 2, H0 / 2, true);
+  }, { signal: sig });
+  return M;
+}
+/* ================= 2.0: témamotor (elem × napszak) ================= */
+Object.assign(IC, {
+  today: '<circle cx="12" cy="13" r="4"/><path d="M12 3v3M4.2 6.2l2 2M19.8 6.2l-2 2M3 21h18"/>',
+  graph: '<circle cx="12" cy="12" r="3"/><circle cx="4.5" cy="6" r="2"/><circle cx="19.5" cy="6" r="2"/><circle cx="12" cy="20.5" r="2"/><path d="M6.2 7.2l3.3 2.9M17.8 7.2l-3.3 2.9M12 15v3.5"/>',
+  journal: '<path d="M6 3h11a1 1 0 0 1 1 1v16H7a1 1 0 0 1-1-1zM9 8h6M9 12h6M9 16h4"/>',
+  gear: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+  wave: '<path d="M2 12h3l2-6 3 12 3-9 2 5 2-2h5"/>', close: '<path d="M6 6l12 12M18 6 6 18"/>',
+  eyeoff: '<path d="M3 3l18 18M10.6 6.1C11 6 11.5 6 12 6c6.5 0 10 6 10 6a17 17 0 0 1-3.3 4M6.6 6.6C3.8 8.3 2 12 2 12s3.5 6 10 6c1.7 0 3.2-.4 4.5-1"/>',
+  shield: '<path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/>', device: '<rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10 18.5h4"/>',
+  screen: '<rect x="2.5" y="5" width="19" height="12" rx="2.5"/><path d="M8 20.5h8M12 17v3.5"/>', expand: '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>', moon: '<path d="M20 14A8 8 0 1 1 10 4a6.5 6.5 0 0 0 10 10z"/>', plus: '<path d="M12 5v14M5 12h14"/>', speaker: '<path d="M4 9v6h4l5 4V5L8 9zM16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/>'
+});
+ROUT.push({ id: 'fesz', icon: 'wave', steps: [['Bef-17', 45, 0], ['Szb-6', 60, 1], ['Sz-7', 60, 1], ['M-3', 60, 1]] });
+ROUT.forEach((r) => { r.sec = r.steps.reduce((s, x) => s + x[1], 0); RBY[r.id] = r; });
+
+const PALS = {
+  fa: { l: ['#F6FBF6', '#FFFFFF', '#EAF3EC', '#CDEBD3', '#2F6B3E', '#FFFFFF', '#0F1F14', '#4D6153', '#D8E6DB'], d: ['#0E1612', '#16211B', '#1B2922', '#21402F', '#8FD19E', '#0B2614', '#E4EFE7', '#A3B9AA', '#2B3D33'] },
+  tuz: { l: ['#FFF8F6', '#FFFFFF', '#FFEFEA', '#FFDAD1', '#A3331F', '#FFFFFF', '#2B0C05', '#6E4A42', '#F0D9D2'], d: ['#1A0F0C', '#241613', '#2D1C18', '#4A241B', '#FFB4A3', '#3B0D05', '#F7E6E1', '#C9A9A1', '#3D2822'] },
+  fold: { l: ['#FFFAF1', '#FFFFFF', '#FFF2DA', '#F6E2B3', '#7A5200', '#FFFFFF', '#271B00', '#66573A', '#EBDFC4'], d: ['#16120A', '#201A10', '#282115', '#43361A', '#F0C46B', '#2A1D00', '#F3EBDB', '#C2B496', '#3A3122'] },
+  fem: { l: ['#F5F8F9', '#FFFFFF', '#EBF1F3', '#DAE4E9', '#3E5966', '#FFFFFF', '#0F1C22', '#53636B', '#DCE3E6'], d: ['#0F1417', '#171E22', '#1D262B', '#2C3C45', '#B7CCD6', '#132026', '#E5ECEF', '#A3B2B9', '#2B363C'] },
+  viz: { l: ['#F5F9FD', '#FFFFFF', '#E8F1F9', '#D3E6F7', '#245A85', '#FFFFFF', '#0A1B2A', '#4C6276', '#D7E3EE'], d: ['#08121C', '#0F1E2C', '#132638', '#15344F', '#93CCFF', '#06233D', '#E3EEF8', '#9DB3C7', '#1E3449'] }
+};
+const ELV = {
+  l: { fa: ['#3F7D4E', '#DDEEE1', '#2F6B3E'], tuz: ['#B8452F', '#FFDAD1', '#A3331F'], fold: ['#9A6B14', '#F6E2B3', '#7A5200'], fem: ['#5F7079', '#DAE4E9', '#3E5966'], viz: ['#2F5D7C', '#D3E6F7', '#245A85'], er: ['#6B4F8A', '#E6DEEF', '#5E4479'] },
+  d: { fa: ['#8FD19E', '#24352A', '#8FD19E'], tuz: ['#F2957F', '#3D2420', '#FFB4A3'], fold: ['#E7BE6A', '#3A2F18', '#F0C46B'], fem: ['#B7C6CE', '#283136', '#B7CCD6'], viz: ['#93CCFF', '#1E2E3A', '#93CCFF'], er: ['#C7B2E8', '#2E2638', '#C7B2E8'] }
+};
+const KEYS = ['bg', 'surf', 'surf2', 'cont', 'acc', 'onacc', 'on', 'mut', 'line'];
+let MODE = 'l', CUREL = 'fa';
+function themeVars(el, mode) {
+  const p = PALS[el][mode], v = {};
+  KEYS.forEach((k, i) => { v['--' + k] = p[i]; });
+  Object.entries(ELV[mode]).forEach(([k, [c, l, tt]]) => { v['--' + k] = c; v['--' + k + '-l'] = l; v['--' + k + '-t'] = tt; });
+  Object.assign(v, { '--ink': p[6], '--muted': p[7], '--chip': p[2], '--jade': p[4], '--jade-t': p[4], '--map': p[2], '--onel': mode === 'd' ? '#0E1210' : '#FFFFFF',
+    '--warn': mode === 'd' ? '#3A2420' : '#FFE9E2', '--warn-line': mode === 'd' ? '#6B3A30' : '#F2C4B6', '--body': mode === 'd' ? '#3A3F3B' : '#E8DECA', '--body-line': mode === 'd' ? '#55594F' : '#CDBF9F',
+    '--bone': mode === 'd' ? '#CFC8B8' : '#FFFDF6', '--bone-line': mode === 'd' ? '#7E7766' : '#A99B7C' });
+  return v;
+}
+function applyTheme() {
+  const d = now(), h = d.getHours(), pref = store.get('theme', 'auto');
+  MODE = pref === 'dark' ? 'd' : pref === 'light' ? 'l' : (h >= 20 || h < 6 ? 'd' : 'l');
+  CUREL = orgAt(d).el;
+  const v = themeVars(CUREL, MODE), st = document.documentElement.style;
+  Object.entries(v).forEach(([k, val]) => st.setProperty(k, val));
+  document.documentElement.dataset.mode = MODE;
+  const meta = $('meta[name=theme-color]'); if (meta) meta.setAttribute('content', v['--bg']);
+}
+const styleVars = (v) => Object.entries(v).map(([k, val]) => `${k}:${val}`).join(';');
+
+/* ================= közös elemek (2.0) ================= */
+const top = (title, sub, back, right = '') => `<header class="top">${back ? `<a class="iconbtn" href="#${back}" aria-label="${t('back_l')}">${ic('back', 24)}</a>` : ''}<div class="grow">${sub ? `<div class="sub">${sub}</div>` : ''}<h1>${title}</h1></div>${right}</header>`;
+const row = (icn, title, sub, href, tag = '') => `<a class="row" href="${href}"><span class="ic">${ic(icn)}</span><span class="grow">${tag ? `<span class="tag">${tag}</span>` : ''}<span class="t">${title}</span>${sub ? `<span class="s">${sub}</span>` : ''}</span>${ic('chev', 18)}</a>`;
+const tile = (k, v, bg) => `<div class="tile"${bg ? ` style="background:${bg}"` : ''}><div class="k">${k}</div><div class="v">${v}</div></div>`;
+const disclaimer = () => `<p class="note">${t('disclaimer')}</p>`;
+const relTiles = (e) => [['k_sense', e.sense], ['k_tissue', e.tissue], ['k_mirror', e.mirror], ['k_fluid', e.fluid], ['k_emo', e.emo], ['k_taste', e.taste]].map(([k, v]) => tile(t(k), v)).join('');
+const settingsBtn = () => `<a class="iconbtn tonal" href="#beallitasok" aria-label="${t('settings_t')}">${ic('gear', 22)}</a>`;
+const clockStr = (d) => `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`;
+const dateStr = (d) => { const s = new Intl.DateTimeFormat(loc(), { weekday: 'long' }).format(d); return s[0].toUpperCase() + s.slice(1); };
+
+/* ================= napló (helyi tárolás) ================= */
+const getLog = () => store.get('log', []);
+const setLog = (l) => store.set('log', l.slice(-400));
+const lastCheckin = () => { const c = getLog().filter((x) => x.type === 'ci').pop(); return c && Date.now() - c.t < 3 * 3600e3 ? c : null; };
+
+/* ================= ajánlómotor + biztonsági szűrő ================= */
+function recommend(d, ci) {
+  const h = d.getHours(); let id, ti, su;
+  if (h >= 21 || h < 5) { id = 'esti'; ti = t('rec_night_t'); su = t('rec_night_s'); }
+  else if (ci && ci.m === 0) { id = 'fesz'; ti = t('rec_tense_t'); su = t('rec_tense_s'); }
+  else if (ci && ci.e === 0) { id = 'reggel'; ti = t('rec_low_t'); su = t('rec_low_s'); }
+  else { id = h >= 5 && h < 10 ? 'reggel' : h >= 13 && h < 16 ? 'emesztes' : 'kepernyo'; const rt = C('routines', id); ti = rt[0]; su = rt[1]; }
+  if (id === 'emesztes' && !EAT(h)) id = 'kepernyo';
+  return { id, ti, su, r: RBY[id] };
+}
+
+/* ================= nap-szalag ================= */
+function dayArc(d) {
+  const cur = ORG.indexOf(orgAt(d)), W = 350, H = 196, cx = 175, cy = 182, R = 160;
+  const pt = (rad, deg) => { const a = deg * Math.PI / 180; return [r1(cx + rad * Math.cos(a)), r1(cy + rad * Math.sin(a))]; };
+  let s = ''; const MYB = astroOn() ? [...new Set(bazi(getBirth()).P.map((p) => p[1]))] : [];
+  for (let k = -6; k <= 5; k++) {
+    const o = ORG[(cur + k + 12) % 12], c = 270 + k * 15, a0 = c - 6.6, a1 = c + 6.6, on = k === 0, w = on ? 36 : 22, ro = R + (on ? 7 : 0), ri = ro - w;
+    const [x0, y0] = pt(ro, a0), [x1, y1] = pt(ro, a1), [x2, y2] = pt(ri, a1), [x3, y3] = pt(ri, a0);
+    s += `<a href="#szerv-${slug(o.c)}" aria-label="${esc(orgN(o.c))}, ${t('hours', { w: win(o) })}"><path d="M${x0} ${y0} A${ro} ${ro} 0 0 1 ${x1} ${y1} L${x2} ${y2} A${ri} ${ri} 0 0 0 ${x3} ${y3} Z" style="fill:var(--${o.el})" opacity="${on ? 1 : k < 0 ? 0.3 : 0.62}"/></a>`;
+    if (astroOn() && MYB.includes(ORG.indexOf(o))) { const [mx, my] = pt(ri - 9, c); s += `<circle cx="${mx}" cy="${my}" r="4" style="fill:var(--${o.el})"><title>${esc(t('my_windows'))}</title></circle>`; }
+    if (k >= 1 && k <= 2) { const [tx, ty] = pt(R + 14, c); s += `<text x="${tx}" y="${ty}" text-anchor="middle" font-size="11" font-weight="600" style="fill:var(--mut)" transform="rotate(${c - 270} ${tx} ${ty})">${C('org', o.c)[1]}</text>`; }
+  }
+  const o = ORG[cur], into = (((d.getHours() * 60 + d.getMinutes()) - o.s * 60 + 1440) % 1440) / 120;
+  const [nx, ny] = pt(R + 7 - 18, 270 - 6.6 + into * 13.2);
+  s += `<circle cx="${nx}" cy="${ny}" r="7" style="fill:var(--bg);stroke:var(--on)" stroke-width="3"/>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(t('arc_label'))}" style="width:100%;max-width:${W}px;display:block;margin:0 auto;overflow:visible;font-family:Inter,sans-serif">${s}</svg>`;
+}
+
+const V = {};
+/* ================= MA ================= */
+V.ma = () => {
+  const d = now(), o = orgAt(d), e = elT(o.el), h = d.getHours(), rec = recommend(d, lastCheckin()), i = ORG.indexOf(o), ci = lastCheckin();
+  const later = [1, 2].map((k) => ORG[(i + k) % 12]);
+  return `${top(t('tab_ma'), `${dateStr(d)} · ${clockStr(d)}`, '', `<a class="iconbtn tonal" href="#kijelzo" aria-label="${t('kij_open')}">${ic('screen', 22)}</a>${settingsBtn()}`)}
+  <section class="arcwrap" aria-label="${t('arc_label')}">${dayArc(d)}
+    <div class="arccenter"><div class="eyebrow">${t('now_el', { e: e.n.toUpperCase() })}</div><div class="organ" style="font-size:${orgN(o.c).length > 11 ? 30 : 40}px">${orgN(o.c)}</div><div class="sub">${String(o.s).padStart(2, '0')}:00–${String((o.s + 2) % 24).padStart(2, '0')}:00 · ${fmtLeft(minsLeft(o, d))}</div></div>
+  </section>
+  <section class="pad stack">
+    <div class="hero">
+      <div class="eyebrow acc">${ic(h >= 21 || h < 5 ? 'moon' : 'today', 18)}${t('enough')}</div>
+      <h2 class="display">${rec.ti}</h2>
+      <p>${rec.su}</p>
+      <div class="btnrow"><a class="btn" href="#rutin-${rec.id}">${ic('play', 20, 2.2)}${t('start_min', { m: Math.max(1, Math.round(rec.r.sec / 60)) })}</a><a class="btn tonal" href="#gyakorlat-legzes">${t('only_breath')}</a></div>
+    </div>
+    <button type="button" class="row" data-act="checkin" style="width:100%;text-align:left;cursor:pointer;border:0"><span class="ic">${ic('emotion')}</span><span class="grow"><span class="t">${t('checkin_btn')}</span><span class="s">${ci ? `${t('ci_last')}: ${t('lvl_e' + ci.e)} · ${t('mood_' + ci.m)}` : t('checkin_sub')}</span></span>${ic('chev', 18)}</button>
+    ${astroOn() ? astroTodayRow(d) : ''}
+    ${!EAT(h) ? `<div class="row flat"><span class="ic">${ic('nofood')}</span><span class="grow"><span class="t">${t('eat_pause')}</span><span class="s">${t('eat_pause_s')}</span></span></div>` : ''}
+    <div class="sec"><h2>${t('later')}</h2></div>
+    <div class="grid2">${later.map((x) => `<a class="tile big" href="#szerv-${slug(x.c)}"><div class="k">${String(x.s).padStart(2, '0')}:00 · ${elT(x.el).n}</div><div class="v">${orgN(x.c)}</div></a>`).join('')}</div>
+    <div class="card quiet"><div class="s">${C('org', o.c)[2]}</div></div>
+    ${disclaimer()}
+  </section>`;
+};
+/* ---- check-in lap ---- */
+let CI = { e: 1, m: 1, s: 1 };
+function sheetHtml() {
+  const seg = (k, label, keys) => `<div class="field"><div class="flabel" id="lb-${k}">${label}</div><div class="seg" role="radiogroup" aria-labelledby="lb-${k}">${keys.map((kk, i) => `<button type="button" role="radio" aria-checked="${CI[k] === i}" data-act="ci" data-k="${k}" data-v="${i}">${t(kk)}</button>`).join('')}</div></div>`;
+  const rec = recommend(now(), CI);
+  return `<div class="scrim" data-act="ciclose"></div><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-t">
+    <div class="grip"></div>
+    <div style="display:flex;gap:8px;align-items:flex-start"><div class="grow"><h2 id="sheet-t" class="display" style="font-size:24px">${t('checkin_btn')}</h2><div class="sub">${t('checkin_sub')}</div></div><button type="button" class="iconbtn tonal" data-act="ciclose" aria-label="${t('close_l')}">${ic('close')}</button></div>
+    ${seg('e', t('energy'), ['lvl_e0', 'lvl_e1', 'lvl_e2'])}${seg('m', t('mood'), ['mood_0', 'mood_1', 'mood_2'])}${seg('s', t('sleepq'), ['sleep_0', 'sleep_1', 'sleep_2'])}
+    <div class="hero" style="padding:16px"><div class="eyebrow acc">${t('for_you')}</div><div class="display" id="cirec" style="font-size:19px;margin-top:4px">${rec.ti} · ${t('min_n', { n: Math.max(1, Math.round(rec.r.sec / 60)) })}</div>
+      <div class="btnrow"><button type="button" class="btn" data-act="cigo" id="cigo" data-r="${rec.id}">${ic('play', 18, 2.2)}${t('lets_go')}</button><button type="button" class="btn tonal" data-act="cisave">${t('save_ci')}</button></div>
+      <div class="sub" style="display:flex;align-items:center;gap:6px;margin-top:10px">${ic('device', 16)}${t('on_device')}</div></div>
+  </section>`;
+}
+function openSheet() { const l = lastCheckin(); CI = l ? { e: l.e, m: l.m, s: l.s } : { e: 1, m: 1, s: 1 }; let el = $('#sheetbox'); if (!el) { el = document.createElement('div'); el.id = 'sheetbox'; document.body.appendChild(el); } el.innerHTML = sheetHtml(); const f = $('.sheet [aria-checked=true]'); if (f) f.focus(); }
+function closeSheet() { const el = $('#sheetbox'); if (el) el.innerHTML = ''; }
+function saveCheckin() { const l = getLog(); l.push({ type: 'ci', t: Date.now(), e: CI.e, m: CI.m, s: CI.s }); setLog(l); }
+
+/* ================= SZERV ================= */
+V.szerv = (code) => {
+  const o = ORG.find((x) => slug(x.c) === code) || orgAt(now()), e = elT(o.el), d = now(), active = orgAt(d) === o, pair = OBY[PAIR[o.c]], snd = C('snd', SOUND_OF[o.c]);
+  const startIn = ((o.s * 60) - (d.getHours() * 60 + d.getMinutes()) + 1440) % 1440, pts = PTS.filter((p) => p.ch === o.c);
+  const cards = [];
+  cards.push(`<a class="card livecard" href="#test-ch-${slug(o.c)}">${miniFigure(o.c)}<span class="grow"><span class="tag">${t('tag_meridian')}</span><span class="t">${chName(o.c)}</span><span class="s">${t('live_flow', { f: chT(o.c)[2] })}</span></span>${ic('chev', 18)}</a>`);
+  if (L.mozgas) cards.push(row('move', t('heal_sound', { s: snd[1] }), t('min5', { o: snd[0] }), '#gyakorlat', t('tag_qigong')));
+  if (L.taplalkozas) cards.push(nightOrg(o) ? `<div class="card quiet"><span class="tag">${t('tag_food')}</span><div style="display:flex;gap:10px;margin-top:4px"><span style="color:var(--mut)">${ic('nofood', 20)}</span><div class="s">${t('night_food')} <b>${e.foods}</b></div></div></div>` : row('food', t('taste_color', { t: e.taste, c: e.color.toLowerCase() }), e.foods, `#elem-${o.el}`, t('tag_food')));
+  pts.forEach((p) => cards.push(row('hand', C('area', p.id), `${pc(p)} · ${ptT(p.id)[3]}`, `#pont-${p.s}`, t('tag_press'))));
+  if (L.erzelmek) cards.push(`<div class="card"><span class="tag">${t('tag_emo')}</span><div class="t">${e.emo}</div><div class="s"><b>${t('in_balance')}</b> ${e.bal}</div><div class="s">${e.dis}</div></div>`);
+  if (L.gyogynovenyek) cards.push(`<div class="card"><span class="tag">${t('tag_tea')}</span><div class="t">${e.tea}</div><div class="s">${t('tea_note')}</div></div>`);
+  return `${top(orgN(o.c), `${o.py} · ${o.yy} · ${e.n}`, 'ma')}
+  <section class="pad stack">
+    <div class="hero"><div class="han bgglyph" aria-hidden="true">${o.han}</div><div class="chips">${['hours', active ? 'active_now' : 'in_hm'].map((k) => `<span>${k === 'hours' ? t('hours', { w: win(o) }) : k === 'active_now' ? t('active_now') : (startIn >= 60 ? t('in_hm', { h: Math.floor(startIn / 60), m: startIn % 60 }) : t('in_m', { m: startIn }))}</span>`).join('')}<span>${t('pair', { o: orgN(pair.c) })}</span></div><p style="margin-top:12px">${C('org', o.c)[2]}</p></div>
+    <div class="sec"><h2>${t('relations')}</h2><span>${t('element_x', { e: e.n })}</span></div><div class="grid3">${relTiles(e)}</div>
+    ${cards.join('')}
+    ${row('clock', t('pair', { o: orgN(pair.c) }), `${t('hours', { w: win(pair) })} · ${pair.yy}`, `#szerv-${slug(pair.c)}`)}
+    ${disclaimer()}
+  </section>`;
+};
+
+/* ================= TEST ================= */
+const TS = { v: 'f', sel: 'Sz-7', ch: 'all', q: '', skin: true, chOn: true, pts: true, bones: false, mode: store.get('tmode', '3d') };
+const hay = (p) => [C('area', p.id), ptT(p.id)[0], p.py, p.id, p.who, chT(p.ch)[0], ...p.goals.map((g) => C('goals', g)[0])].join(' ').toLowerCase();
+const tMatch = (p) => (TS.ch === 'all' || p.ch === TS.ch) && (!TS.q || hay(p).includes(TS.q));
+V.test = (arg) => {
+  if (arg.startsWith('ch-')) { const c = CHORDER.find((x) => slug(x) === arg.slice(3)); if (c) { TS.ch = c; TS.q = ''; const f = PTS.find((p) => p.ch === c); if (f) { TS.sel = f.id; TS.v = CHP[c] ? CHP[c][0] : f.v[0]; } } }
+  if (arg.startsWith('p-') && PBS[arg.slice(2)]) { const p = PBS[arg.slice(2)]; TS.sel = p.id; TS.v = p.v.includes(TS.v) ? TS.v : p.v[0]; }
+  const layers = [['skin', 'body', 'layer_skin'], ['chOn', 'wave', 'layer_ch'], ['pts', 'hand', 'layer_pts'], ['bones', 'bone', 'layer_bones']];
+  return `${top(t('tab_test'), `${orgN(orgAt(now()).c)} · ${clockStr(now())}`, '', settingsBtn())}
+  <div class="pad"><label for="tq" class="sr">${t('search_body')}</label><div class="search">${ic('search', 20)}<input id="tq" type="search" placeholder="${esc(t('search_body'))}" value="${esc(TS.q)}" autocomplete="off"><span id="tcount" class="sub" style="white-space:nowrap"></span></div></div>
+  <div class="pills" role="group" aria-label="${t('channel')}">${[['all', t('all_ch')], ...CHORDER.map((c) => [c, chA(c)])].map(([k, n]) => `<button type="button" class="pill" data-act="tch" data-k="${k}" aria-pressed="${k === TS.ch}" ${k !== 'all' ? `aria-label="${esc(chT(k)[0])}" style="--dotc:var(--${CHEL[k]})"` : ''}>${k !== 'all' ? '<span class="dot" style="background:var(--dotc)"></span>' : ''}${n}</button>`).join('')}</div>
+  <div class="pad" style="margin-top:8px"><div class="seg" role="group" aria-label="${t('view')}">${[['2d', 'mode_2d'], ['3d', 'mode_3d']].map(([k, n]) => `<button type="button" data-act="tmode" data-k="${k}" aria-pressed="${TS.mode === k}">${t(n)}</button>`).join('')}<a href="#foto">${t('mode_foto')}</a></div></div>
+  ${TS.mode === '3d' ? `<div class="map map3" id="tmap" tabindex="0" aria-label="${t('map3_label')}"><canvas></canvas>
+    <div class="layerbox" role="group" aria-label="${t('layers_l')}">${[['chOn', 'wave', 'layer_ch'], ['pts', 'hand', 'layer_pts']].map(([k, i, l]) => `<button type="button" data-act="tlayer" data-k="${k}" aria-pressed="${TS[k]}">${ic(i, 20)}<span>${t(l)}</span></button>`).join('')}<button type="button" data-m3="auto" aria-pressed="false">${ic('reset', 20)}<span>${t('auto_rot')}</span></button></div>
+    <div class="mapview" role="group" aria-label="${t('view')}">${[['front', 'front'], ['side', 'side_v'], ['back', 'back']].map(([k, n], i) => `<button type="button" class="pill" data-m3="${k}" aria-pressed="${i === 0}">${t(n)}</button>`).join('')}</div>
+    <div class="mapctl"><button type="button" data-m3="zin" aria-label="${t('zoom_in')}">+</button><span data-zl>1×</span><button type="button" data-m3="zout" aria-label="${t('zoom_out')}">−</button><button type="button" data-m3="zreset" aria-label="${t('zoom_reset')}">${ic('reset', 18)}</button></div>
+    <div class="hint3">${t('drag_rotate')}</div></div>` : `<div class="map" id="tmap" tabindex="0" aria-label="${t('map_label')}">
+    <div class="layerbox" role="group" aria-label="${t('layers_l')}">${layers.map(([k, i, l]) => `<button type="button" data-act="tlayer" data-k="${k}" aria-pressed="${TS[k]}">${ic(i, 20)}<span>${t(l)}</span></button>`).join('')}</div>
+    <div class="mapview" role="group" aria-label="${t('view')}">${['f', 'b'].map((k) => `<button type="button" class="pill" data-mz="view-${k}" aria-pressed="${k === TS.v}">${t(k === 'f' ? 'front' : 'back')}</button>`).join('')}</div>
+    <div class="mapctl"><button type="button" data-mz="zin" aria-label="${t('zoom_in')}">+</button><span data-zl>1×</span><button type="button" data-mz="zout" aria-label="${t('zoom_out')}">−</button><button type="button" data-mz="zreset" aria-label="${t('zoom_reset')}">${ic('reset', 18)}</button></div>
+  </div>`}
+  <section class="pad stack" style="margin-top:12px"><div class="card" id="tcard" aria-live="polite"></div>${row('screen', t('foto_t'), t('foto_row_s'), '#foto')}${disclaimer()}</section>`;
+};
+function tCard(p) {
+  const tx = ptT(p.id), m = measureText(p), c = ec(p.el);
+  return `<div style="display:flex;align-items:center;gap:8px"><span class="dot" style="background:${c.c}"></span><span class="sub grow">${chName(p.ch)} · ${pc(p)} · ${p.py}</span></div>
+  <h2 class="display" style="font-size:24px;margin-top:4px">${C('area', p.id)}</h2>
+  <div class="s" style="margin-top:4px">${tx[3]}</div>
+  ${L.csontok ? `<div class="kv" style="margin-top:8px"><div class="k">${t('k_from')}</div><div class="v">${m.from} · ${m.meas}</div></div>` : ''}
+  ${tx[5] ? `<div class="warnbox" style="margin-top:8px">${ic('warn', 18)}<span>${tx[5]}</span></div>` : ''}
+  <div class="btnrow"><a class="btn" href="#pont-${p.s}">${t('guide_there')}</a>${p.goals.slice(0, 2).map((g) => `<span class="echip" style="background:var(--surf2)">${C('goals', g)[0]}</span>`).join('')}</div>`;
+}
+function initTest3D(signal) {
+  let m3 = null;
+  const card = () => { $('#tcard').innerHTML = tCard(PBY[TS.sel]); $('#tcount').textContent = TS.q || TS.ch !== 'all' ? t('n_pts', { n: PTS.filter(tMatch).length }) : ''; };
+  const ensure = () => { const p = PBY[TS.sel]; if (!tMatch(p)) { const f = PTS.find(tMatch); if (f) TS.sel = f.id; } };
+  ensure();
+  m3 = SK3D($('#tmap'), { sel: TS.sel, signal, channelOfSel: TS.ch === 'all', dim: (p) => !tMatch(p), onPick: (id) => { TS.sel = id; m3.select(id); card(); } });
+  const flags = () => { m3.pts = TS.pts; m3.chOn = TS.chOn; if (TS.ch !== 'all') m3.ch = TS.ch; };
+  flags(); m3.select(TS.sel); card();
+  $('#view').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-act]'); if (!b) return; const a = b.dataset.act;
+    if (a === 'tlayer') { const k = b.dataset.k; TS[k] = !TS[k]; b.setAttribute('aria-pressed', TS[k]); flags(); m3.redraw(); }
+    if (a === 'tch') { TS.ch = b.dataset.k; $$('[data-act=tch]').forEach((x) => x.setAttribute('aria-pressed', x === b)); ensure(); flags(); m3.select(TS.sel); if (TS.ch === 'all') m3.ch = PBY[TS.sel].ch; card(); }
+  }, { signal });
+  $('#view').addEventListener('input', (e) => { if (e.target.id !== 'tq') return; TS.q = e.target.value.trim().toLowerCase(); ensure(); m3.select(TS.sel); card(); }, { signal });
+}
+function initTest(signal) {
+  if (TS.mode === '3d') return initTest3D(signal);
+  const opts = { v: TS.v, signal, channelOfSel: TS.ch === 'all', dim: (p) => !tMatch(p), onPick: (id) => { TS.sel = id; map.select(id); card(); }, onView: (v) => { TS.v = v; } };
+  let map = null;
+  const card = () => { $('#tcard').innerHTML = tCard(PBY[TS.sel]); $('#tcount').textContent = TS.q || TS.ch !== 'all' ? t('n_pts', { n: PTS.filter(tMatch).length }) : ''; };
+  map = BodyMap($('#tmap'), opts);
+  const flags = () => { map.skin = TS.skin; map.pts = TS.pts; map.chOn = TS.chOn; map.bones = TS.bones; if (TS.ch !== 'all') map.ch = TS.ch; };
+  const ensure = () => { let p = PBY[TS.sel]; if (!tMatch(p)) { const f = PTS.find((q) => q.v.includes(TS.v) && tMatch(q)) || PTS.find(tMatch); if (f) TS.sel = f.id; } };
+  flags(); ensure(); map.select(TS.sel, TS.ch !== 'all' ? false : false); flags(); map.drawSk(); map.drawCh(); map.renderPts(); card();
+  $('#view').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-act]'); if (!b) return; const a = b.dataset.act;
+    if (a === 'tlayer') { const k = b.dataset.k; TS[k] = !TS[k]; b.setAttribute('aria-pressed', TS[k]); flags(); if (k === 'bones' && TS.bones && map.z < 2.2) { map.z = 2.6; map.centerOn(PBY[TS.sel], true); } map.drawSk(); map.drawCh(); map.renderPts(); }
+    if (a === 'tch') { TS.ch = b.dataset.k; $$('[data-act=tch]').forEach((x) => x.setAttribute('aria-pressed', x === b)); opts.channelOfSel = TS.ch === 'all'; ensure(); if (TS.ch !== 'all') { map.ch = TS.ch; const pv = CHP[TS.ch] ? CHP[TS.ch][0] : PBY[TS.sel].v[0]; if (pv !== map.v) map.setView(pv); } map.select(TS.sel); flags(); map.drawCh(); map.renderPts(); card(); }
+  }, { signal });
+  $('#view').addEventListener('input', (e) => { if (e.target.id !== 'tq') return; TS.q = e.target.value.trim().toLowerCase(); const before = TS.sel; ensure(); if (before !== TS.sel) map.select(TS.sel); else map.renderPts(); card(); }, { signal });
+}
+
+/* ================= PONT ================= */
+V.pont = (s) => {
+  const p = PBS[s] || PBY['Sz-7'], c = ec(p.el), tx = ptT(p.id), v = p.v.includes('f') ? 'f' : 'b';
+  const crop = `<svg viewBox="${p.x - 46} ${p.y - 40} 92 80" role="img" aria-label="${esc(t('crop_label', { p: C('area', p.id) }))}" class="crop"><g opacity="${L.csontok ? .42 : 1}">${bodyInner(v)}</g>${L.csontok ? skelSvg(v, SK()) : ''}${CHP[p.ch] && CHP[p.ch][0] === v ? flowPath(p.ch, true) : ''}<circle cx="${p.x}" cy="${p.y}" r="6" style="fill:${c.c}" opacity=".25"/><circle cx="${p.x}" cy="${p.y}" r="2.6" style="fill:${c.c};stroke:#fff" stroke-width="1"/>${L.csontok ? measureSvg(p, SK(), 3.4) : ''}</svg>`;
+  return `${top(C('area', p.id), `${chName(p.ch)} · ${pc(p)} · ${p.py}`, `test-p-${p.s}`)}
+  <section class="pad stack">
+    ${crop}
+    <div class="card"><span class="tag">${t('what_do')}</span><div class="t" style="font-size:17px">${tx[4]}</div><div class="kv" style="margin-top:8px"><div class="k">${t('where_exact')}</div><div class="v">${tx[2]}</div></div><div class="kv"><div class="k">${t('k_use')}</div><div class="v">${tx[3]}</div></div>${boneRows(p)}</div>
+    ${tx[5] ? `<div class="warnbox">${ic('warn', 18)}<span>${tx[5]}</span></div>` : ''}
+    <div class="seg" role="group" aria-label="${t('technique')}">${['ton', 'sed'].map((k) => `<button type="button" data-act="tech" data-k="${k}" aria-pressed="${k === tech}">${t(k === 'ton' ? 'tonify' : 'sedate')}</button>`).join('')}</div>
+    <div class="card" id="techcard">${techCard()}</div>
+    <div class="card" style="text-align:center">
+      <svg class="ring" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52" fill="none" style="stroke:var(--surf2)" stroke-width="10"/><circle id="ringp" cx="60" cy="60" r="52" fill="none" style="stroke:var(--acc)" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="0" transform="rotate(-90 60 60)"/><text id="ringt" x="60" y="69" text-anchor="middle" font-size="26" font-weight="700" style="fill:var(--on);font-family:'Inter Tight',Inter,sans-serif">1:00</text></svg>
+      <div class="seg" style="margin-top:8px" role="group" aria-label="${t('duration')}">${[30, 60, 120].map((x) => `<button type="button" data-act="tdur" data-k="${x}" aria-pressed="${x === 60}">${x < 60 ? t('sec_n', { n: x }) : t('min_n', { n: x / 60 })}</button>`).join('')}</div>
+      <div class="btnrow" style="justify-content:center"><button type="button" class="btn" data-act="tgo" id="tgo">${ic('play', 16, 2)}${t('start')}</button><button type="button" class="btn tonal" data-act="treset">${t('again')}</button></div>
+      <div id="tmsg" class="sub" style="margin-top:8px;min-height:18px" aria-live="polite"></div>
+    </div>
+    ${row('hand', t('grips_contra'), t('tech_title'), '#technikak')}
+    ${disclaimer()}
+  </section>`;
+};
+
+/* ================= GYAKORLAT ================= */
+V.gyakorlat = (arg) => {
+  const d = now(), o = orgAt(d), snd = C('snd', SOUND_OF[o.c]), rec = recommend(d, lastCheckin());
+  const rcard = (r, hl) => { const rt = C('routines', r.id); return `<a class="rcard${hl ? ' hl' : ''}" href="#rutin-${r.id}"><span class="ic">${ic(r.icon)}</span><span class="grow"><span class="t">${rt[0]}</span><span class="s">${rt[1]}</span><span class="meta">${t('routine_meta', { m: Math.max(1, Math.round(r.sec / 60)), n: r.steps.length })}</span></span><span class="playdot">${ic('play', 18, 2.2)}</span></a>`; };
+  return `${top(t('tab_prac'), t('prac_sub'), '', settingsBtn())}
+  <section class="pad stack">
+    <div class="sec"><h2>${t('recommended')}</h2></div>
+    ${rcard(rec.r, true)}
+    <div class="sec"><h2>${t('routines_h')}</h2><span>${ROUT.length}</span></div>
+    ${ROUT.filter((r) => r.id !== rec.id).map((r) => rcard(r)).join('')}
+    ${L.legzes ? `<div class="card" id="legzes" style="--bc:var(--acc);--bl:var(--cont)">
+      <div class="sec" style="padding:0"><h2>${t('breath_h')}</h2><span id="brcount">${t('cycles_n', { n: brCycles })}</span></div>
+      <div class="seg" style="margin-top:10px" role="group" aria-label="${t('rhythm')}">${Object.keys(PATS).map((k) => `<button type="button" data-act="pat" data-k="${k}" aria-pressed="${k === brPat}">${t('pat_' + k)}</button>`).join('')}</div>
+      <div class="breath"><div class="r1"></div><div class="r2"></div><div class="core" id="core"><div id="phase" style="font-size:16px;font-weight:600">${t('ready')}</div><div class="n" id="num">${PATS[brPat][0][1]}</div></div></div>
+      <p id="brhint" class="s" style="text-align:center;margin:12px 0 0">${t('exhale_hint', { s: snd[1] })}</p>
+      <div style="margin-top:12px"><div style="display:flex;justify-content:space-between" class="sub"><span id="brcyc">${t('cyc_of', { a: 0, b: brCycles })}</span><span id="brleft"></span></div><div class="prog"><i id="brprog"></i></div></div>
+      <div class="btnrow" style="justify-content:center"><button type="button" class="btn" data-act="brgo" id="brgo">${ic('play', 16, 2)}${t('start')}</button><button type="button" class="btn tonal" data-act="brstop">${t('finish')}</button><button type="button" class="btn tonal" data-act="brcyc" aria-label="${t('cycle_toggle')}"><span id="brcycl">${brCycles}×</span></button></div>
+    </div>` : ''}
+    ${L.mozgas ? `<div class="card"><span class="tag">${t('qigong_tag')}</span><div class="t" style="font-size:18px">${snd[0]}: ${qt(snd[1])}</div><p class="s" style="font-size:15px;line-height:22px;color:var(--on)">${snd[2]}</p><p class="s">${t('qigong_rep')}</p></div>` : ''}
+    ${row('hand', t('tech_title'), t('tech_sub'), '#technikak')}
+    ${disclaimer()}
+  </section>`;
+};
+
+/* ================= LEJÁTSZÓ (csukott szemmel is) ================= */
+const speak = (txt) => { if (!store.get('voice', false)) return; try { const u = new SpeechSynthesisUtterance(txt); u.lang = loc(); u.rate = 0.95; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (e) {} };
+function pCrop(pid) {
+  const p = PBY[pid], v = p.v.includes('f') ? 'f' : 'b';
+  return `<svg viewBox="${p.x - 44} ${p.y - 38} 88 76" role="img" aria-label="${esc(C('area', pid))}" class="pcrop">${bodyInner(v)}${CHP[p.ch] && CHP[p.ch][0] === v ? flowPath(p.ch, true) : ''}${PSPEC[pid].k === 'seg' ? measureSvg(p, SK(), 4) : ''}<circle cx="${p.x}" cy="${p.y}" r="7" style="fill:var(--${p.el})" opacity=".3"/><circle cx="${p.x}" cy="${p.y}" r="3.2" style="fill:var(--${p.el});stroke:#fff" stroke-width="1.2"/></svg>`;
+}
+V.rutin = (id) => {
+  const r = RBY[id] || ROUT[0], rt = C('routines', r.id), warns = [...new Set(r.steps.map(([pid]) => ptT(pid)[5]).filter(Boolean))];
+  const sw = (k, n, def) => `<label class="swl"><input class="switch" type="checkbox" data-pref="${k}"${store.get(k, def) ? ' checked' : ''}>${t(n)}</label>`;
+  const pv = styleVars(themeVars(CUREL, 'd'));
+  return `<div class="player" id="player" style="${pv}">
+    <header class="phead"><a class="iconbtn tonal" href="#gyakorlat" aria-label="${t('exit')}">${ic('close')}</a><div class="grow" style="text-align:center"><div class="sub">${rt[0]}</div><div class="t" id="pstep"></div></div><button type="button" class="iconbtn tonal" data-act="eyes" aria-pressed="false" aria-label="${t('eyes_mode')}">${ic('eyeoff')}</button></header>
+    <section class="pring"><svg viewBox="0 0 270 270" aria-hidden="true"><circle cx="135" cy="135" r="118" fill="none" style="stroke:var(--surf2)" stroke-width="18"/><circle id="pringc" cx="135" cy="135" r="118" fill="none" style="stroke:var(--acc)" stroke-width="18" stroke-linecap="round" stroke-dasharray="741.4" stroke-dashoffset="741.4" transform="rotate(-90 135 135)"/></svg><div class="pmid"><div id="ptime" class="ptime">0:00</div><div id="pside" class="pside"></div></div></section>
+    <section class="pbody">
+      <div class="pinfo"><div id="pcrop" class="pcropbox ph"></div><div class="grow"><div id="parea" class="parea"></div><div id="ptech" class="ptech"></div></div></div>
+      <div class="row flat ph" style="background:var(--surf)"><span style="color:var(--acc)">${ic('wave', 22)}</span><span class="s" style="color:var(--on)">${t('eyes_hint')}</span></div>
+      <div class="pctl"><button type="button" class="round" data-act="pprev" aria-label="${t('prev')}">${ic('prev', 24, 2.2)}</button><button type="button" class="bigplay" data-act="pgo" id="pgo" aria-label="${t('start')}">${ic('play', 34, 2.6)}</button><button type="button" class="round" data-act="pnext" aria-label="${t('next')}">${ic('next', 24, 2.2)}</button></div>
+      <div id="pdots" class="pdots" aria-hidden="true"></div>
+      <div class="ptoggles ph">${sw('sound', 'sound_t', true)}${sw('vibrate', 'vibrate_t', true)}${sw('voice', 'voice', false)}</div>
+      <div id="pdone" class="pdone" hidden><div class="ptime">✓</div><p>${t('routine_done')}</p><div class="btnrow" style="justify-content:center"><button type="button" class="btn" data-act="pagain">${t('again')}</button><a class="btn tonal" href="#naplo">${t('tab_log')}</a></div></div>
+      <details class="pover ph"><summary>${t('how_h')} · ${t('routine_steps')}</summary><p class="s">${C('how', r.id)}</p>${warns.map((w) => `<div class="warnbox" style="margin-top:8px">${ic('warn', 18)}<span>${w}</span></div>`).join('')}<ol class="psteps">${r.steps.map(([pid, sec, bi]) => `<li><b>${C('area', pid)}</b><span class="sub"> · ${mmss(sec)}${bi ? ' · ' + t('side_left') + ' / ' + t('side_right') : ''}</span></li>`).join('')}</ol></details>
+    </section>
+  </div>`;
+};
+function initPlayer(signal, id) {
+  const r = RBY[id] || ROUT[0]; let i = 0, left = r.steps[0][1], run = false, last = 0, iv = null, side = 0, finished = false, started = false;
+  const C2 = 741.4;
+  const sideTxt = () => { const [pid, , bi] = r.steps[i], p = PBY[pid]; return bi ? t(side ? 'side_right' : 'side_left') + (side ? '' : ' · ' + t('switch_at', { t: mmss(r.steps[i][1] / 2) })) : t(p.x === 150 ? 'side_mid' : 'side_both'); };
+  const show = (full) => {
+    const [pid, sec] = r.steps[i], tx = ptT(pid);
+    $('#ptime').textContent = mmss(Math.ceil(left)); $('#pside').textContent = finished ? '' : sideTxt();
+    $('#pringc').setAttribute('stroke-dashoffset', r1(C2 * (left / sec)));
+    if (full) { $('#pstep').textContent = t('step_of', { a: i + 1, b: r.steps.length }); $('#parea').textContent = C('area', pid); $('#ptech').textContent = tx[4]; $('#pcrop').innerHTML = pCrop(pid); $('#pdots').innerHTML = r.steps.map((s, k) => `<span class="${k < i ? 'ok' : k === i ? 'on' : ''}"></span>`).join(''); }
+    $('#pgo').innerHTML = ic(run ? 'pause' : 'play', 34, 2.6); $('#pgo').setAttribute('aria-label', t(run ? 'pause' : started ? 'resume' : 'start'));
+    $('#pdone').hidden = !finished; $('.pring').style.opacity = finished ? .3 : 1;
+  };
+  const go = (k, cue) => { i = Math.max(0, Math.min(r.steps.length - 1, k)); left = r.steps[i][1]; side = 0; finished = false; show(true); if (cue) { beep(520, .14); beep(780, .18, .16); buzz([120, 80, 120]); speak(C('area', r.steps[i][0]) + '. ' + ptT(r.steps[i][0])[4]); } };
+  const finish = () => { run = false; clearInterval(iv); finished = true; show(false); beep(523, .2); beep(659, .2, .22); beep(784, .35, .44); buzz([100, 80, 100, 80, 100]); speak(t('routine_done')); const l = getLog(); l.push({ type: 'done', t: Date.now(), r: r.id }); setLog(l); };
+  const tick = () => {
+    const n = performance.now(); left -= (n - last) / 1000; last = n; const [, sec, bi] = r.steps[i];
+    if (bi && side === 0 && left <= sec / 2) { side = 1; beep(600, .35); buzz(400); speak(t('switch_side')); }
+    if (left <= 0) { if (i >= r.steps.length - 1) { finish(); return; } go(i + 1, true); return; }
+    show(false);
+  };
+  $('#view').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-act]'); if (!b) return; const a = b.dataset.act;
+    if (a === 'pgo') { if (finished) return; if (run) { run = false; clearInterval(iv); show(false); return; } audio(); run = true; last = performance.now(); if (!started) { started = true; speak(C('area', r.steps[i][0]) + '. ' + ptT(r.steps[i][0])[4]); } beep(520, .14); buzz(60); iv = setInterval(tick, 200); show(false); }
+    if (a === 'pprev') go(i - 1, run); if (a === 'pnext') { if (i >= r.steps.length - 1) finish(); else go(i + 1, run); }
+    if (a === 'pagain') { started = false; go(0); }
+    if (a === 'eyes') { const on = b.getAttribute('aria-pressed') !== 'true'; b.setAttribute('aria-pressed', on); $('#player').classList.toggle('eyes', on); if (on && !store.get('voice', false)) { store.set('voice', true); const v = $('[data-pref=voice]'); if (v) v.checked = true; } }
+  }, { signal });
+  signal.addEventListener('abort', () => { clearInterval(iv); try { speechSynthesis.cancel(); } catch (e) {} });
+  show(true);
+}
+
+/* ================= TUDÁS ================= */
+let KPATH = [];
+function graphSvg(el) {
+  const e = elT(el), cx = 175, cy = 176, c = ec(el);
+  const sats = [...ELORG[el].map((oc) => [orgN(oc), `#szerv-${slug(oc)}`]), [e.sense, ''], [e.tissue, ''], [e.emo, ''], [e.taste, ''], [e.season, ''], [e.climate, '']];
+  const n = sats.length, mother = Object.keys(GEN).find((x) => GEN[x] === el), ctrlBy = Object.keys(CTRL).find((x) => CTRL[x] === el);
+  const corners = [[mother, t('feeds'), 30, 28], [GEN[el], t('feeds_it'), 320, 28], [ctrlBy, t('ctrl_by'), 30, 334], [CTRL[el], t('ctrls'), 320, 334]];
+  let s = '';
+  for (const [k, , x, y] of corners) s += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" style="stroke:var(--${k})" stroke-width="2" stroke-dasharray="4 4" opacity=".7"/>`;
+  const ws = sats.map(([label]) => Math.min(112, Math.min(label.length, 14) * 7.2 + 22));
+  const pos = sats.map((_, i) => { const a = (-90 + i * 360 / n) * Math.PI / 180, d = i % 2 ? 118 : 92; return [cx + d * Math.cos(a) * 1.15, cy + d * Math.sin(a)]; });
+  for (let it = 0; it < 120; it++) {
+    for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) {
+      const [ax, ay] = pos[a], [bx, by] = pos[b], ox = (ws[a] + ws[b]) / 2 + 6 - Math.abs(ax - bx), oy = 36 - Math.abs(ay - by);
+      if (ox > 0 && oy > 0) { if (ox < oy * 1.4) { const sx = (ax < bx ? -1 : 1) * ox / 2; pos[a][0] += sx; pos[b][0] -= sx; } else { const sy = (ay < by ? -1 : 1) * oy / 2; pos[a][1] += sy; pos[b][1] -= sy; } }
+    }
+    pos.forEach((q, i) => { const dx = q[0] - cx, dy = q[1] - cy, dd = Math.hypot(dx, dy) || 1, need = 46 + ws[i] / 4; if (dd < need) { q[0] = cx + dx / dd * need; q[1] = cy + dy / dd * need; } q[0] = Math.max(ws[i] / 2 + 4, Math.min(350 - ws[i] / 2 - 4, q[0])); q[1] = Math.max(70, Math.min(292, q[1])); });
+  }
+  pos.forEach(([x, y]) => { s += `<line x1="${cx}" y1="${cy}" x2="${r1(x)}" y2="${r1(y)}" style="stroke:${c.c}" stroke-width="1.5" opacity=".45"/>`; });
+  sats.forEach(([label, href], i) => {
+    const [x, y] = pos[i], w = ws[i], org = !!href;
+    const node = `<rect x="${r1(x - w / 2)}" y="${r1(y - 15)}" width="${r1(w)}" height="30" rx="15" style="fill:${org ? c.c : 'var(--surf)'};stroke:${c.c}" stroke-width="1.5"/><text x="${r1(x)}" y="${r1(y + 4.5)}" text-anchor="middle" font-size="12" font-weight="600" style="fill:${org ? 'var(--onel)' : 'var(--on)'}">${esc(label.length > 14 ? label.slice(0, 13) + '…' : label)}</text>`;
+    s += org ? `<a href="${href}" aria-label="${esc(label)}">${node}</a>` : `<g><title>${esc(label)}</title>${node}</g>`;
+  });
+  for (const [k, rel, x, y] of corners) s += `<a href="#tudas-graf-${k}" aria-label="${esc(elT(k).n + ': ' + rel)}"><circle cx="${x}" cy="${y}" r="22" style="fill:var(--${k})"/><text x="${x}" y="${y + 4.5}" text-anchor="middle" font-size="12" font-weight="700" style="fill:var(--onel)">${elT(k).n}</text></a><text x="${x}" y="${y + (y < 100 ? 37 : -29)}" text-anchor="middle" font-size="11" font-weight="600" style="fill:var(--mut)">${rel}</text>`;
+  s += `<a href="#elem-${el}" aria-label="${esc(e.n)}"><circle cx="${cx}" cy="${cy}" r="36" style="fill:${c.c}"/><text x="${cx}" y="${cy - 2}" text-anchor="middle" font-size="22" style="fill:var(--onel);font-family:'Noto Serif SC',serif">${HAN[el]}</text><text x="${cx}" y="${cy + 18}" text-anchor="middle" font-size="12" font-weight="700" style="fill:var(--onel)">${e.n}</text></a>`;
+  return `<svg viewBox="0 0 350 362" role="img" aria-label="${esc(t('graph_label', { e: e.n }))}" style="width:100%;max-width:420px;display:block;margin:0 auto;font-family:Inter,sans-serif">${s}</svg>`;
+}
+V.tudas = (arg) => {
+  let tab = 'graf', el = KPATH.length ? KPATH[KPATH.length - 1] : orgAt(now()).el;
+  if (arg.startsWith('graf-') && ELK.includes(arg.slice(5))) el = arg.slice(5); else if (arg === 'lexikon' || arg === 'ciklusok' || arg === 'asztro') tab = arg;
+  if (tab === 'graf' && KPATH[KPATH.length - 1] !== el) KPATH = [...KPATH, el].slice(-6);
+  const e = elT(el), mother = Object.keys(GEN).find((x) => GEN[x] === el), ctrlBy = Object.keys(CTRL).find((x) => CTRL[x] === el);
+  const tabs = `<div class="seg tabs" role="tablist" aria-label="${t('view')}">${[['graf', 'graph', `#tudas-graf-${el}`], ['lexikon', 'lexicon', '#tudas-lexikon'], ['ciklusok', 'cycles', '#tudas-ciklusok'], ...(L.asztro ? [['asztro', 'astro', '#tudas-asztro']] : [])].map(([k, n, h]) => `<a role="tab" aria-selected="${k === tab}" href="${h}">${t(n)}</a>`).join('')}</div>`;
+  let body = '';
+  if (tab === 'graf') body = `<div class="pad">${graphSvg(el)}</div><section class="pad stack">
+    <div class="sub">${t('graph_hint')}</div>
+    <div class="crumbs" aria-label="${t('path_h')}">${KPATH.map((k, i) => `<a href="#tudas-graf-${k}" class="${i === KPATH.length - 1 ? 'on' : ''}" style="--dotc:var(--${k})">${elT(k).n}</a>`).join('<span aria-hidden="true">→</span>')}</div>
+    <div class="card"><span class="tag">${t('why_h')}</span><div class="t">${e.n} · ${e.fn}</div><div class="s">${t('k_sense')}: ${e.sense} · ${t('k_tissue')}: ${e.tissue} · ${t('k_emo')}: ${e.emo} · ${t('k_taste')}: ${e.taste}</div><div class="s">${t('feeds')}: <b>${elT(mother).n}</b> · ${t('ctrl_by')}: <b>${elT(ctrlBy).n}</b></div><div class="btnrow"><a class="btn tonal" href="#elem-${el}">${t('el_details')}</a></div></div>
+  </section>`;
+  if (tab === 'lexikon') body = `<div class="pad"><label for="lexq" class="sr">${t('search_rel_label')}</label><div class="search">${ic('search', 20)}<input id="lexq" type="search" placeholder="${esc(t('search_ph_rel'))}" value="${esc(lexQ)}" autocomplete="off"></div></div>
+  <div class="pills" role="group" aria-label="${t('filter_el')}">${[['all', t('all')], ...ELK.map((k) => [k, elT(k).n])].map(([k, n]) => `<button type="button" class="pill" data-act="lexel" data-k="${k}" aria-pressed="${k === lexEl}">${n}</button>`).join('')}</div>
+  <section class="pad" id="lexlist">${lexList()}</section>`;
+  if (tab === 'ciklusok') body = `<div class="pills" role="group" aria-label="${t('cycle')}">${Object.keys(CYCST).map((k) => `<button type="button" class="pill" data-act="cyc" data-k="${k}" aria-pressed="${k === elemCyc}">${C('cyc', k)[0]}</button>`).join('')}</div>
+  <div class="pad" id="cycfig">${cycleSvg(elemCyc)}</div><section class="pad stack"><div class="card" id="cyctext">${cycText()}</div></section>`;
+  if (tab === 'asztro') body = astroView();
+  return `${top(t('tab_know'), t('know_sub'), '', settingsBtn())}<div class="pad">${tabs}</div>${body}<div class="pad">${disclaimer()}</div>`;
+};
+let elemCyc = 'tap';
+const cycText = () => { const c = C('cyc', elemCyc); return `<div class="t">${c[1]} <span class="sub">· ${c[2]}</span></div><p class="s" style="color:var(--on)">${c[3]}</p><p class="s">${c[4]}</p>`; };
+
+/* ================= NAPLÓ ================= */
+function heatRing(wakes) {
+  const cnt = ORG.map((o) => wakes.filter((w) => orgAt(new Date(w.t)) === o).length), max = Math.max(1, ...cnt), CX = 82, CY = 82, Ro = 74, Ri = 44;
+  let s = '';
+  ORG.forEach((o, i) => {
+    const c = ((o.s + 1 - 12) * 15 + 360) % 360, a0 = (c - 14) * Math.PI / 180, a1 = (c + 14) * Math.PI / 180, P = (r, a) => [r1(CX + r * Math.sin(a)), r1(CY - r * Math.cos(a))];
+    const [x0, y0] = P(Ro, a0), [x1, y1] = P(Ro, a1), [x2, y2] = P(Ri, a1), [x3, y3] = P(Ri, a0), v = cnt[i];
+    s += `<path d="M${x0} ${y0} A${Ro} ${Ro} 0 0 1 ${x1} ${y1} L${x2} ${y2} A${Ri} ${Ri} 0 0 0 ${x3} ${y3} Z" style="fill:${v ? `var(--${o.el})` : 'var(--on)'}" opacity="${v ? r1(0.3 + v / max * 0.7) : 0.08}"><title>${esc(orgN(o.c))}: ${v}</title></path>`;
+  });
+  return { svg: s, cnt };
+}
+V.naplo = () => {
+  const log = getLog(), since = Date.now() - 30 * 864e5, wakes = log.filter((x) => x.type === 'wake' && x.t > since), cis = log.filter((x) => x.type === 'ci' && x.t > since), done = log.filter((x) => x.type === 'done' && x.t > since);
+  const ring = heatRing(wakes), mx = Math.max(...ring.cnt), mi = ring.cnt.indexOf(mx), mo = ORG[mi];
+  const pattern = wakes.length >= 3 && mx >= 3 && mx / wakes.length >= 0.4;
+  const winTxt = `${String(mo.s).padStart(2, '0')}–${String((mo.s + 2) % 24).padStart(2, '0')}`;
+  const ringSvg = `<svg width="164" height="164" viewBox="0 0 164 164" role="img" aria-label="${esc(t('ring_label'))}" style="flex:none">${ring.svg}<text x="82" y="82" text-anchor="middle" font-size="26" font-weight="700" style="fill:var(--on);font-family:'Inter Tight',Inter,sans-serif">${wakes.length ? mx + '×' : '–'}</text><text x="82" y="100" text-anchor="middle" font-size="11" style="fill:var(--mut)">${wakes.length ? winTxt : ''}</text></svg>`;
+  const wins = ORG.slice(3).concat(ORG.slice(0, 1)), pts = wins.map((o, k) => { const v = cis.filter((c) => orgAt(new Date(c.t)) === o); return v.length ? [k, v.reduce((a, c) => a + c.e, 0) / v.length] : null; }).filter(Boolean);
+  const lx = (k) => 14 + k * 32, ly = (v) => 92 - v * 38;
+  const curve = pts.length >= 2 ? `<svg viewBox="0 0 330 118" role="img" aria-label="${esc(t('energy_curve'))}" style="width:100%;display:block">${wins.map((o, k) => `<rect x="${lx(k) - 16}" y="0" width="32" height="100" style="fill:var(--${o.el})" opacity=".1"/>`).join('')}<polyline points="${pts.map(([k, v]) => `${lx(k)},${r1(ly(v))}`).join(' ')}" fill="none" style="stroke:var(--acc)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>${pts.map(([k, v]) => `<circle cx="${lx(k)}" cy="${r1(ly(v))}" r="3.6" style="fill:var(--surf);stroke:var(--acc)" stroke-width="2"/>`).join('')}${wins.map((o, k) => `<text x="${lx(k)}" y="114" text-anchor="middle" font-size="10.5" style="fill:var(--mut)">${o.s}</text>`).join('')}</svg>` : `<div class="s">${t('no_data')}</div>`;
+  const recent = log.slice(-6).reverse().map((x) => { const d = new Date(x.t), when = new Intl.DateTimeFormat(loc(), { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(d); const what = x.type === 'ci' ? `${t('ci_label')}: ${t('lvl_e' + x.e)} · ${t('mood_' + x.m)}` : x.type === 'wake' ? `${t('wake_label')} · ${orgN(orgAt(d).c)}` : `${C('routines', x.r)[0]} ✓`; return `<div class="li"><span class="dot" style="background:var(--${orgAt(d).el})"></span><span class="grow">${what}</span><span class="sub">${when}</span></div>`; }).join('');
+  const lastNight = (() => { const d = new Date(); d.setHours(2, 0, 0, 0); if (d > new Date()) d.setDate(d.getDate() - 1); return d; })();
+  return `${top(t('tab_log'), t('log_sub'), '', settingsBtn())}
+  <section class="pad stack">
+    <div class="btnrow" style="margin-top:0"><button type="button" class="btn tonal" data-act="checkin">${ic('emotion', 18)}${t('checkin_btn')}</button></div>
+    <div class="card"><div class="t">${t('woke')}</div><div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap"><label for="waket" class="sub">${t('woke_at')}</label><input id="waket" type="time" value="02:10" class="tinput"><button type="button" class="btn" data-act="wakeadd" data-base="${lastNight.getTime()}">${ic('plus', 18, 2.2)}${t('add')}</button></div><div id="wakemsg" class="sub" aria-live="polite" style="margin-top:6px"></div></div>
+    <div class="card" style="display:flex;gap:14px;align-items:center">${ringSvg}<div class="grow">${pattern ? `<span class="tag">${t('pattern')}</span><div class="display" style="font-size:19px;line-height:24px;margin-top:2px">${t('pattern_t', { n: wakes.length, k: mx, w: winTxt })}</div><div class="s">${t('pattern_s', { o: orgN(mo.c) })}</div>` : `<div class="s">${t('no_data')}</div>`}</div></div>
+    ${pattern ? `<div class="hero"><div class="t">${t('try_week')}</div><p>${t('try_txt')}</p><div class="btnrow"><a class="btn" href="#rutin-esti">${C('routines', 'esti')[0]}</a></div></div>` : ''}
+    <div class="card"><div class="t">${t('energy_curve')}</div><div style="margin-top:8px">${curve}</div></div>
+    <div class="chiprow"><span class="echip">${t('checkins_n', { n: cis.length })}</span><span class="echip">${t('wakes_n', { n: wakes.length })}</span><span class="echip">${t('done_n', { n: done.length })}</span><span class="echip">${t('not_diag')}</span></div>
+    ${recent ? `<div class="sec"><h2>${t('recent')}</h2></div><div class="list">${recent}</div>` : ''}
+    <div class="btnrow"><button type="button" class="btn tonal" data-act="sample">${t('sample')}</button><button type="button" class="btn tonal" data-act="clearlog">${t('clear_data')}</button></div>
+    <p class="note">${ic('shield', 14)} ${t('local_only')} ${t('sample_note')}</p>
+  </section>`;
+};
+function sampleData() {
+  const out = [], day = 864e5, base = new Date(); base.setHours(0, 0, 0, 0);
+  const wk = [[1, 1, 40], [2, 2, 15], [3, 1, 50], [5, 2, 30], [6, 3, 20], [8, 1, 10], [9, 2, 45], [11, 3, 40], [12, 23, 35], [13, 1, 25]];
+  wk.forEach(([ago, h, m]) => out.push({ type: 'wake', t: base.getTime() - ago * day + h * 3600e3 + m * 60e3 + (h >= 23 ? -day : 0), demo: 1 }));
+  const ci = [[1, 8, 1, 1], [1, 14, 0, 1], [2, 10, 2, 2], [2, 15, 0, 0], [3, 18, 2, 1], [3, 21, 1, 1], [4, 8, 1, 2], [4, 12, 2, 2], [5, 14, 0, 1], [5, 17, 2, 2], [6, 20, 1, 1], [7, 10, 2, 1], [7, 15, 1, 0], [8, 9, 1, 1], [8, 18, 2, 2]];
+  ci.forEach(([ago, h, e, m]) => out.push({ type: 'ci', t: base.getTime() - ago * day + h * 3600e3, e, m, s: 1, demo: 1 }));
+  [[1, 'esti'], [3, 'kepernyo'], [5, 'esti']].forEach(([ago, r]) => out.push({ type: 'done', t: base.getTime() - ago * day + 22 * 3600e3, r, demo: 1 }));
+  return out.sort((a, b) => a.t - b.t);
+}
+
+/* ================= BEÁLLÍTÁSOK ================= */
+V.beallitasok = () => {
+  const seg = (act, items, cur) => `<div class="seg">${items.map(([k, n]) => `<button type="button" data-act="${act}" data-k="${k}" aria-pressed="${k === cur}">${n}</button>`).join('')}</div>`;
+  const sw = (k, n, def) => `<div class="li"><label class="grow" for="pf-${k}">${t(n)}</label><input class="switch" type="checkbox" id="pf-${k}" data-pref="${k}"${store.get(k, def) ? ' checked' : ''}></div>`;
+  const ly = (k) => `<div class="li"><label class="grow" for="ly-${k}"><span class="t">${t('ly_' + k)}</span><span class="s">${t('lyd_' + k)}</span></label><input class="switch" type="checkbox" role="switch" id="ly-${k}" data-layer="${k}"${L[k] ? ' checked' : ''}></div>`;
+  return `${top(t('settings_t'), '', 'ma')}
+  <section class="pad stack">
+    <div class="card stack"><div><div class="flabel">${ic('globe', 16)} ${t('language')}</div>${seg('lang', LANGS.map((k) => [k, PACK[k].name]), lang)}</div>
+      <div><div class="flabel">${ic('today', 16)} ${t('theme')}</div>${seg('theme', [['auto', t('th_auto')], ['light', t('th_light')], ['dark', t('th_dark')]], store.get('theme', 'auto'))}</div>
+      <div><div class="flabel">${ic('body', 16)} ${t('model')}</div>${seg('model', [['f', t('female')], ['m', t('male')]], MODEL)}</div></div>
+    <div class="sec"><h2>${t('guidance_h')}</h2></div><div class="list">${sw('sound', 'sound_t', true)}${sw('vibrate', 'vibrate_t', true)}${sw('voice', 'voice', false)}</div>
+    <div class="sec"><h2>${t('content_h')}</h2></div><div class="list">${['mozgas', 'legzes', 'taplalkozas', 'csontok', 'erzelmek', 'gyogynovenyek', 'asztro'].map(ly).join('')}</div>
+    ${row('screen', t('kij_open'), t('kij_sub'), '#kijelzo')}
+    ${row('hand', t('tech_title'), t('tech_sub'), '#technikak')}
+    <button type="button" class="btn tonal" data-act="lyreset">${t('reset_layers')}</button>
+    ${disclaimer()}
+  </section>`;
+};
+
+/* ================= KIJELZŐ MÓD (képernyőkímélő) ================= */
+function kInner() {
+  const d = now(), o = orgAt(d), i = ORG.indexOf(o), nx = ORG[(i + 1) % 12], e = elT(o.el), h = d.getHours();
+  const frac = Math.min(100, Math.max(0, ((((h * 60 + d.getMinutes()) - o.s * 60) + 1440) % 1440) / 120 * 100));
+  return `<div class="kclock">${clockStr(d)}</div><div class="kdate">${dateStr(d)}</div>
+  <div class="kmain"><div class="kfig">${miniFigure(o.c)}</div>
+    <div class="kinfo"><div class="eyebrow">${t('now_el', { e: e.n.toUpperCase() })}</div><div class="korg">${orgN(o.c)}</div>
+      <div class="sub">${String(o.s).padStart(2, '0')}:00–${String((o.s + 2) % 24).padStart(2, '0')}:00 · ${fmtLeft(minsLeft(o, d))}</div>
+      <div class="kbar" aria-hidden="true"><i style="width:${r1(frac)}%"></i></div>
+      <div class="kline"><span class="dot" style="background:var(--${CHEL[o.c]})"></span>${chName(o.c)}</div><div class="sub">${t('live_flow', { f: chT(o.c)[2] })}</div>
+      <div class="kline" style="margin-top:14px"><span class="dot" style="background:var(--${nx.el})"></span>${t('kij_next', { o: orgN(nx.c), h: String(nx.s).padStart(2, '0') })}</div>
+      ${!EAT(h) ? `<div class="kline kmut">${ic('nofood', 18)}${t('eat_pause')}</div>` : ''}
+    </div></div>`;
+}
+V.kijelzo = () => `<div class="kij${(() => { const h = now().getHours(); return h >= 22 || h < 6 ? ' dim' : ''; })()}" id="kij" style="${styleVars(themeVars(CUREL, 'd'))}">
+  <div class="kctl"><a class="iconbtn tonal" href="#ma" aria-label="${t('exit')}">${ic('close')}</a><span class="grow"></span><button type="button" class="iconbtn tonal" data-act="kfull" aria-label="${t('kij_full')}">${ic('expand')}</button></div>
+  <div class="kbody" id="kbody">${kInner()}</div>
+  <div class="kstatus" id="kstatus" aria-live="polite">${t('kij_tap')}</div></div>`;
+function initKijelzo(signal) {
+  const box = $('#kij'), st = $('#kstatus'); let wl = null, hideT = null;
+  const show = () => { box.classList.add('show'); clearTimeout(hideT); hideT = setTimeout(() => box.classList.remove('show'), 4000); };
+  const lock = async () => { try { if (!('wakeLock' in navigator)) throw 0; wl = await navigator.wakeLock.request('screen'); st.textContent = t('kij_wake_ok'); } catch (e) { st.textContent = t('kij_wake_no'); } };
+  const drift = () => { const x = Math.round(Math.random() * 24 - 12), y = Math.round(Math.random() * 24 - 12); $('#kbody').style.transform = `translate(${x}px,${y}px)`; };
+  const tick = () => { if (document.hidden) return; const h = now().getHours(); applyTheme(); Object.entries(themeVars(orgAt(now()).el, 'd')).forEach(([k, v]) => box.style.setProperty(k, v)); box.classList.toggle('dim', h >= 22 || h < 6); $('#kbody').innerHTML = kInner(); drift(); };
+  lock(); show();
+  box.addEventListener('pointerdown', show, { signal });
+  box.addEventListener('click', (e) => { const b = e.target.closest('[data-act=kfull]'); if (!b) return; try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(() => { st.textContent = t('kij_full_no'); show(); }); } catch (err) { st.textContent = t('kij_full_no'); } }, { signal });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !wl) lock(); }, { signal });
+  const iv = setInterval(tick, 20000);
+  signal.addEventListener('abort', () => { clearInterval(iv); clearTimeout(hideT); try { wl && wl.release(); } catch (e) {} wl = null; try { if (document.fullscreenElement) document.exitFullscreen(); } catch (e) {} });
+}
+
+/* ================= KÍNAI ASZTROLÓGIA (réteg) ================= */
+if (L.asztro === undefined) L.asztro = true;
+const STEM = '甲乙丙丁戊己庚辛壬癸', BRANCH = '子丑寅卯辰巳午未申酉戌亥';
+const BEL = ['viz', 'fold', 'fa', 'fa', 'fold', 'tuz', 'tuz', 'fold', 'fem', 'fem', 'fold', 'viz'];
+const HIDS = [[9], [5, 9, 7], [0, 2, 4], [1], [4, 1, 9], [2, 4, 6], [3, 5], [5, 3, 1], [6, 8, 4], [7], [4, 7, 3], [8, 0]];
+const sEl = (i) => ELK[Math.floor(i / 2)], sYY = (i) => i % 2 ? 'yin' : 'yang', md = (a, n) => ((a % n) + n) % n;
+const jdnOf = (y, m, d) => { const a = Math.floor((14 - m) / 12), y2 = y + 4800 - a, m2 = m + 12 * a - 3; return d + Math.floor((153 * m2 + 2) / 5) + 365 * y2 + Math.floor(y2 / 4) - Math.floor(y2 / 100) + Math.floor(y2 / 400) - 32045; };
+const dayIdx = (y, m, d) => md(jdnOf(y, m, d) + 49, 60);
+function sunLon(ms) { const n = ms / 864e5 + 2440587.5 - 2451545, Lm = 280.46 + 0.9856474 * n, g = (357.528 + 0.9856003 * n) * Math.PI / 180; return md(Lm + 1.915 * Math.sin(g) + 0.02 * Math.sin(2 * g), 360); }
+function eotMin(ms) { const d = new Date(ms), n = Math.floor((ms - Date.UTC(d.getUTCFullYear(), 0, 0)) / 864e5), b = 2 * Math.PI / 365 * (n - 81); return 9.87 * Math.sin(2 * b) - 7.53 * Math.cos(b) - 1.5 * Math.sin(b); }
+const monthBranch = (ms) => md(Math.floor(md(sunLon(ms) - 315, 360) / 30) + 2, 12);
+function yearIdx(y, m, ms) { const l = sunLon(ms); if (m <= 2 && l >= 270 && l < 315) y--; return y; }
+function bazi(b) {
+  const [y, m, d] = b.date.split('-').map(Number), [hh, mi] = b.time.split(':').map(Number);
+  const utc = Date.UTC(y, m - 1, d, hh, mi) - b.tz * 3600e3, sol = new Date(utc + (b.lon * 4 + eotMin(utc)) * 60e3);
+  let sd = [sol.getUTCFullYear(), sol.getUTCMonth() + 1, sol.getUTCDate()]; const sh = sol.getUTCHours();
+  let di = dayIdx(...sd); if (sh >= 23) di = md(di + 1, 60);
+  const yy = yearIdx(y, m, utc), ys = md(yy - 4, 10), yb = md(yy - 4, 12), mb = monthBranch(utc), ms = md((ys % 5) * 2 + 2 + md(mb - 2, 12), 10);
+  const hb = Math.floor((sh + 1) / 2) % 12, hs = md((di % 10 % 5) * 2 + hb, 10);
+  const P = [[ys, yb], [ms, mb], [di % 10, di % 12], [hs, hb]];
+  const cnt = Object.fromEntries(ELK.map((k) => [k, [0, 0]]));
+  P.forEach(([st, br]) => { cnt[sEl(st)][0]++; cnt[BEL[br]][0]++; HIDS[br].forEach((h) => cnt[sEl(h)][1]++); });
+  return { P, dm: di % 10, cnt, solar: `${String(sh).padStart(2, '0')}:${String(sol.getUTCMinutes()).padStart(2, '0')}` };
+}
+const relOf = (x, d) => x === d ? 'self' : GEN[d] === x ? 'out' : CTRL[d] === x ? 'wealth' : CTRL[x] === d ? 'officer' : 'resource';
+const getBirth = () => store.get('birth', null);
+const astroOn = () => L.asztro && getBirth();
+function todayPillar(d) { const di = dayIdx(d.getFullYear(), d.getMonth() + 1, d.getDate()), mb = monthBranch(d.getTime()), yy = yearIdx(d.getFullYear(), d.getMonth() + 1, d.getTime()); return { s: di % 10, b: di % 12, off: md(di % 12 - mb, 12), ys: md(yy - 4, 10), yb: md(yy - 4, 12) }; }
+const pillarTxt = (s, b) => `${STEM[s]}${BRANCH[b]}`;
+const animal = (b) => C('astro').animals[b];
+function astroToday(d) {
+  const B0 = getBirth(); if (!B0) return null; const z = bazi(B0), tp = todayPillar(d), dmEl = sEl(z.dm), rel = relOf(sEl(tp.s), dmEl), o = C('astro').officers[tp.off];
+  return { z, tp, rel, o };
+}
+const astroTodayRow = (d) => { const a = astroToday(d); if (!a) return ''; return `<a class="row" href="#tudas-asztro"><span class="ic han" style="font-size:17px">${pillarTxt(a.tp.s, a.tp.b)}</span><span class="grow"><span class="tag">${t('astro_today_tag')}</span><span class="t">${t('astro_today_t', { r: t('rel_' + a.rel), o: a.o[0] })}</span><span class="s">${t('good_for')}: ${a.o[1]}</span></span>${ic('chev', 18)}</a>`; };
+function astroForm(b) {
+  b = b || { date: '', time: '', lon: 19.04, tz: 1 };
+  return `<div class="card stack"><div class="t">${t('astro_form_h')}</div><div class="s">${t('astro_form_s')}</div>
+    <div class="grid2"><label class="flabel" style="flex-direction:column;align-items:stretch">${t('birth_date')}<input id="bdate" class="tinput" type="date" value="${esc(b.date)}" required></label><label class="flabel" style="flex-direction:column;align-items:stretch">${t('birth_time')}<input id="btime" class="tinput" type="time" value="${esc(b.time)}" required></label></div>
+    <label class="flabel" style="flex-direction:column;align-items:stretch">${t('birth_lon')}<input id="blon" class="tinput" type="number" step="0.01" min="-180" max="180" value="${esc(b.lon)}"><span class="sub" style="font-weight:400">${t('birth_lon_hint')}</span></label>
+    <div><div class="flabel">${t('birth_tz')}</div><div class="seg">${[[1, 'tz_w'], [2, 'tz_s'], [0, 'tz_0']].map(([v, k]) => `<button type="button" data-act="btz" data-k="${v}" aria-pressed="${+b.tz === v}">${t(k)}</button>`).join('')}</div><div class="sub" style="margin-top:6px">${t('tz_hint')}</div></div>
+    <div class="btnrow" style="margin-top:4px"><button type="button" class="btn" data-act="bsave">${t('astro_calc')}</button>${getBirth() ? `<button type="button" class="btn tonal" data-act="bcancel">${t('cancel')}</button>` : ''}</div>
+    <div id="bmsg" class="sub" aria-live="polite"></div><p class="note">${ic('shield', 14)} ${t('birth_local')}</p></div>`;
+}
+let astroEdit = false;
+function astroView() {
+  const b = getBirth(); if (!b || astroEdit) return `<section class="pad stack"><div class="card quiet"><div class="t">${t('astro_intro_h')}</div><div class="s">${t('astro_intro')}</div></div>${astroForm(b)}<p class="note">${t('astro_note')}</p></section>`;
+  const z = bazi(b), A = C('astro'), dmEl = sEl(z.dm), d = now(), a = astroToday(d);
+  const score = (k) => z.cnt[k][0] + z.cnt[k][1] * 0.5, order = [...ELK].sort((x, y) => score(y) - score(x)), strong = order[0], weak = order[order.length - 1];
+  const pill = (lbl, [st, br], i) => { const o = ORG[br]; return `<div class="pillar${i === 2 ? ' dm' : ''}"><div class="k">${t(lbl)}</div><div class="han pz">${STEM[st]}<br>${BRANCH[br]}</div><div class="pe"><span class="dot" style="background:var(--${sEl(st)})"></span>${sYY(st)} ${elT(sEl(st)).n}</div><div class="pe"><span class="dot" style="background:var(--${BEL[br]})"></span>${animal(br)}</div><a class="pw" href="#szerv-${slug(o.c)}">${win(o)} · ${orgN(o.c)}</a></div>`; };
+  const maxc = Math.max(...ELK.map((k) => z.cnt[k][0] + z.cnt[k][1]));
+  const bars = ELK.map((k) => `<div class="ebar"><a href="#elem-${k}" class="en">${elT(k).n}</a><div class="et"><i style="width:${z.cnt[k][0] / maxc * 100}%;background:var(--${k})"></i><i style="width:${z.cnt[k][1] / maxc * 100}%;background:var(--${k});opacity:.35"></i></div><span class="ev">${z.cnt[k][0]}${z.cnt[k][1] ? ` <span class="sub">+${z.cnt[k][1]}</span>` : ''}</span><span class="echip" style="min-width:74px;justify-content:center">${t('rel_' + relOf(k, dmEl))}</span></div>`).join('');
+  const orgs = (k) => ELORG[k].map(orgN).join(', '), wins = (k) => ELORG[k].map((c) => win(OBY[c])).join(', ');
+  const ctrlEl = Object.keys(CTRL).find((x) => CTRL[x] === dmEl), mother = Object.keys(GEN).find((x) => GEN[x] === weak), snd = C('snd', SOUND_OF[ELORG[dmEl][0]]);
+  const lines = [t('hr_dm', { e: elT(dmEl).n, o: orgs(dmEl), w: wins(dmEl), s: elT(dmEl).sense.toLowerCase(), emo: elT(dmEl).emo.toLowerCase() }),
+    t('hr_strong', { e: elT(strong).n, n: z.cnt[strong][0], c: elT(Object.keys(CTRL).find((x) => CTRL[x] === strong)).n, o: orgs(Object.keys(CTRL).find((x) => CTRL[x] === strong)) }),
+    t('hr_weak', { e: elT(weak).n, n: z.cnt[weak][0], m: elT(mother).n, o: orgs(weak) })];
+  if (z.cnt[ctrlEl][0] >= 3 || strong === ctrlEl) lines.push(t('hr_ctrl', { c: elT(ctrlEl).n, e: elT(dmEl).n, o: orgs(dmEl), cl: elT(dmEl).climate.toLowerCase() }));
+  lines.push(t('hr_practice', { s: qt(snd[1]), e: elT(dmEl).n }));
+  const myB = [...new Set(z.P.map((p) => p[1]))];
+  return `<section class="pad stack">
+    <div class="pillars">${pill('p_y', z.P[0], 0)}${pill('p_m', z.P[1], 1)}${pill('p_d', z.P[2], 2)}${pill('p_h', z.P[3], 3)}</div>
+    <div class="sub">${t('solar_time', { t: z.solar })} · ${t('day_rule')}</div>
+    <div class="hero"><div class="eyebrow acc">${t('daymaster')}</div><div class="display"><span class="han">${STEM[z.dm]}</span> ${sYY(z.dm)} ${elT(dmEl).n}</div><p>${A.stem_q[z.dm]}</p><p class="sub" style="margin-top:6px">${t('dm_animal', { a: animal(z.P[0][1]), q: A.animal_q[z.P[0][1]] })}</p></div>
+    <div class="card"><div class="t">${t('el_balance')}</div><div class="s">${t('el_balance_s')}</div><div class="stack" style="gap:8px;margin-top:10px">${bars}</div>
+      <details style="margin-top:10px"><summary class="sub" style="cursor:pointer;font-weight:600">${t('rel_explain_h')}</summary>${['self', 'resource', 'officer', 'out', 'wealth'].map((r) => `<div class="kv"><div class="k">${t('rel_' + r)}</div><div class="v">${t('reld_' + r)}</div></div>`).join('')}</details></div>
+    <div class="card"><div class="t">${t('my_windows')}</div><div class="s">${t('my_windows_s')}</div><div class="chiprow" style="margin-top:8px">${myB.map((br) => `<a class="echip" href="#szerv-${slug(ORG[br].c)}" style="background:var(--surf2)"><span class="dot" style="background:var(--${ORG[br].el});margin-right:6px"></span>${win(ORG[br])} · ${orgN(ORG[br].c)} · ${animal(br)}</a>`).join('')}</div></div>
+    <div class="card"><span class="tag">${t('health_h')}</span><ul class="hl">${lines.map((l) => `<li>${l}</li>`).join('')}</ul><div class="btnrow"><a class="btn tonal" href="#elem-${dmEl}">${elT(dmEl).n}</a><a class="btn tonal" href="#elem-${weak}">${elT(weak).n}</a><a class="btn tonal" href="#gyakorlat">${t('tab_prac')}</a></div></div>
+    <div class="card"><span class="tag">${t('astro_today_tag')} · ${pillarTxt(a.tp.s, a.tp.b)} · ${sYY(a.tp.s)} ${elT(sEl(a.tp.s)).n} ${animal(a.tp.b)}</span><div class="t">${t('astro_today_t', { r: t('rel_' + a.rel), o: a.o[0] })}</div><div class="s">${t('reld_' + a.rel)}</div>
+      <div class="kv" style="margin-top:8px"><div class="k">${t('good_for')}</div><div class="v">${a.o[1]}</div></div><div class="kv"><div class="k">${t('avoid')}</div><div class="v">${a.o[2]}</div></div>
+      <div class="kv"><div class="k">${t('year_l')}</div><div class="v">${pillarTxt(a.tp.ys, a.tp.yb)} · ${sYY(a.tp.ys)} ${elT(sEl(a.tp.ys)).n} ${animal(a.tp.yb)} · ${t('rel_' + relOf(sEl(a.tp.ys), dmEl))}</div></div></div>
+    <div class="card quiet"><div class="t">${t('animals_h')}</div><div class="s">${t('animals_s')}</div><div class="agrid">${ORG.map((o, i) => `<a href="#szerv-${slug(o.c)}" class="${myB.includes(i) ? 'my' : ''}"><span class="han">${BRANCH[i]}</span><b>${animal(i)}</b><span>${win(o)}</span><span>${orgN(o.c)}</span></a>`).join('')}</div></div>
+    <div class="btnrow"><button type="button" class="btn tonal" data-act="bedit">${t('edit_birth')}</button><button type="button" class="btn tonal" data-act="bclear">${t('clear_birth')}</button></div>
+    <p class="note">${t('astro_note')}</p>
+  </section>`;
+}
+
+
+/* ================= 3D CSONTVÁZ (könyvtár nélküli megjelenítő) ================= */
+const PZ = { 'Kor-20': 0, 'H-1': 16, 'Kor-26': 19, 'Vab-20': 17, 'T-1': 14, 'Bef-17': 17, 'Bef-12': 18, 'Bef-6': 19, 'Bef-4': 18, 'T-5': 6, 'Vab-11': 3, 'Sz-3': 3, 'T-7': 3, 'T-9': 5, 'Szb-6': 6, 'Hm-5': -6, 'Sz-7': 5, 'Szb-8': 5, 'Vab-4': -4, 'Véb-3': 0,
+  'Lh-10': 4, 'Lh-9': 3, 'Lh-6': 2, 'V-3': -4, 'Gy-36': 8, 'Gy-40': 6, 'Eh-34': 0, 'H-60': -5, 'H-40': -10, 'M-3': 22, 'Eh-20': -16, 'Eh-21': -4, 'Kor-14': -15, 'Kor-4': -15, 'H-23': -15 };
+const PY3 = { 'M-3': 456 };
+const pt3 = (p) => [p.x - 150, -(PY3[p.id] || p.y), PZ[p.id] ?? 0];
+const spineZ = (y) => { const T = [[50, -2], [86, -10], [137, -16], [188, -12], [213, -6], [234, -9], [256, -15]]; if (y <= T[0][0]) return T[0][1]; for (let i = 1; i < T.length; i++) if (y <= T[i][0]) { const [y0, z0] = T[i - 1], [y1, z1] = T[i]; return z0 + (z1 - z0) * (y - y0) / (y1 - y0); } return T[T.length - 1][1]; };
+function skel3dModel(S) {
+  const Pr = [], mx = ([x, y, z]) => [-x, y, z], q = (p, z) => [p[0] - 150, -p[1], z];
+  const cap = (a, b, r, k) => { Pr.push({ t: 'c', a, b, r, k }); if (Math.abs(a[0]) > 0.6 || Math.abs(b[0]) > 0.6) Pr.push({ t: 'c', a: mx(a), b: mx(b), r, k }); };
+  const sph = (p, r, k) => { Pr.push({ t: 's', p, r, k }); if (Math.abs(p[0]) > 0.6) Pr.push({ t: 's', p: mx(p), r, k }); };
+  const poly = (pts, k) => { Pr.push({ t: 'p', pts, k }); Pr.push({ t: 'p', pts: pts.map(mx), k }); };
+  const chain = (pts, r, k) => { for (let i = 1; i < pts.length; i++) cap(pts[i - 1], pts[i], r, k); };
+  /* koponya */
+  Pr.push({ t: 'k', p: [0, -37, 1], rx: 17.5, ry: 21.5, rz: 20 });
+  sph([7, -36, 15], 4, 'h'); Pr.push({ t: 's', p: [0, -43, 17], r: 2.4, k: 'h' });
+  chain([[14, -47, -3], [13, -59, -3], [7, -64, 9], [0, -65, 14]], 2.3);
+  cap([9, -43, 13], [16, -43, 4], 1.5);
+  /* gerinc */
+  for (let i = -6; i <= 17; i++) {
+    const y = i < 0 ? S.c7[1] + i * 4.6 : S.c7[1] + i * VERT, z = spineZ(y), r = i < 0 ? 3 : i <= 12 ? 3.6 : 4.6;
+    Pr.push({ t: 's', p: [0, -y, z], r }); Pr.push({ t: 'c', a: [0, -y, z], b: [0, -(y + (i < 13 ? 3 : 1)), z - (i < 0 ? 5 : 7)], r: 1.4 });
+    if (i > 12) cap([0, -y, z - 1], [9, -y, z - 3], 1.3);
+  }
+  Pr.push({ t: 'p', pts: [[-10, -236, -11], [10, -236, -11], [0, -258, -17]] });
+  /* szegycsont, kulcscsont, lapocka */
+  Pr.push({ t: 'c', a: [0, -S.jugulum[1] - 1, 11], b: [0, -S.xiphoid[1], 17], r: 3.3 }); Pr.push({ t: 'c', a: [0, -S.xiphoid[1], 17], b: [0, -S.xiphoid[1] - 6, 15], r: 1.4 });
+  const ac = q(S.acromion, -1); chain([[4, -S.jugulum[1], 10], [22, -S.jugulum[1] - 1, 10], ac], 2);
+  poly([[8, -102, -16], [34, -98, -12], [20, -150, -16]]); cap([11, -108, -18], [ac[0] - 2, ac[1] - 3, -6], 1.5);
+  /* bordák */
+  const W = [0, 15, 23, 28, 32, 35, 37, 38, 38, 37, 34, 29, 23], D = [0, 12, 15, 17, 18, 19, 19.5, 20, 20, 19, 18, 16, 14];
+  const ends = [];
+  for (let n = 1; n <= 12; n++) {
+    const y0 = S.c7[1] + n * VERT - 2, zs = spineZ(y0) + 1, th = n <= 7 ? Math.PI * 0.9 : n <= 10 ? Math.PI * 0.84 : n === 11 ? Math.PI * 0.6 : Math.PI * 0.48, drop = 8 + n * 1.6, pts = [];
+    for (let k = 0; k <= 9; k++) { const tt = th * k / 9; pts.push([4 + W[n] * Math.sin(tt), -(y0 + drop * Math.pow(k / 9, 1.4)), k === 0 ? zs : -2 - D[n] * Math.cos(tt) * (k < 2 ? 0.85 : 1)]); }
+    chain(pts, 1.5); ends[n] = pts[pts.length - 1];
+    if (n <= 7) { const ys = S.jugulum[1] + 4 + (n - 1) * ((S.xiphoid[1] - S.jugulum[1] - 6) / 6); cap(ends[n], [3, -ys, 15], 1.3, 'g'); }
+    else if (n <= 10) cap(ends[n], [ends[n - 1][0] - 2, ends[n - 1][1] - 3, ends[n - 1][2] - 1], 1.3, 'g');
+  }
+  /* medence */
+  const hipP = q(S.hip, 0);
+  chain([[8, -232, -14], [22, -222, -10], [32, -218, -2], [30, -224, 8], [26, -228, 12]], 2.3);
+  poly([[8, -234, -13], [22, -222, -10], [32, -218, -2], [30, -224, 8], [26, -230, 12], [hipP[0], hipP[1] + 2, 2], [10, -240, -8]]);
+  chain([[hipP[0], hipP[1], 4], [3, -240, 10], [6, -252, 6], [12, -258, -4], [hipP[0], hipP[1] - 2, -2]], 2.1);
+  /* comb, térd, lábszár, láb */
+  const K = q(S.knee, 2), Kx = K[0];
+  sph(hipP, 5); cap(hipP, [hipP[0] + 8, hipP[1] - 4, 0], 3.2); sph([hipP[0] + 11, hipP[1] - 3, -1], 3.5);
+  cap([hipP[0] + 8, hipP[1] - 6, 0], [Kx, K[1] + 4, 1], 3.6); sph([Kx - 4, K[1] + 2, 1], 4); sph([Kx + 4, K[1] + 2, 1], 4);
+  Pr.push({ t: 's', p: [Kx, K[1] + 8, 8], r: 3.2 }); Pr.push({ t: 's', p: [-Kx, K[1] + 8, 8], r: 3.2 });
+  const TC = q(S.tibia_cond, 2), MM = q(S.mal_med, 1), ML = q(S.mal_lat, -2);
+  cap([TC[0] - 1, TC[1] + 3, 2], [TC[0] + 13, TC[1] + 3, 2], 3); cap([TC[0] + 3, TC[1], 2], [MM[0] + 2, MM[1] + 4, 1], 3.1); sph(MM, 2.2);
+  sph([TC[0] + 15, TC[1] - 1, -2], 2.3); cap([TC[0] + 15, TC[1] - 1, -2], ML, 1.6); sph(ML, 2.4);
+  const ax = (MM[0] + ML[0]) / 2, ay = MM[1];
+  cap([ax, ay, 0], [ax, ay - 5, 8], 3); cap([ax, ay - 4, 0], [ax, ay - 13, -9], 3.8); cap([ax, ay - 5, 8], [ax - 2, ay - 8, 14], 3);
+  for (let j = 0; j < 5; j++) { const b = [ax - 6 + j * 2.6, ay - 8 + j * 0.5, 14], h = [ax - 8 + j * 3.4, ay - 14, 30 - j * 1.8], tp = [ax - 9 + j * 3.6, ay - 15, 38 - j * 2.4]; cap(b, h, j ? 1.5 : 2); cap(h, tp, j ? 1.1 : 1.7); }
+  /* kar és kéz */
+  const SH = q(S.shoulder, 0), EL = q(S.elbow, 0), WR = q(S.wrist, 1), FT = q(S.fingertip, 1);
+  sph(SH, 5); cap(SH, EL, 3.2); sph([EL[0] + 3, EL[1], -1], 2.6); sph([EL[0] - 4, EL[1] - 1, -1], 2.6);
+  let ux = WR[0] - EL[0], uy = WR[1] - EL[1], l = Math.hypot(ux, uy); ux /= l; uy /= l; let nx = -uy, ny = ux; if (nx < 0) { nx = -nx; ny = -ny; }
+  cap([EL[0] + nx * 2.6, EL[1] + ny * 2.6, 1], [WR[0] + nx * 2.6, WR[1] + ny * 2.6, 1], 1.9); cap([EL[0] - nx * 2.3, EL[1] - ny * 2.3, -0.5], [WR[0] - nx * 2.3, WR[1] - ny * 2.3, -0.5], 1.8);
+  let hx = FT[0] - WR[0], hy = FT[1] - WR[1], hl = Math.hypot(hx, hy); hx /= hl; hy /= hl; let kx = -hy, ky = hx; if (kx < 0) { kx = -kx; ky = -ky; }
+  const H = (a, b, z) => [WR[0] + hx * a + kx * b, WR[1] + hy * a + ky * b, z];
+  sph(H(4, 1.5, 1), 3); sph(H(4, -2, 1), 2.8);
+  for (const k of [-3, -1, 1, 3]) { cap(H(6, k, 1.5), H(hl * 0.6, k * 1.5, 1.5), 1.2); cap(H(hl * 0.6, k * 1.5, 1.5), H(hl * (0.97 - Math.abs(k + 0.5) * 0.03), k * 1.7, 1.5), 0.9); }
+  cap(H(4, 5, 3), H(15, 10, 5), 1.4); cap(H(15, 10, 5), H(23, 12, 7), 1.1);
+  return Pr;
+}
+const hexRgb = (h) => { h = (h || '#ccc').trim(); if (h.startsWith('rgb')) return h.match(/\d+/g).slice(0, 3).map(Number); if (h.length === 4) h = '#' + [...h.slice(1)].map((c) => c + c).join(''); return [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)); };
+const mixc = (a, b, t) => `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * t)).join(',')})`;
+function SK3D(root, o) {
+  const cv = $('canvas', root), ctx = cv.getContext('2d'), M = { yaw: o.yaw || 0, pitch: 0.06, z: 1, sel: o.sel, ch: null, pts: true, chOn: true, auto: false, list: o.list || PTS };
+  let model = skel3dModel(SK()), W = 1, Hh = 1, dpr = 1, scr = [], raf = 0, ty = 0;
+  const css = () => { const s = getComputedStyle(root); return { bone: hexRgb(s.getPropertyValue('--bone')), line: s.getPropertyValue('--bone-line').trim() || '#998', map: hexRgb(s.getPropertyValue('--map')), acc: s.getPropertyValue('--acc').trim(), on: s.getPropertyValue('--on').trim(), surf: s.getPropertyValue('--surf').trim(), onel: s.getPropertyValue('--onel').trim() }; };
+  let C = css();
+  const fit = () => { const r = root.getBoundingClientRect(); dpr = Math.min(2, window.devicePixelRatio || 1); W = r.width || 300; Hh = r.height || 400; cv.width = W * dpr; cv.height = Hh * dpr; cv.style.width = W + 'px'; cv.style.height = Hh + 'px'; };
+  const selPos = () => { const p = PBY[M.sel]; return p ? pt3(p) : [0, -240, 0]; };
+  function draw() {
+    raf = 0; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, Hh);
+    const sc = Math.min(W / 240, (Hh - 40) / 480) * M.z, tz = Math.min(1, (M.z - 1) / 1.6), sp = selPos(), T = [sp[0] * tz, -240 + (sp[1] + 240) * tz, sp[2] * tz];
+    const cy = Math.cos(M.yaw), sy = Math.sin(M.yaw), cp = Math.cos(M.pitch), spt = Math.sin(M.pitch), cx0 = W / 2, cy0 = Hh / 2 + 16;
+    const pr = (v) => { const x = v[0] - T[0], y = v[1] - T[1], z = v[2] - T[2], x1 = x * cy + z * sy, z1 = -x * sy + z * cy, y2 = y * cp - z1 * spt, z2 = y * spt + z1 * cp, f = 900 / (900 - z2); return [cx0 + x1 * sc * f, cy0 - y2 * sc * f, z2, f]; };
+    const items = [];
+    for (const m of model) {
+      if (m.t === 'c') { const a = pr(m.a), b = pr(m.b); items.push({ d: (a[2] + b[2]) / 2, m, a, b }); }
+      else if (m.t === 's' || m.t === 'k') { const a = pr(m.p); items.push({ d: a[2], m, a }); }
+      else if (m.t === 'p') { const P = m.pts.map(pr); items.push({ d: P.reduce((s, x) => s + x[2], 0) / P.length - 3, m, P }); }
+    }
+    /* csatorna és mérés */
+    const sel = PBY[M.sel];
+    if (M.ch && M.chOn) {
+      const cp3 = M.list.filter((p) => p.ch === M.ch).sort((a, b) => parseInt(a.id.split('-')[1]) - parseInt(b.id.split('-')[1])).map(pt3);
+      for (const side of [1, -1]) for (let i = 1; i < cp3.length; i++) { const A = cp3[i - 1], B = cp3[i]; if (side < 0 && Math.abs(A[0]) < 1 && Math.abs(B[0]) < 1) continue; const a = pr([A[0] * side, A[1], A[2] + 1]), b = pr([B[0] * side, B[1], B[2] + 1]); items.push({ d: (a[2] + b[2]) / 2 + 2, m: { t: 'ch', c: `var(--${CHEL[M.ch]})` }, a, b }); }
+    }
+    let meas = null;
+    if (sel && PSPEC[sel.id].k === 'seg') { const sp0 = PSPEC[sel.id], [la, lb, len] = SEG[sp0.seg], S = SK(), z = PZ[sel.id] ?? 0, A = [S[la][0] - 150, -S[la][1], z], B = [S[lb][0] - 150, -S[lb][1], z]; meas = { A, B, len }; }
+    if (meas) { const a = pr(meas.A), b = pr(meas.B); items.push({ d: Math.max(a[2], b[2]) + 4, m: { t: 'ms', len: meas.len }, a, b, A: meas.A, B: meas.B, pr }); }
+    /* pontok */
+    scr = [];
+    for (const p of M.list) {
+      if (!M.pts && p.id !== M.sel) continue; const P = pt3(p);
+      for (const side of (Math.abs(P[0]) > 1 ? [1, -1] : [1])) { const a = pr([P[0] * side, P[1], P[2]]); items.push({ d: a[2] + 1.5, m: { t: 'pt', p }, a }); scr.push([a[0], a[1], p.id]); }
+    }
+    items.sort((u, v) => u.d - v.d);
+    const dmin = -60, dmax = 60, shade = (d) => mixc(C.map, C.bone, 0.45 + 0.55 * Math.max(0, Math.min(1, (d - dmin) / (dmax - dmin))));
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    for (const it of items) {
+      const m = it.m;
+      if (m.t === 'c') { const w = 2 * m.r * sc * it.a[3]; ctx.globalAlpha = m.k === 'g' ? 0.5 : 1; ctx.strokeStyle = C.line; ctx.lineWidth = w + 1.4; ctx.beginPath(); ctx.moveTo(it.a[0], it.a[1]); ctx.lineTo(it.b[0], it.b[1]); ctx.stroke(); ctx.strokeStyle = shade(it.d); ctx.lineWidth = w; ctx.stroke(); ctx.globalAlpha = 1; }
+      else if (m.t === 's') { const r = m.r * sc * it.a[3]; ctx.beginPath(); ctx.arc(it.a[0], it.a[1], r, 0, 7); if (m.k === 'h') { ctx.fillStyle = C.line; ctx.globalAlpha = 0.75; ctx.fill(); ctx.globalAlpha = 1; } else { const g = ctx.createRadialGradient(it.a[0] - r * 0.35, it.a[1] - r * 0.35, r * 0.1, it.a[0], it.a[1], r); g.addColorStop(0, mixc(C.bone, [255, 255, 255], 0.35)); g.addColorStop(1, shade(it.d)); ctx.fillStyle = g; ctx.fill(); ctx.strokeStyle = C.line; ctx.lineWidth = 1; ctx.stroke(); } }
+      else if (m.t === 'k') { const f = it.a[3], rx = Math.hypot(m.rx * Math.cos(M.yaw), m.rz * Math.sin(M.yaw)) * sc * f, ry = m.ry * sc * f; ctx.beginPath(); ctx.ellipse(it.a[0], it.a[1], rx, ry, 0, 0, 7); const g = ctx.createRadialGradient(it.a[0] - rx * 0.3, it.a[1] - ry * 0.35, 2, it.a[0], it.a[1], Math.max(rx, ry)); g.addColorStop(0, mixc(C.bone, [255, 255, 255], 0.3)); g.addColorStop(1, shade(it.d - 10)); ctx.fillStyle = g; ctx.fill(); ctx.strokeStyle = C.line; ctx.lineWidth = 1.2; ctx.stroke(); }
+      else if (m.t === 'p') { ctx.beginPath(); it.P.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath(); ctx.globalAlpha = 0.85; ctx.fillStyle = shade(it.d); ctx.fill(); ctx.globalAlpha = 1; ctx.strokeStyle = C.line; ctx.lineWidth = 1.2; ctx.stroke(); }
+      else if (m.t === 'ch') { ctx.save(); ctx.setLineDash([5, 5]); ctx.strokeStyle = getComputedStyle(root).getPropertyValue(`--${CHEL[M.ch]}`) || C.acc; ctx.lineWidth = 3; ctx.globalAlpha = 0.85; ctx.beginPath(); ctx.moveTo(it.a[0], it.a[1]); ctx.lineTo(it.b[0], it.b[1]); ctx.stroke(); ctx.restore(); }
+      else if (m.t === 'ms') { ctx.save(); ctx.strokeStyle = C.acc; ctx.fillStyle = C.acc; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(it.a[0], it.a[1]); ctx.lineTo(it.b[0], it.b[1]); ctx.stroke(); const dx = it.b[0] - it.a[0], dy = it.b[1] - it.a[1], L0 = Math.hypot(dx, dy) || 1, nx2 = -dy / L0 * 5, ny2 = dx / L0 * 5; for (let i = 0; i <= m.len; i++) { const x = it.a[0] + dx * i / m.len, y = it.a[1] + dy * i / m.len, big = i === 0 || i === m.len; ctx.beginPath(); ctx.moveTo(x - nx2 * (big ? 1.4 : 0.7), y - ny2 * (big ? 1.4 : 0.7)); ctx.lineTo(x + nx2 * (big ? 1.4 : 0.7), y + ny2 * (big ? 1.4 : 0.7)); ctx.stroke(); } ctx.font = '600 11px Inter,sans-serif'; ctx.fillText(`${m.len} cun`, (it.a[0] + it.b[0]) / 2 + nx2 * 2.4, (it.a[1] + it.b[1]) / 2 + ny2 * 2.4); ctx.restore(); }
+      else if (m.t === 'pt') {
+        const p = m.p, isSel = p.id === M.sel, dim = o.dim && o.dim(p), col = getComputedStyle(root).getPropertyValue(`--${p.el}`).trim() || C.acc;
+        ctx.globalAlpha = dim && !isSel ? 0.22 : 1;
+        if (isSel) { ctx.beginPath(); ctx.arc(it.a[0], it.a[1], 13, 0, 7); ctx.fillStyle = col; ctx.globalAlpha = 0.3; ctx.fill(); ctx.globalAlpha = 1; }
+        ctx.beginPath(); ctx.arc(it.a[0], it.a[1], isSel ? 8 : 5.5, 0, 7); ctx.fillStyle = col; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+        if (isSel || M.z >= 2.2) { const lbl = pc(p); ctx.font = '600 11px Inter,sans-serif'; const tw = ctx.measureText(lbl).width; ctx.fillStyle = isSel ? col : C.surf; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(it.a[0] + 11, it.a[1] - 9, tw + 12, 18, 8) : ctx.rect(it.a[0] + 11, it.a[1] - 9, tw + 12, 18); ctx.fill(); ctx.fillStyle = isSel ? C.onel : C.on; ctx.fillText(lbl, it.a[0] + 17, it.a[1] + 4); }
+        ctx.globalAlpha = 1;
+      }
+    }
+    const zl = $('[data-zl]', root); if (zl) zl.textContent = num(Math.round(M.z * 10) / 10) + '×';
+  }
+  M.redraw = () => { if (!raf) raf = requestAnimationFrame(draw); };
+  M.select = (id) => { M.sel = id; if (o.channelOfSel && PBY[id]) M.ch = PBY[id].ch; M.redraw(); };
+  M.setYaw = (y, anim) => { cancelAnimationFrame(ty); if (!anim || matchMedia('(prefers-reduced-motion: reduce)').matches) { M.yaw = y; M.redraw(); return; } let d = ((y - M.yaw) % (2 * Math.PI) + 3 * Math.PI) % (2 * Math.PI) - Math.PI; const y0 = M.yaw, t0 = performance.now(); const step = (n) => { const k = Math.min(1, (n - t0) / 450), e = 1 - Math.pow(1 - k, 3); M.yaw = y0 + d * e; draw(); if (k < 1) ty = requestAnimationFrame(step); }; ty = requestAnimationFrame(step); };
+  M.zoom = (f) => { M.z = Math.min(4, Math.max(1, M.z * f)); M.redraw(); };
+  M.reset = () => { M.z = 1; M.pitch = 0.06; M.setYaw(0, true); };
+  M.rebuild = () => { model = skel3dModel(SK()); C = css(); M.redraw(); };
+  let autoT = 0; const spin = () => { if (!M.auto) return; M.yaw += 0.008; draw(); autoT = requestAnimationFrame(spin); };
+  M.setAuto = (on) => { M.auto = on; cancelAnimationFrame(autoT); if (on) autoT = requestAnimationFrame(spin); const b = $('[data-m3=auto]', root); if (b) b.setAttribute('aria-pressed', on); };
+  fit(); M.select(M.sel);
+  const sig = o.signal, ro = new ResizeObserver(() => { fit(); draw(); }); ro.observe(root); sig.addEventListener('abort', () => { ro.disconnect(); cancelAnimationFrame(autoT); cancelAnimationFrame(raf); cancelAnimationFrame(ty); });
+  const ptrs = new Map(); let st = null, pinch = null, moved = false, lastTap = 0;
+  cv.addEventListener('pointerdown', (e) => { cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, [e.clientX, e.clientY]); if (ptrs.size === 1) { st = { x: e.clientX, y: e.clientY, yaw: M.yaw, pitch: M.pitch }; moved = false; } if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), z: M.z }; } }, { signal: sig });
+  cv.addEventListener('pointermove', (e) => {
+    if (!ptrs.has(e.pointerId)) return; ptrs.set(e.pointerId, [e.clientX, e.clientY]);
+    if (ptrs.size >= 2 && pinch) { const [a, b] = [...ptrs.values()]; M.z = Math.min(4, Math.max(1, pinch.z * Math.hypot(a[0] - b[0], a[1] - b[1]) / pinch.d)); moved = true; M.redraw(); }
+    else if (st) { const dx = e.clientX - st.x, dy = e.clientY - st.y; if (Math.hypot(dx, dy) > 6) { moved = true; if (M.auto) M.setAuto(false); } if (moved) { M.yaw = st.yaw + dx * 0.012; M.pitch = Math.max(-0.7, Math.min(0.7, st.pitch + dy * 0.006)); M.redraw(); } }
+  }, { signal: sig });
+  const up = (e) => {
+    if (!ptrs.has(e.pointerId)) return; ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch = null;
+    if (ptrs.size === 0) {
+      if (!moved) { const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top, now2 = performance.now(); let best = null, bd = 26; for (const [sx, sy, id] of scr) { const d = Math.hypot(sx - x, sy - y); if (d < bd) { bd = d; best = id; } } if (best && o.onPick) o.onPick(best); else if (now2 - lastTap < 320) M.reset(); lastTap = now2; }
+      st = null;
+    }
+  };
+  cv.addEventListener('pointerup', up, { signal: sig }); cv.addEventListener('pointercancel', up, { signal: sig });
+  cv.addEventListener('wheel', (e) => { e.preventDefault(); M.zoom(Math.exp(-e.deltaY * 0.0018)); }, { passive: false, signal: sig });
+  root.addEventListener('keydown', (e) => { if (e.target !== root) return; const k = e.key; if (k === 'ArrowLeft') M.yaw -= 0.2; else if (k === 'ArrowRight') M.yaw += 0.2; else if (k === 'ArrowUp') M.pitch = Math.max(-0.7, M.pitch - 0.1); else if (k === 'ArrowDown') M.pitch = Math.min(0.7, M.pitch + 0.1); else if (k === '+' || k === '=') M.z = Math.min(4, M.z * 1.3); else if (k === '-') M.z = Math.max(1, M.z / 1.3); else return; e.preventDefault(); M.redraw(); }, { signal: sig });
+  root.addEventListener('click', (e) => { const b = e.target.closest('[data-m3]'); if (!b) return; const a = b.dataset.m3; if (a === 'front') M.setYaw(0, true); if (a === 'side') M.setYaw(Math.PI / 2, true); if (a === 'back') M.setYaw(Math.PI, true); if (a === 'zin') M.zoom(1.4); if (a === 'zout') M.zoom(1 / 1.4); if (a === 'zreset') M.reset(); if (a === 'auto') M.setAuto(!M.auto); if (['front', 'side', 'back'].includes(a)) $$('[data-m3=front],[data-m3=side],[data-m3=back]', root).forEach((x) => x.setAttribute('aria-pressed', x === b)); }, { signal: sig });
+  return M;
+}
+
+/* ================= FOTÓS PONTKERESŐ ================= */
+const FREG = [
+  { k: 'kar', segs: ['farm', 'hand'], side: 'f' }, { k: 'karhat', segs: ['farm', 'hand'], side: 'b' }, { k: 'torzs', segs: ['sternum', 'abd_up', 'abd_lo'] },
+  { k: 'labbel', segs: ['thigh_m', 'leg_m'] }, { k: 'labkul', segs: ['leg_l'] }
+];
+const fregLms = (r) => [...new Set(r.segs.flatMap((s) => [SEG[s][0], SEG[s][1]]))];
+const fregPts = (r) => PTS.filter((p) => { const sp = PSPEC[p.id]; return sp.k === 'seg' && r.segs.includes(sp.seg) && (!r.side || p.v.includes(r.side)); });
+const FS = { reg: 'kar', img: null, lm: {}, flip: 1, sel: null };
+V.foto = () => {
+  const r = FREG.find((x) => x.k === FS.reg), lms = fregLms(r), nextLm = lms.find((l) => !FS.lm[l]);
+  return `${top(t('foto_t'), t('foto_sub'), 'test')}
+  <div class="pills" role="group" aria-label="${t('foto_region')}">${FREG.map((x) => `<button type="button" class="pill" data-act="freg" data-k="${x.k}" aria-pressed="${x.k === FS.reg}">${t('freg_' + x.k)}</button>`).join('')}</div>
+  <section class="pad stack">
+    ${FS.img ? '' : `<div class="card quiet"><div class="t">${t('foto_how_h')}</div><ol class="psteps" style="margin-top:6px"><li>${t('foto_how1')}</li><li>${t('foto_how2', { n: lms.length })}</li><li>${t('foto_how3')}</li></ol></div>`}
+    <label class="btn" style="cursor:pointer">${ic('screen', 18)}${t(FS.img ? 'foto_new' : 'foto_pick')}<input id="fimg" type="file" accept="image/*" capture="environment" class="sr"></label>
+    ${FS.img ? `<div class="fstep" aria-live="polite">${nextLm ? `<span class="echip" style="background:var(--cont)">${lms.indexOf(nextLm) + 1}/${lms.length}</span> ${t('foto_tap', { l: C('lm', nextLm) })}` : `<span class="echip" style="background:var(--cont)">✓</span> ${t('foto_done', { n: fregPts(r).length })}`}</div>
+    <div class="fstage" id="fstage"><canvas id="fcv" aria-label="${esc(t('foto_canvas'))}"></canvas></div>
+    <div class="btnrow" style="margin-top:0"><button type="button" class="btn tonal" data-act="fundo">${t('foto_undo')}</button><button type="button" class="btn tonal" data-act="freset">${t('foto_reset')}</button>${!nextLm ? `<button type="button" class="btn tonal" data-act="fflip">${t('foto_flip')}</button>` : ''}</div>
+    ${!nextLm ? `<div class="list">${fregPts(r).map((p) => `<button type="button" class="li" data-act="fsel" data-k="${p.id}" style="width:100%;text-align:left;border:0;border-top:1px solid var(--line);background:${FS.sel === p.id ? 'var(--cont)' : 'transparent'};cursor:pointer;font:inherit;color:inherit"><span class="dot" style="background:var(--${p.el})"></span><span class="grow"><span class="t">${C('area', p.id)}</span><span class="s">${pc(p)} · ${ptT(p.id)[3]}</span></span><a class="echip" href="#pont-${p.s}" style="background:var(--surf2)">${t('open_pt')}</a></button>`).join('')}</div>
+      <p class="note">${t('foto_acc')}</p>` : ''}` : ''}
+    <p class="note">${ic('shield', 14)} ${t('foto_private')}</p>
+    ${disclaimer()}
+  </section>`;
+};
+function fotoGeo(r) {
+  const P = {};
+  for (const p of fregPts(r)) {
+    const sp = PSPEC[p.id], [la, lb, len] = SEG[sp.seg], A = FS.lm[la], B = FS.lm[lb]; if (!A || !B) continue;
+    const dx = B[0] - A[0], dy = B[1] - A[1], Ln = Math.hypot(dx, dy) || 1, ux = dx / Ln, uy = dy / Ln, nx = uy * FS.flip, ny = -ux * FS.flip, s = Ln / len, fb = sp.from === 'B', O = fb ? B : A, dir = fb ? -1 : 1;
+    P[p.id] = [O[0] + dir * ux * sp.d * s + nx * sp.o * s, O[1] + dir * uy * sp.d * s + ny * sp.o * s];
+  }
+  return P;
+}
+function initFoto(signal) {
+  const inp = $('#fimg'); inp.addEventListener('change', () => { const f = inp.files && inp.files[0]; if (!f) return; const im = new Image(); im.onload = () => { if (FS.img && FS.img.src.startsWith('blob:')) URL.revokeObjectURL(FS.img.src); FS.img = im; FS.lm = {}; FS.sel = null; route(); }; im.src = URL.createObjectURL(f); }, { signal });
+  const cv = $('#fcv'); if (!cv || !FS.img) return;
+  const r = FREG.find((x) => x.k === FS.reg), lms = fregLms(r), ctx = cv.getContext('2d'), im = FS.img;
+  let sc = 1, dpr = 1;
+  const draw = () => {
+    const box = $('#fstage').getBoundingClientRect(); dpr = Math.min(2, window.devicePixelRatio || 1); const w = box.width; sc = w / im.naturalWidth; const h = im.naturalHeight * sc;
+    cv.width = w * dpr; cv.height = h * dpr; cv.style.width = w + 'px'; cv.style.height = h + 'px'; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.drawImage(im, 0, 0, w, h);
+    const cs = getComputedStyle(cv), acc = cs.getPropertyValue('--acc').trim(), onacc = cs.getPropertyValue('--onacc').trim();
+    const Pp = (p) => [p[0] * sc, p[1] * sc]; ctx.lineCap = 'round';
+    for (const sgk of r.segs) { const [la, lb, len] = SEG[sgk], A = FS.lm[la], B = FS.lm[lb]; if (!A || !B) continue; const a = Pp(A), b = Pp(B), dx = b[0] - a[0], dy = b[1] - a[1], L0 = Math.hypot(dx, dy) || 1, nx = -dy / L0 * 6, ny = dx / L0 * 6; ctx.strokeStyle = 'rgba(0,0,0,.45)'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke(); ctx.strokeStyle = acc; ctx.lineWidth = 2.5; ctx.stroke(); ctx.lineWidth = 2; for (let i = 0; i <= len; i++) { const x = a[0] + dx * i / len, y = a[1] + dy * i / len; ctx.beginPath(); ctx.moveTo(x - nx, y - ny); ctx.lineTo(x + nx, y + ny); ctx.stroke(); } }
+    lms.forEach((l, i) => { const A = FS.lm[l]; if (!A) return; const [x, y] = Pp(A); ctx.beginPath(); ctx.arc(x, y, 11, 0, 7); ctx.fillStyle = acc; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke(); ctx.fillStyle = onacc; ctx.font = '700 12px Inter,sans-serif'; ctx.textAlign = 'center'; ctx.fillText(String(i + 1), x, y + 4); ctx.textAlign = 'left'; });
+    const G = fotoGeo(r);
+    for (const [id, pos] of Object.entries(G)) { const p = PBY[id], [x, y] = Pp(pos), isSel = FS.sel === id, col = cs.getPropertyValue(`--${p.el}`).trim(); if (isSel) { ctx.beginPath(); ctx.arc(x, y, 16, 0, 7); ctx.fillStyle = col; ctx.globalAlpha = 0.35; ctx.fill(); ctx.globalAlpha = 1; } ctx.beginPath(); ctx.arc(x, y, isSel ? 9 : 7, 0, 7); ctx.fillStyle = col; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5; ctx.stroke(); const lbl = pc(p); ctx.font = '700 12px Inter,sans-serif'; const tw = ctx.measureText(lbl).width; ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillRect(x + 12, y - 10, tw + 10, 20); ctx.fillStyle = '#fff'; ctx.fillText(lbl, x + 17, y + 4); }
+  };
+  draw();
+  const ro = new ResizeObserver(draw); ro.observe($('#fstage')); signal.addEventListener('abort', () => ro.disconnect());
+  cv.addEventListener('click', (e) => {
+    const b = cv.getBoundingClientRect(), x = (e.clientX - b.left) / sc, y = (e.clientY - b.top) / sc, next = lms.find((l) => !FS.lm[l]);
+    if (next) { FS.lm[next] = [x, y]; route(); return; }
+    const G = fotoGeo(r); let best = null, bd = 30 / sc; for (const [id, pos] of Object.entries(G)) { const d = Math.hypot(pos[0] - x, pos[1] - y); if (d < bd) { bd = d; best = id; } }
+    if (best) { FS.sel = best; route(); }
+  }, { signal });
+}
+
+/* ---- átvett nézetek és motorok (1.x) ---- */
+V.elem = (k) => {
+  if (!elT(k) || k === 'er') k = 'fa'; const e = elT(k), c = ec(k);
+  const mother = Object.keys(GEN).find((x) => GEN[x] === k), ctrlBy = Object.keys(CTRL).find((x) => CTRL[x] === k), snd = C('snd', SOUND_OF[ELORG[k][0]]);
+  const cc = (x, role) => `<a href="#elem-${x}" style="flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 4px;border-radius:12px;background:${ec(x).l};text-align:center"><span style="font-size:11px;line-height:1.2">${role}</span><span style="font-size:15px;font-weight:600">${elT(x).n}</span></a>`;
+  return `${top(t('el_details'), '', 'tudas-graf-' + k)}
+  <section class="hero solid" style="background:${c.c}"><div class="bg han" aria-hidden="true">${HAN[k]}</div><div style="position:relative"><div class="big">${e.n}</div><div style="font-size:13px">${PY[k]} · ${e.fn}</div><div class="chips"><span>${e.season}</span><span>${e.climate}</span><span>${e.color}</span></div></div></section>
+  <section class="pad stack" style="margin-top:12px">
+    <div class="sec"><h2>${t('organs_h')}</h2><span>${t('with_window')}</span></div>
+    <div class="grid2">${ELORG[k].map((oc) => { const o = OBY[oc]; return `<a class="tile" href="#szerv-${slug(oc)}" style="background:${c.l}"><div class="k">${o.yy} · ${t('hours', { w: win(o) })}</div><div class="v">${orgN(oc)}</div></a>`; }).join('')}</div>
+    ${L.kapcsolatok ? `<div class="sec"><h2>${t('relations')}</h2></div><div class="grid3">${relTiles(e)}${tile(t('k_voice'), e.voice)}${tile(t('k_season'), e.season)}${tile(t('k_climate'), e.climate)}</div>` : ''}
+    <div class="sec"><h2>${t('in_cycles')}</h2></div>
+    <div style="display:flex;gap:6px">${cc(mother, t('feeds'))}${cc(GEN[k], t('feeds_it'))}${cc(ctrlBy, t('ctrl_by'))}${cc(CTRL[k], t('ctrls'))}</div>
+    <div class="grid2"><div class="card" style="padding:10px 12px"><span class="tag">${t('balanced')}</span><div style="font-size:14px;line-height:19px;margin-top:2px">${e.bal}</div></div><div class="card" style="padding:10px 12px"><span class="tag" style="color:var(--tuz-t)">${t('disturbed')}</span><div style="font-size:14px;line-height:19px;margin-top:2px">${e.dis}</div></div></div>
+    ${L.taplalkozas ? `<div class="card"><span class="tag">${t('tag_food')}</span><div style="font-size:15px;font-weight:600;margin-top:2px">${t('taste_x', { t: e.taste })}</div><div style="font-size:14px;line-height:20px">${e.foods}</div><div style="font-size:13px;line-height:19px;color:var(--muted);margin-top:4px">${e.tfx}</div><div style="font-size:12px;font-weight:600;color:var(--jade-t);margin-top:6px;display:flex;align-items:center;gap:6px">${ic('clock', 14)}${t('eat_window')}</div></div>` : ''}
+    ${L.mozgas ? row('move', t('heal_sound', { s: snd[1] }), snd[0], `#gyakorlat-${slug(ELORG[k][0])}`, t('tag_move')) : ''}
+    ${L.gyogynovenyek ? `<div class="card"><span class="tag">${t('tag_tea')}</span><div style="font-size:15px;font-weight:600">${e.tea}</div></div>` : ''}
+    ${disclaimer()}
+  </section>`;
+};
+
+let lexEl = 'all', lexQ = '';
+function lexList() {
+  const q = lexQ.trim().toLowerCase();
+  const rows = C('lex').filter(([tm, d, e]) => (lexEl === 'all' || e === lexEl) && (!q || (tm + ' ' + d).toLowerCase().includes(q))).sort((a, b) => a[0].localeCompare(b[0], loc()));
+  return `<div style="font-size:12px;color:var(--muted);padding:0 6px 6px">${t('results', { n: rows.length })}</div>${rows.length ? `<div class="list">${rows.map(([tm, d, e]) => `<a class="li" href="#elem-${e}"><span class="dot" style="background:${ec(e).c}"></span><span class="grow"><span style="display:block;font-size:15px;font-weight:600">${tm}</span><span style="display:block;font-size:13px;color:var(--muted)">${d}</span></span><span class="echip" style="background:${ec(e).l}">${elT(e).n}</span></a>`).join('')}</div>` : `<div class="card" style="text-align:center;color:var(--muted)">${t('no_results_rel')}</div>`}`;
+}
+const boneRows = (p) => { if (!L.csontok) return ''; const m = measureText(p); return `<div class="kv"><div class="k">${t('k_bone')}</div><div class="v">${m.bone}</div></div><div class="kv"><div class="k">${t('k_from')}</div><div class="v">${m.from}</div></div><div class="kv"><div class="k">${t('k_meas')}</div><div class="v">${m.meas}</div></div>`; };
+let tech = 'ton';
+const techCard = () => { const tc = C('tech', tech); return `<div style="font-size:14px;font-weight:600;color:var(--jade-t);margin-bottom:4px">${tc[0]}</div>${tc[1].map(([k, v]) => `<div class="kv"><div class="k">${k.toUpperCase()}</div><div class="v">${v}</div></div>`).join('')}`; };
+function initTimer(signal) {
+  let dur = 60, left = 60, run = false, last = 0, iv = null;
+  const ring = $('#ringp'), txt = $('#ringt'), go = $('#tgo'), msg = $('#tmsg');
+  const draw = () => { ring.setAttribute('stroke-dashoffset', (326.7 * (1 - left / dur)).toFixed(1)); txt.textContent = mmss(Math.ceil(left)); };
+  const label = () => { go.innerHTML = `${ic(run ? 'pause' : 'play', 16, 2)}${t(run ? 'pause' : left < dur && left > 0 ? 'resume' : 'start')}`; };
+  const stop = () => { run = false; clearInterval(iv); label(); };
+  const tick = () => { const n = performance.now(); left -= (n - last) / 1000; last = n; if (left <= 0) { left = 0; draw(); stop(); msg.textContent = t('timer_done'); buzz([200, 100, 200]); beep(660, .25); return; } draw(); };
+  $('#view').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-act]'); if (!b) return; const a = b.dataset.act;
+    if (a === 'tgo') { if (run) { stop(); return; } audio(); if (left <= 0) left = dur; run = true; last = performance.now(); msg.textContent = t('timer_run'); label(); iv = setInterval(tick, 200); }
+    if (a === 'treset') { stop(); left = dur; msg.textContent = ''; draw(); label(); }
+    if (a === 'tdur') { stop(); dur = left = +b.dataset.k; $$('[data-act=tdur]').forEach((x) => x.setAttribute('aria-pressed', x === b)); msg.textContent = ''; draw(); label(); }
+    if (a === 'tech') { tech = b.dataset.k; $$('[data-act=tech]').forEach((x) => x.setAttribute('aria-pressed', x === b)); $('#techcard').innerHTML = techCard(); }
+  }, { signal });
+  signal.addEventListener('abort', () => clearInterval(iv));
+  draw();
+}
+
+/* ---- hang és rezgés ---- */
+let AC = null;
+const audio = () => { try { if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); } catch (e) { AC = null; } };
+const beep = (f = 520, d = .18, when = 0) => { if (!AC || !store.get('sound', true)) return; try { const o = AC.createOscillator(), g = AC.createGain(), t0 = AC.currentTime + when; o.type = 'sine'; o.frequency.value = f; g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.18, t0 + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t0 + d); o.connect(g).connect(AC.destination); o.start(t0); o.stop(t0 + d + 0.05); } catch (e) {} };
+const buzz = (p) => { if (!store.get('vibrate', true)) return; try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
+const PATS = { calm: [['inhale', 4, 'in'], ['exhale', 6, 'out']], even: [['inhale', 5, 'in'], ['exhale', 5, 'out']], sleep: [['inhale', 4, 'in'], ['hold', 7, 'hold'], ['exhale', 8, 'out']] };
+let brPat = 'calm', brCycles = 8;
+function initBreath(signal) {
+  if (!$('#core')) return;
+  const core = $('#core'), ph = $('#phase'), numEl = $('#num'), go = $('#brgo'), prog = $('#brprog');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let run = false, i = 0, cyc = 0, elapsed = 0, last = 0, iv = null;
+  const P = () => PATS[brPat], total = () => P().reduce((s, x) => s + x[1], 0);
+  const setPhase = (rem) => { const [n, , ty] = P()[i]; ph.textContent = t(n); const sc = ty === 'in' ? 1 : ty === 'out' ? .6 : null; if (sc !== null) { core.style.transition = reduce ? 'none' : `transform ${rem}s ease-in-out`; core.style.transform = `translate(-50%,-50%) scale(${sc})`; } };
+  const ui = () => { const d = P()[i][1]; numEl.textContent = Math.max(1, Math.ceil(d - elapsed)); const done = cyc * total() + P().slice(0, i).reduce((s, x) => s + x[1], 0) + elapsed; prog.style.width = Math.min(100, done / (total() * brCycles) * 100) + '%'; $('#brcyc').textContent = t('cyc_of', { a: Math.min(cyc + 1, brCycles), b: brCycles }); $('#brleft').textContent = t('left_t', { t: mmss(Math.max(0, total() * brCycles - done)) }); };
+  const finish = (ok) => { run = false; clearInterval(iv); i = 0; cyc = 0; elapsed = 0; core.style.transition = reduce ? 'none' : 'transform 1s ease'; core.style.transform = 'translate(-50%,-50%) scale(.6)'; ph.textContent = t(ok ? 'done' : 'ready'); numEl.textContent = ok ? '✓' : P()[0][1]; prog.style.width = ok ? '100%' : '0'; go.innerHTML = `${ic('play', 16, 2)}${t('start')}`; if (ok) { $('#brhint').textContent = t('breath_done'); beep(660, .3); } };
+  const tick = () => { const n = performance.now(); elapsed += (n - last) / 1000; last = n; if (elapsed >= P()[i][1]) { elapsed = 0; i++; if (i >= P().length) { i = 0; cyc++; if (cyc >= brCycles) { finish(true); return; } } setPhase(P()[i][1]); } ui(); };
+  const pause = () => { run = false; clearInterval(iv); const m = getComputedStyle(core).transform; core.style.transition = 'none'; if (m !== 'none') core.style.transform = m; go.innerHTML = `${ic('play', 16, 2)}${t('resume')}`; };
+  $('#view').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-act]'); if (!b) return; const a = b.dataset.act;
+    if (a === 'brgo') { if (run) { pause(); return; } audio(); run = true; last = performance.now(); setPhase(P()[i][1] - elapsed); go.innerHTML = `${ic('pause', 16, 2)}${t('pause')}`; ui(); iv = setInterval(tick, 100); }
+    if (a === 'brstop') finish(false);
+    if (a === 'pat') { brPat = b.dataset.k; $$('[data-act=pat]').forEach((x) => x.setAttribute('aria-pressed', x === b)); finish(false); }
+    if (a === 'brcyc') { brCycles = brCycles === 6 ? 8 : brCycles === 8 ? 12 : 6; $('#brcycl').textContent = brCycles + '×'; $('#brcount').textContent = t('cycles_n', { n: brCycles }); finish(false); $('#brcyc').textContent = t('cyc_of', { a: 0, b: brCycles }); }
+  }, { signal });
+  signal.addEventListener('abort', () => clearInterval(iv));
+}
+
+V.technikak = () => {
+  const T = C('tech');
+  const dots = (n) => `<div style="display:flex;gap:3px;justify-content:center">${[0, 1, 2].map((i) => `<span class="dot" style="width:8px;height:8px;background:${i < n ? 'var(--jade)' : 'var(--line)'}"></span>`).join('')}</div>`;
+  const ing = (n, [a, b]) => `<div style="flex:1;padding:10px 6px;border-radius:12px;background:var(--bg);text-align:center">${dots(n)}<div style="font-size:14px;font-weight:600;margin-top:6px">${a}</div><div style="font-size:12px;color:var(--muted)">${b}</div></div>`;
+  const finger = (w) => `<span style="display:block;width:${w}px;height:34px;border-radius:9px 9px 4px 4px;background:var(--body);border:1.5px solid var(--body-line)"></span>`;
+  const cun = (n, k, w, cap) => `<div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="font-size:14px;font-weight:600;color:var(--jade-t)">${num(n)} ${T.cun_u}</div><div style="align-self:stretch;height:6px;border:1.5px solid var(--jade-t);border-bottom:0;margin:0 4px"></div><div style="display:flex;gap:1px">${Array.from({ length: k }, () => finger(w)).join('')}</div><div style="font-size:12px;color:var(--muted);text-align:center">${cap}</div></div>`;
+  return `${top(t('tech_title'), t('tech_sub'), 'gyakorlat')}
+  <section class="pad stack">
+    <div class="card"><h2>${T.intensity}</h2><div style="display:flex;gap:6px;margin-top:10px">${T.ing.map((x, i) => ing(i + 1, x)).join('')}</div><p style="margin:10px 0 0;font-size:14px;line-height:20px;color:var(--muted)">${T.ing_note}</p></div>
+    <div class="sec"><h2>${T.grips}</h2><span>${T.grips_n}</span></div>
+    <div class="list">${T.fog.map(([n, z, d], i) => `<div class="li" style="align-items:flex-start"><span style="width:28px;height:28px;border-radius:14px;background:var(--chip);color:var(--jade-t);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:none">${i + 1}</span><span class="grow"><span style="display:block;font-size:15px;font-weight:600">${n} <span style="font-weight:400;color:var(--muted);font-size:13px">(${z})</span></span><span style="display:block;font-size:14px;color:var(--muted);line-height:20px">${d}</span></span></div>`).join('')}</div>
+    <div class="card"><h2>${T.cun}</h2><p style="margin:4px 0 12px;font-size:14px;line-height:20px;color:var(--muted)">${T.cun_note}</p><div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;align-items:end">${cun(1, 1, 22, T.cun_caps[0])}${cun(1.5, 2, 15, T.cun_caps[1])}${cun(2, 3, 14, T.cun_caps[2])}${cun(3, 4, 13, T.cun_caps[3])}</div></div>
+    <div class="card"><h2>${t('bones_h')}</h2><p style="margin:4px 0 10px;font-size:14px;line-height:20px;color:var(--muted)">${t('bones_note')}</p>
+      <div class="list" style="border-radius:12px">${Object.entries(SEG).filter(([, x]) => !x[4]).map(([k, [a, b, len]]) => `<div class="li" style="min-height:44px;padding:8px 12px"><span class="grow" style="font-size:14px">${C('lm', a)} – ${C('lm', b)}</span><b style="white-space:nowrap">${len} cun</b></div>`).join('')}${C('cun_extra').map(([n, len]) => `<div class="li" style="min-height:44px;padding:8px 12px"><span class="grow" style="font-size:14px">${n}</span><b style="white-space:nowrap">${len} cun</b></div>`).join('')}</div></div>
+    <div class="card"><h2>${T.open}</h2><p style="margin:4px 0 0;font-size:14px;line-height:20px">${T.open_txt}</p></div>
+    <div class="card" style="background:var(--warn);border-color:var(--warn-line)"><h2 style="display:flex;align-items:center;gap:8px;color:var(--tuz-t)">${ic('warn', 20)}<span style="color:var(--ink)">${T.contra}</span></h2><ul style="margin:8px 0 0;padding-left:18px;font-size:14px;line-height:22px">${T.contra_list.map((x) => `<li>${x}</li>`).join('')}</ul><p class="note">${T.contra_note}</p></div>
+  </section>`;
+};
+
+/* ================= útválasztó ================= */
+const TABS = [['ma', 'tab_ma', 'today'], ['test', 'tab_test', 'body'], ['gyakorlat', 'tab_prac', 'practice'], ['tudas', 'tab_know', 'graph'], ['naplo', 'tab_log', 'journal']];
+const GROUP = { ma: 'ma', kijelzo: 'ma', foto: 'test', szerv: 'ma', beallitasok: 'ma', test: 'test', pont: 'test', gyakorlat: 'gyakorlat', rutin: 'gyakorlat', technikak: 'gyakorlat', tudas: 'tudas', elem: 'tudas', naplo: 'naplo' };
+let ac = null, tickIv = null, lastHash = '';
+function route() {
+  const h = (location.hash.slice(1) || 'ma').toLowerCase();
+  const i = h.indexOf('-'); let name = i < 0 ? h : h.slice(0, i); let arg = i < 0 ? '' : h.slice(i + 1);
+  if (!V[name]) { name = 'ma'; arg = ''; }
+  if (ac) ac.abort(); ac = new AbortController(); clearInterval(tickIv); closeSheet();
+  document.documentElement.lang = lang; applyTheme(); layout();
+  $('#view').innerHTML = V[name](arg);
+  const immersive = name === 'rutin' || name === 'kijelzo'; document.body.classList.toggle('immersive', immersive);
+  const nav = $('#nav'); nav.setAttribute('aria-label', t('nav_l'));
+  nav.innerHTML = TABS.map(([href, n, icn]) => { const on = GROUP[name] === href; return `<a href="#${href}"${on ? ' aria-current="page"' : ''}><span class="ind">${ic(icn, 22, on ? 2.1 : 1.8)}</span><span>${t(n)}</span></a>`; }).join('');
+  if (h !== lastHash) window.scrollTo(0, 0); lastHash = h;
+  const sig = ac.signal;
+  if (name === 'test') initTest(sig);
+  if (name === 'foto') initFoto(sig);
+  if (name === 'pont') initTimer(sig);
+  if (name === 'gyakorlat') { initBreath(sig); if (arg === 'legzes') { const el = $('#legzes'); if (el) setTimeout(() => el.scrollIntoView({ block: 'start' }), 0); } }
+  if (name === 'rutin') initPlayer(sig, arg);
+  if (name === 'kijelzo') initKijelzo(sig);
+  if (name === 'ma') tickIv = setInterval(() => { if (!document.hidden && !$('#sheetbox .sheet')) { const y = window.scrollY; applyTheme(); $('#view').innerHTML = V.ma(); window.scrollTo(0, y); } }, 30000);
+  document.title = `${t(name === 'ma' ? 'app' : ({ szerv: 'organ_details', test: 'tab_test', pont: 'tab_test', gyakorlat: 'tab_prac', rutin: 'routine_label', technikak: 'tech_title', tudas: 'tab_know', elem: 'el_details', naplo: 'tab_log', beallitasok: 'settings_t', kijelzo: 'kij_open', foto: 'foto_t' })[name])} – ${t('app')}`;
+}
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-act]'); if (!b) return; const a = b.dataset.act;
+  if (a === 'checkin') openSheet();
+  if (a === 'ciclose') closeSheet();
+  if (a === 'ci') { CI[b.dataset.k] = +b.dataset.v; $$(`#sheetbox [data-act=ci][data-k="${b.dataset.k}"]`).forEach((x) => x.setAttribute('aria-checked', x === b)); const rec = recommend(now(), CI); $('#cirec').textContent = `${rec.ti} · ${t('min_n', { n: Math.max(1, Math.round(rec.r.sec / 60)) })}`; $('#cigo').dataset.r = rec.id; }
+  if (a === 'cisave') { saveCheckin(); closeSheet(); route(); }
+  if (a === 'cigo') { saveCheckin(); closeSheet(); location.hash = 'rutin-' + b.dataset.r; }
+  if (a === 'cyc') { elemCyc = b.dataset.k; $$('[data-act=cyc]').forEach((x) => x.setAttribute('aria-pressed', x === b)); $('#cycfig').innerHTML = cycleSvg(elemCyc); $('#cyctext').innerHTML = cycText(); }
+  if (a === 'lexel') { lexEl = b.dataset.k; $$('[data-act=lexel]').forEach((x) => x.setAttribute('aria-pressed', x === b)); $('#lexlist').innerHTML = lexList(); }
+  if (a === 'lyreset') { L = Object.assign({}, DEFAULT_LAYERS); store.set('layers', L); route(); }
+  if (a === 'lang') { lang = b.dataset.k; store.set('lang', lang); route(); }
+  if (a === 'model') { MODEL = b.dataset.k; store.set('model', MODEL); route(); }
+  if (a === 'theme') { store.set('theme', b.dataset.k); route(); }
+  if (a === 'wakeadd') { const [hh, mm] = ($('#waket').value || '02:00').split(':').map(Number); const d = new Date(+b.dataset.base); d.setHours(hh, mm, 0, 0); if (hh >= 18) d.setDate(d.getDate() - 1); const l = getLog(); l.push({ type: 'wake', t: d.getTime() }); setLog(l); route(); }
+  if (a === 'sample') { setLog(getLog().filter((x) => !x.demo).concat(sampleData()).sort((x, y) => x.t - y.t)); route(); }
+  if (a === 'clearlog') { setLog([]); route(); }
+  if (a === 'tmode') { TS.mode = b.dataset.k; store.set('tmode', TS.mode); route(); }
+  if (a === 'freg') { FS.reg = b.dataset.k; FS.lm = {}; FS.sel = null; route(); }
+  if (a === 'fundo') { const r = FREG.find((x) => x.k === FS.reg), done = fregLms(r).filter((l) => FS.lm[l]); if (done.length) delete FS.lm[done[done.length - 1]]; FS.sel = null; route(); }
+  if (a === 'freset') { FS.lm = {}; FS.sel = null; route(); }
+  if (a === 'fflip') { FS.flip = -FS.flip; route(); }
+  if (a === 'fsel' && !e.target.closest('a')) { FS.sel = b.dataset.k; route(); }
+  if (a === 'btz') { $$('[data-act=btz]').forEach((x) => x.setAttribute('aria-pressed', x === b)); }
+  if (a === 'bsave') { const dt = $('#bdate').value, tm = $('#btime').value, lon = parseFloat($('#blon').value), tzb = $('[data-act=btz][aria-pressed=true]'); if (!dt || !tm || isNaN(lon) || lon < -180 || lon > 180) { $('#bmsg').textContent = t('birth_err'); return; } store.set('birth', { date: dt, time: tm, lon, tz: tzb ? +tzb.dataset.k : 1 }); astroEdit = false; L.asztro = true; store.set('layers', L); route(); }
+  if (a === 'bedit') { astroEdit = true; route(); }
+  if (a === 'bcancel') { astroEdit = false; route(); }
+  if (a === 'bclear') { store.set('birth', null); astroEdit = false; route(); }
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('#sheetbox .sheet')) closeSheet(); });
+document.addEventListener('input', (e) => { if (e.target.id === 'lexq') { lexQ = e.target.value; $('#lexlist').innerHTML = lexList(); } });
+document.addEventListener('change', (e) => {
+  const ds = e.target.dataset || {};
+  if (ds.layer) { L[ds.layer] = e.target.checked; store.set('layers', L); }
+  if (ds.pref) store.set(ds.pref, e.target.checked);
+});
+window.addEventListener('hashchange', route);
+route();
+
+}
+</script>
+</body>
+</html>
