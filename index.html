@@ -1031,6 +1031,20 @@ function tCard(p) {
   ${tx[5] ? `<div class="warnbox" style="margin-top:8px">${ic('warn', 18)}<span>${tx[5]}</span></div>` : ''}
   <div class="btnrow"><a class="btn" href="#pont-${p.s}">${t('guide_there')}</a>${p.goals.slice(0, 2).map((g) => `<span class="echip" style="background:var(--surf2)">${C('goals', g)[0]}</span>`).join('')}</div>`;
 }
+// Pont oldal: 3D csontváz a kiválasztott pontra nagyítva, a csatornájával és a cun-méréssel.
+function initPont3D(signal, s) {
+  const root = $('#pmap'); if (!root) return;
+  const p = PBS[s] || PBY['Sz-7'], yaw0 = p.v.includes('f') ? 0 : Math.PI;
+  const m3 = SK3D(root, { sel: p.id, yaw: yaw0, signal, channelOfSel: true, dim: (q) => q.ch !== p.ch, onPick: (id) => { if (id !== p.id) location.hash = 'pont-' + PBY[id].s; } });
+  const sp = PSPEC[p.id], small = sp && sp.k === 'seg' && /hand|foot/.test(sp.seg);
+  const focus = () => { m3.z = small ? 3.6 : 2.6; m3.pitch = 0.06; m3.redraw(); };
+  focus();
+  root.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-m3]'); if (!b) return;
+    if (b.dataset.m3 === 'pfocus') { m3.setYaw(yaw0, true); focus(); }
+    if (b.closest('.mapview')) $$('.mapview [data-m3]', root).forEach((x) => x.setAttribute('aria-pressed', x === b));
+  }, { signal });
+}
 function initTest3D(signal) {
   let m3 = null;
   const card = () => { $('#tcard').innerHTML = tCard(PBY[TS.sel]); $('#tcount').textContent = TS.q || TS.ch !== 'all' ? t('n_pts', { n: PTS.filter(tMatch).length }) : ''; };
@@ -1067,8 +1081,14 @@ function initTest(signal) {
 V.pont = (s) => {
   const p = PBS[s] || PBY['Sz-7'], c = ec(p.el), tx = ptT(p.id), v = p.v.includes('f') ? 'f' : 'b';
   const crop = `<svg viewBox="${p.x - 46} ${p.y - 40} 92 80" role="img" aria-label="${esc(t('crop_label', { p: C('area', p.id) }))}" class="crop"><g opacity="${L.csontok ? .42 : 1}">${bodyInner(v)}</g>${L.csontok ? skelSvg(v, SK()) : ''}${CHP[p.ch] && CHP[p.ch][0] === v ? flowPath(p.ch, true) : ''}<circle cx="${p.x}" cy="${p.y}" r="6" style="fill:${c.c}" opacity=".25"/><circle cx="${p.x}" cy="${p.y}" r="2.6" style="fill:${c.c};stroke:#fff" stroke-width="1"/>${L.csontok ? measureSvg(p, SK(), 3.4) : ''}</svg>`;
+  // Nézet: forgatható 3D csontváz a ponthoz nagyítva, vagy a 2D közeli rajz (a választást megjegyezzük).
+  const pm = store.get('pmode', '3d') === '2d' ? '2d' : '3d';
+  const stage = pm === '3d' ? `<div class="map map3 pmap" id="pmap" tabindex="0" aria-label="${t('map3_label')}"><canvas></canvas>
+    <div class="mapview" role="group" aria-label="${t('view')}">${[['front', 'front'], ['side', 'side_v'], ['back', 'back']].map(([k, n]) => `<button type="button" class="pill" data-m3="${k}" aria-pressed="${k === (v === 'b' ? 'back' : 'front')}">${t(n)}</button>`).join('')}</div>
+    <div class="mapctl"><button type="button" data-m3="zin" aria-label="${t('zoom_in')}">+</button><span data-zl>1×</span><button type="button" data-m3="zout" aria-label="${t('zoom_out')}">−</button><button type="button" data-m3="pfocus" aria-label="${t('pv_focus')}">${ic('point', 18)}</button></div>
+    <div class="hint3">${t('drag_rotate')}</div></div>` : `<div class="pad">${crop}</div>`;
   return `${top(C('area', p.id), `${chName(p.ch)} · ${pc(p)} · ${p.py}`, `test-p-${p.s}`)}
-  <div class="split"><div class="smain">${crop}</div><section class="pad stack sside">
+  <div class="split"><div class="smain stack"><div class="pad"><div class="seg" role="group" aria-label="${t('view')}">${[['3d', 'mode_3d'], ['2d', 'pv_crop']].map(([k, n]) => `<button type="button" data-act="pmode" data-k="${k}" aria-pressed="${pm === k}">${t(n)}</button>`).join('')}</div></div>${stage}</div><section class="pad stack sside">
     <div class="card"><span class="tag">${t('what_do')}</span><div class="t" style="font-size:17px">${tx[4]}</div><div class="kv" style="margin-top:8px"><div class="k">${t('where_exact')}</div><div class="v">${tx[2]}</div></div><div class="kv"><div class="k">${t('k_use')}</div><div class="v">${tx[3]}</div></div>${boneRows(p)}</div>
     ${tx[5] ? `<div class="warnbox">${ic('warn', 18)}<span>${tx[5]}</span></div>` : ''}
     <div class="seg" role="group" aria-label="${t('technique')}">${['ton', 'sed'].map((k) => `<button type="button" data-act="tech" data-k="${k}" aria-pressed="${k === tech}">${t(k === 'ton' ? 'tonify' : 'sedate')}</button>`).join('')}</div>
@@ -1728,7 +1748,7 @@ function route() {
   const sig = ac.signal;
   if (name === 'test') initTest(sig);
   if (name === 'foto') initFoto(sig);
-  if (name === 'pont') initTimer(sig);
+  if (name === 'pont') { initTimer(sig); initPont3D(sig, arg); }
   if (name === 'gyakorlat') { initBreath(sig); if (arg === 'legzes') { const el = $('#legzes'); if (el) setTimeout(() => el.scrollIntoView({ block: 'start' }), 0); } }
   if (name === 'rutin') initPlayer(sig, arg);
   if (name === 'kijelzo') initKijelzo(sig);
@@ -1737,6 +1757,7 @@ function route() {
 }
 document.addEventListener('click', (e) => {
   if (e.target.closest('[data-act=fs]')) { toggleFs(); return; }
+  { const pb = e.target.closest('[data-act=pmode]'); if (pb) { store.set('pmode', pb.dataset.k); route(); return; } }
   const b = e.target.closest('[data-act]'); if (!b) return; const a = b.dataset.act;
   if (a === 'checkin') openSheet();
   if (a === 'ciclose') closeSheet();

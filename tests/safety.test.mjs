@@ -143,6 +143,30 @@ test('elrendezés: asztalon oldalsáv és kétoszlopos Ma, mobilon alsó sáv', 
   }
 });
 
+test('pont oldal: 3D csontváz a ponthoz nagyítva, váltható a közeli rajzra', async () => {
+  for (const [w, h] of [[1440, 900], [390, 844]]) {
+    const ctx = await browser.newContext({ viewport: { width: w, height: h } });
+    const page = await ctx.newPage(); const errors = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    await page.goto(`${URL_}#pont-szb-8`); await page.waitForSelector('#pmap canvas');
+    assert.match(await page.textContent('#pmap [data-zl]'), /^3[.,]6×$/, `${w}px – kézpontnál közelről indul`);
+    assert.equal(await page.locator('#pmap .mapview [aria-pressed=true]').count(), 1, `${w}px – egy nézetgomb aktív`);
+    const nonBlank = await page.evaluate(() => { const c = document.querySelector('#pmap canvas'), d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4 * 16) if (d[i] > 0) n++; return n; });
+    assert.ok(nonBlank > 200, `${w}px – a csontváz kirajzolódik`);
+    const seg = await page.locator('[data-act=pmode]').first().boundingBox();
+    assert.ok(seg.x >= 0 && seg.x + seg.width <= w, `${w}px – a nézetváltó a képernyőn belül`);
+    await page.click('[data-act=pmode][data-k="2d"]');
+    await page.waitForSelector('svg.crop');
+    assert.equal(await page.locator('#pmap').count(), 0);
+    await page.reload(); await page.waitForSelector('svg.crop');   // a választás megmarad
+    await page.click('[data-act=pmode][data-k="3d"]'); await page.waitForSelector('#pmap canvas');
+    await page.goto(`${URL_}#pont-h-23`); await page.waitForSelector('#pmap canvas');
+    assert.equal(await page.getAttribute('#pmap [data-m3=back]', 'aria-pressed'), 'true', `${w}px – hátoldali pont hátulról`);
+    assert.deepEqual(errors, []);
+    await ctx.close();
+  }
+});
+
 test('a lecsendesedés az első, bármilyen check-in mellett', async () => {
   const exp = expected(22, 7);
   for (const x of [20.5, 22, 23.5, 0, 2.5, 4.5]) {

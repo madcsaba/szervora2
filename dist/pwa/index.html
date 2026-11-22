@@ -603,6 +603,7 @@ Object.assign(window.SZ_LANG.hu.ui, {
   sample: 'Mintaadatok betöltése', clear_data: 'Adatok törlése',
   local_only: 'Minden adat csak ebben a böngészőben marad.', sample_note: 'A mintaadatok jelölve vannak, és bármikor törölhetők. Egészségadat-szinkron (Health Connect) csak a natív appban lehetséges.',
   nav_sub: 'Kínai szervóra', fs_on: 'Teljes képernyő', fs_off: 'Kilépés a teljes képernyőből',
+  pv_crop: 'Közeli', pv_focus: 'Vissza a ponthoz',
   theme: 'Téma', th_auto: 'Napszak szerint', th_light: 'Világos', th_dark: 'Sötét', guidance_h: 'Vezetés', in_m: '{m} perc múlva', kij_open: 'Kijelző mód', kij_sub: 'Képernyőkímélő töltés közben: óra, szerv, élő meridián', kij_full: 'Teljes képernyő', kij_full_no: 'A teljes képernyőt itt nem engedi a böngésző.', kij_next: 'Utána: {o} · {h}:00', kij_tap: 'Koppints a vezérlőkhöz', kij_wake_ok: 'A képernyő ébren marad, amíg ez a lap nyitva van.', kij_wake_no: 'A böngésző itt nem tartja ébren a képernyőt. Nyisd meg a lapot külön fülön, vagy állítsd hosszabbra a képernyő kikapcsolását.', voice: 'Hangos vezetés (felolvasás)', content_h: 'Tartalmi rétegek',
   sched_h: 'Napirend', sched_s: 'Ebből számoljuk az esti evési szünetet (lefekvés előtt 3 órától ébredésig) és a lecsendesedést (lefekvés előtt másfél órától).', sched_bed: 'Szokásos lefekvés', sched_wake: 'Szokásos ébredés', sched_save: 'Mentés', sched_clear: 'Alapérték', sched_sum: 'Evési szünet: {e}–{w} · Lecsendesedés: {c}-tól', sched_def: 'Még nem adtad meg. Ma {s}-kor van naplemente ({p}, a készülék órája szerint), ebből az alap lefekvés {b}, ébredés {w}.', sched_tz: 'a készülék időzónája', sched_own: 'A saját napirended alapján.', sched_err: 'Adj meg lefekvést és ébredést; az alvásidő 4 és 14 óra között legyen.', sched_local: 'A napirendet csak ezen az eszközön tároljuk.', sched_saved: 'Elmentve.',
 });
@@ -904,6 +905,7 @@ Object.assign(window.SZ_LANG.en.ui, {
   sample: 'Load sample data', clear_data: 'Clear data',
   local_only: 'All data stays in this browser only.', sample_note: 'Sample data is marked and can be cleared any time. Health data sync (Health Connect) is only possible in the native app.',
   nav_sub: 'Chinese organ clock', fs_on: 'Full screen', fs_off: 'Exit full screen',
+  pv_crop: 'Close-up', pv_focus: 'Back to the point',
   theme: 'Theme', th_auto: 'By time of day', th_light: 'Light', th_dark: 'Dark', guidance_h: 'Guidance', in_m: 'in {m} min', kij_open: 'Display mode', kij_sub: 'A screensaver while charging: clock, organ, live meridian', kij_full: 'Full screen', kij_full_no: 'The browser does not allow full screen here.', kij_next: 'Next: {o} · {h}:00', kij_tap: 'Tap for controls', kij_wake_ok: 'The screen stays on while this page is open.', kij_wake_no: 'The browser cannot keep the screen on here. Open the page in its own tab, or set a longer screen timeout.', voice: 'Spoken guidance (read aloud)', content_h: 'Content layers',
   sched_h: 'Daily rhythm', sched_s: 'Used to set the evening eating pause (from 3 hours before bed until waking) and the wind-down (from 1.5 hours before bed).', sched_bed: 'Usual bedtime', sched_wake: 'Usual wake-up', sched_save: 'Save', sched_clear: 'Default', sched_sum: 'Eating pause: {e}–{w} · Wind-down from {c}', sched_def: 'Not set yet. Sunset today is at {s} ({p}, from your device clock), so the default bedtime is {b}, wake-up {w}.', sched_tz: 'your device time zone', sched_own: 'Based on your own rhythm.', sched_err: 'Enter a bedtime and wake-up; sleep should be between 4 and 14 hours.', sched_local: 'Your rhythm is stored on this device only.', sched_saved: 'Saved.',
 });
@@ -1637,6 +1639,20 @@ function tCard(p) {
   ${tx[5] ? `<div class="warnbox" style="margin-top:8px">${ic('warn', 18)}<span>${tx[5]}</span></div>` : ''}
   <div class="btnrow"><a class="btn" href="#pont-${p.s}">${t('guide_there')}</a>${p.goals.slice(0, 2).map((g) => `<span class="echip" style="background:var(--surf2)">${C('goals', g)[0]}</span>`).join('')}</div>`;
 }
+// Pont oldal: 3D csontváz a kiválasztott pontra nagyítva, a csatornájával és a cun-méréssel.
+function initPont3D(signal, s) {
+  const root = $('#pmap'); if (!root) return;
+  const p = PBS[s] || PBY['Sz-7'], yaw0 = p.v.includes('f') ? 0 : Math.PI;
+  const m3 = SK3D(root, { sel: p.id, yaw: yaw0, signal, channelOfSel: true, dim: (q) => q.ch !== p.ch, onPick: (id) => { if (id !== p.id) location.hash = 'pont-' + PBY[id].s; } });
+  const sp = PSPEC[p.id], small = sp && sp.k === 'seg' && /hand|foot/.test(sp.seg);
+  const focus = () => { m3.z = small ? 3.6 : 2.6; m3.pitch = 0.06; m3.redraw(); };
+  focus();
+  root.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-m3]'); if (!b) return;
+    if (b.dataset.m3 === 'pfocus') { m3.setYaw(yaw0, true); focus(); }
+    if (b.closest('.mapview')) $$('.mapview [data-m3]', root).forEach((x) => x.setAttribute('aria-pressed', x === b));
+  }, { signal });
+}
 function initTest3D(signal) {
   let m3 = null;
   const card = () => { $('#tcard').innerHTML = tCard(PBY[TS.sel]); $('#tcount').textContent = TS.q || TS.ch !== 'all' ? t('n_pts', { n: PTS.filter(tMatch).length }) : ''; };
@@ -1673,8 +1689,14 @@ function initTest(signal) {
 V.pont = (s) => {
   const p = PBS[s] || PBY['Sz-7'], c = ec(p.el), tx = ptT(p.id), v = p.v.includes('f') ? 'f' : 'b';
   const crop = `<svg viewBox="${p.x - 46} ${p.y - 40} 92 80" role="img" aria-label="${esc(t('crop_label', { p: C('area', p.id) }))}" class="crop"><g opacity="${L.csontok ? .42 : 1}">${bodyInner(v)}</g>${L.csontok ? skelSvg(v, SK()) : ''}${CHP[p.ch] && CHP[p.ch][0] === v ? flowPath(p.ch, true) : ''}<circle cx="${p.x}" cy="${p.y}" r="6" style="fill:${c.c}" opacity=".25"/><circle cx="${p.x}" cy="${p.y}" r="2.6" style="fill:${c.c};stroke:#fff" stroke-width="1"/>${L.csontok ? measureSvg(p, SK(), 3.4) : ''}</svg>`;
+  // Nézet: forgatható 3D csontváz a ponthoz nagyítva, vagy a 2D közeli rajz (a választást megjegyezzük).
+  const pm = store.get('pmode', '3d') === '2d' ? '2d' : '3d';
+  const stage = pm === '3d' ? `<div class="map map3 pmap" id="pmap" tabindex="0" aria-label="${t('map3_label')}"><canvas></canvas>
+    <div class="mapview" role="group" aria-label="${t('view')}">${[['front', 'front'], ['side', 'side_v'], ['back', 'back']].map(([k, n]) => `<button type="button" class="pill" data-m3="${k}" aria-pressed="${k === (v === 'b' ? 'back' : 'front')}">${t(n)}</button>`).join('')}</div>
+    <div class="mapctl"><button type="button" data-m3="zin" aria-label="${t('zoom_in')}">+</button><span data-zl>1×</span><button type="button" data-m3="zout" aria-label="${t('zoom_out')}">−</button><button type="button" data-m3="pfocus" aria-label="${t('pv_focus')}">${ic('point', 18)}</button></div>
+    <div class="hint3">${t('drag_rotate')}</div></div>` : `<div class="pad">${crop}</div>`;
   return `${top(C('area', p.id), `${chName(p.ch)} · ${pc(p)} · ${p.py}`, `test-p-${p.s}`)}
-  <div class="split"><div class="smain">${crop}</div><section class="pad stack sside">
+  <div class="split"><div class="smain stack"><div class="pad"><div class="seg" role="group" aria-label="${t('view')}">${[['3d', 'mode_3d'], ['2d', 'pv_crop']].map(([k, n]) => `<button type="button" data-act="pmode" data-k="${k}" aria-pressed="${pm === k}">${t(n)}</button>`).join('')}</div></div>${stage}</div><section class="pad stack sside">
     <div class="card"><span class="tag">${t('what_do')}</span><div class="t" style="font-size:17px">${tx[4]}</div><div class="kv" style="margin-top:8px"><div class="k">${t('where_exact')}</div><div class="v">${tx[2]}</div></div><div class="kv"><div class="k">${t('k_use')}</div><div class="v">${tx[3]}</div></div>${boneRows(p)}</div>
     ${tx[5] ? `<div class="warnbox">${ic('warn', 18)}<span>${tx[5]}</span></div>` : ''}
     <div class="seg" role="group" aria-label="${t('technique')}">${['ton', 'sed'].map((k) => `<button type="button" data-act="tech" data-k="${k}" aria-pressed="${k === tech}">${t(k === 'ton' ? 'tonify' : 'sedate')}</button>`).join('')}</div>
@@ -2334,7 +2356,7 @@ function route() {
   const sig = ac.signal;
   if (name === 'test') initTest(sig);
   if (name === 'foto') initFoto(sig);
-  if (name === 'pont') initTimer(sig);
+  if (name === 'pont') { initTimer(sig); initPont3D(sig, arg); }
   if (name === 'gyakorlat') { initBreath(sig); if (arg === 'legzes') { const el = $('#legzes'); if (el) setTimeout(() => el.scrollIntoView({ block: 'start' }), 0); } }
   if (name === 'rutin') initPlayer(sig, arg);
   if (name === 'kijelzo') initKijelzo(sig);
@@ -2343,6 +2365,7 @@ function route() {
 }
 document.addEventListener('click', (e) => {
   if (e.target.closest('[data-act=fs]')) { toggleFs(); return; }
+  { const pb = e.target.closest('[data-act=pmode]'); if (pb) { store.set('pmode', pb.dataset.k); route(); return; } }
   const b = e.target.closest('[data-act]'); if (!b) return; const a = b.dataset.act;
   if (a === 'checkin') openSheet();
   if (a === 'ciclose') closeSheet();
