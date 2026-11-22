@@ -93,15 +93,29 @@ test('napirend nélkül a naplemente a készülék időzónájából: Budapest s
 test('ugyanaznap Madridban később van naplemente → lefekvés 22:30', () =>
   checkDay('Madrid ősz', { day: '2026-09-22', tz: 'Europe/Madrid' }, expected(22.5, 7)));
 
-test('a napíven egy felirat van (nincs egymásra csúszó név), és a napíven belül marad', async () => {
-  const { page, ctx, at } = await open();
-  for (const x of [8, 15, 20]) {   // köztük a leghosszabb név: „H. melegítő”
+test('napi kör: 12 ág, a felső háromnak egymást nem fedő felirata, rámutatásra előnézet', async () => {
+  const { page, ctx, errors, at } = await open();
+  for (const x of [8, 15, 20, 21.5]) {   // köztük a leghosszabb nevek: „H. melegítő”, „Hármasmelegítő”
     await at(x);
-    assert.equal(await page.locator('.arcwrap svg text').count(), 1, `${x}:00 – pontosan egy felirat`);
-    const box = await page.locator('.arcwrap svg text').boundingBox();
+    assert.equal(await page.locator('.arcwrap [data-dial]').count(), 12, `${label(x)} – mind a 12 szerv látszik`);
+    const labels = page.locator('.arcwrap svg text');
+    assert.equal(await labels.count(), 3, `${label(x)} – felirat csak a felső három ágon`);
     const svg = await page.locator('.arcwrap svg').boundingBox();
-    assert.ok(box.x + box.width <= svg.x + svg.width, `${x}:00 – a felirat a napíven belül marad`);
+    const boxes = await Promise.all([0, 1, 2].map((i) => labels.nth(i).boundingBox()));
+    for (const bx of boxes) assert.ok(bx.x >= svg.x - 1 && bx.x + bx.width <= svg.x + svg.width + 1, `${label(x)} – a felirat a körön belül marad`);
+    for (let i = 0; i < 3; i++) for (let j = i + 1; j < 3; j++) {
+      const p = boxes[i], q = boxes[j];
+      const overlap = p.x < q.x + q.width && q.x < p.x + p.width && p.y < q.y + q.height && q.y < p.y + p.height;
+      assert.ok(!overlap, `${label(x)} – a ${i}. és ${j}. felirat nem fedi egymást`);
+    }
   }
+  const now = await page.textContent('.arccenter .organ');
+  await page.hover('[data-dial="6"]');               // Szív, 11–13
+  assert.equal(await page.textContent('.arccenter .organ'), 'Szív');
+  assert.match(await page.textContent('.arccenter .sub'), /11:00–13:00/);
+  await page.mouse.move(5, 700);                     // el a körről → visszaáll
+  assert.equal(await page.textContent('.arccenter .organ'), now);
+  assert.deepEqual(errors, []);
   await ctx.close();
 });
 

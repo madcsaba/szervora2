@@ -65,9 +65,10 @@ h2{margin:0;font-size:16px;font-weight:700}
 .iconbtn.tonal{background:var(--surf2)}
 .iconbtn[aria-pressed=true]{background:var(--acc);color:var(--onacc)}
 /* nap-szalag */
-.arcwrap{position:relative;padding:4px 8px 0;margin-bottom:14px}
-.arcwrap a path{transition:opacity .2s}.arcwrap a:hover path{opacity:.9}
-.arccenter{position:absolute;left:0;right:0;bottom:6px;text-align:center;pointer-events:none}
+.arcwrap{position:relative;padding:18px 8px 0;margin:0 auto 14px;max-width:380px}
+.arcwrap a path{transition:opacity .2s}.arcwrap a:hover path,.arcwrap a:focus-visible path{opacity:1}.arcwrap a:focus-visible{outline:none}.arcwrap a:focus-visible path{stroke:var(--on);stroke-width:2}
+.arccenter{position:absolute;left:24%;right:24%;top:calc(50% + 9px);transform:translateY(-50%);text-align:center;pointer-events:none}
+.arccenter.preview .eyebrow{color:var(--mut)}
 .arccenter .organ{font-family:'Inter Tight',Inter,sans-serif;font-weight:800;line-height:1.05;letter-spacing:-1px;margin:4px 0 2px}
 .arccenter .eyebrow{justify-content:center;color:var(--acc)}
 /* kártyák */
@@ -439,16 +440,18 @@ const hm = (s) => { const [a, b] = String(s).split(':').map(Number); return a + 
 const fmtH = (x) => { const m = Math.round(mod24(x) * 60) % 1440; return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`; };
 const hOf = (d) => d.getHours() + d.getMinutes() / 60;
 const inWin = (x, a, b) => (a <= b ? x >= a && x < b : x >= a || x < b);
-function sunsetH(d, { lat, lon } = sunLoc()) {
-  // NOAA közelítés; helyi idő órában (a böngésző időzónájával).
+function sunEventH(d, rise, { lat, lon } = sunLoc()) {
+  // NOAA közelítés; helyi idő órában (a böngésző időzónájával). rise: napkelte, különben naplemente.
   const n = Math.floor((new Date(d.getFullYear(), d.getMonth(), d.getDate()) - new Date(d.getFullYear(), 0, 0)) / 864e5);
   const g = 2 * Math.PI / 365 * (n - 1);
   const eq = 229.18 * (0.000075 + 0.001868 * Math.cos(g) - 0.032077 * Math.sin(g) - 0.014615 * Math.cos(2 * g) - 0.040849 * Math.sin(2 * g));
   const dec = 0.006918 - 0.399912 * Math.cos(g) + 0.070257 * Math.sin(g) - 0.006758 * Math.cos(2 * g) + 0.000907 * Math.sin(2 * g) - 0.002697 * Math.cos(3 * g) + 0.00148 * Math.sin(3 * g);
   const la = lat * Math.PI / 180, ha = Math.acos(Math.min(1, Math.max(-1, Math.cos(90.833 * Math.PI / 180) / (Math.cos(la) * Math.cos(dec)) - Math.tan(la) * Math.tan(dec)))) * 180 / Math.PI;
   const noon = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12);
-  return mod24((720 - 4 * (lon - ha) - eq) / 60 - noon.getTimezoneOffset() / 60);
+  return mod24((720 - 4 * (lon + (rise ? ha : -ha)) - eq) / 60 - noon.getTimezoneOffset() / 60);
 }
+const sunsetH = (d) => sunEventH(d, false);
+const sunriseH = (d) => sunEventH(d, true);
 const getSched = () => { const u = store.get('sched', null); return u && u.bed && u.wake ? u : null; };
 function sched(d = now()) {
   const u = getSched();
@@ -810,24 +813,46 @@ function recommend(d, ci) {
   return { id, ti, su, r: RBY[id] };
 }
 
-/* ================= nap-szalag ================= */
-function dayArc(d) {
-  const cur = ORG.indexOf(orgAt(d)), W = 350, H = 196, cx = 175, cy = 182, R = 160;
-  const pt = (rad, deg) => { const a = deg * Math.PI / 180; return [r1(cx + rad * Math.cos(a)), r1(cy + rad * Math.sin(a))]; };
-  let s = ''; const MYB = astroOn() ? [...new Set(bazi(getBirth()).P.map((p) => p[1]))] : [];
-  for (let k = -6; k <= 5; k++) {
-    const o = ORG[(cur + k + 12) % 12], c = 270 + k * 15, a0 = c - 6.6, a1 = c + 6.6, on = k === 0, w = on ? 36 : 22, ro = R + (on ? 7 : 0), ri = ro - w;
-    const [x0, y0] = pt(ro, a0), [x1, y1] = pt(ro, a1), [x2, y2] = pt(ri, a1), [x3, y3] = pt(ri, a0);
-    s += `<a href="#szerv-${slug(o.c)}" aria-label="${esc(orgN(o.c))}, ${t('hours', { w: win(o) })}"><path d="M${x0} ${y0} A${ro} ${ro} 0 0 1 ${x1} ${y1} L${x2} ${y2} A${ri} ${ri} 0 0 0 ${x3} ${y3} Z" style="fill:var(--${o.el})" opacity="${on ? 1 : k < 0 ? 0.3 : 0.62}"/></a>`;
-    if (astroOn() && MYB.includes(ORG.indexOf(o))) { const [mx, my] = pt(ri - 9, c); s += `<circle cx="${mx}" cy="${my}" r="4" style="fill:var(--${o.el})"><title>${esc(t('my_windows'))}</title></circle>`; }
-    // A következő szerv neve az ív mentén, a szegmense elejétől: hosszú név sem csúszik rá a szomszédra.
-    if (k === 1) { const [lx0, ly0] = pt(R + 11, a0), [lx1, ly1] = pt(R + 11, a0 + 60); s += `<path id="arcnext" d="M${lx0} ${ly0} A${R + 11} ${R + 11} 0 0 1 ${lx1} ${ly1}" fill="none"/><text font-size="11" font-weight="600" style="fill:var(--mut)"><textPath href="#arcnext">${esc(C('org', o.c)[1])}</textPath></text>`; }
-  }
-  const o = ORG[cur], into = (((d.getHours() * 60 + d.getMinutes()) - o.s * 60 + 1440) % 1440) / 120;
-  const [nx, ny] = pt(R + 7 - 18, 270 - 6.6 + into * 13.2);
-  s += `<circle cx="${nx}" cy="${ny}" r="7" style="fill:var(--bg);stroke:var(--on)" stroke-width="3"/>`;
-  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(t('arc_label'))}" style="width:100%;max-width:${W}px;display:block;margin:0 auto;overflow:visible;font-family:Inter,sans-serif">${s}</svg>`;
+/* ================= napi kör: a teljes 24 óra, a „most” mindig felül ================= */
+// Égbolt-sáv a valódi napkelte/naplemente szerint (a készülék időzónájából, lásd core.js: sunEventH).
+const SKY = { night: '#1E2A4A', dawn: '#E49C86', gold: '#F0C66B', day: '#A6D1EC', dusk: '#DE8559', eve: '#6A4B7C' };
+const hex2 = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+const mixHex = (a, b, f) => { const x = hex2(a), y = hex2(b); return '#' + x.map((v, i) => Math.round(v + (y[i] - v) * f).toString(16).padStart(2, '0')).join(''); };
+function skyAt(x, rise, set) {
+  const k = [[rise - 1.2, SKY.night], [rise - 0.3, SKY.dawn], [rise + 0.8, SKY.gold], [rise + 2.5, SKY.day], [set - 2.5, SKY.day], [set - 0.8, SKY.gold], [set + 0.1, SKY.dusk], [set + 0.8, SKY.eve], [set + 1.6, SKY.night]];
+  let y = x; if (y < k[0][0]) y += 24; if (y > k[k.length - 1][0] + 24) y -= 24;
+  for (let i = 0; i < k.length - 1; i++) if (y >= k[i][0] && y <= k[i + 1][0]) return mixHex(k[i][1], k[i + 1][1], (y - k[i][0]) / Math.max(1e-6, k[i + 1][0] - k[i][0]));
+  return SKY.night;
 }
+function dayArc(d) {
+  const S = 360, cx = 180, cy = 180, R = 146, W = 24, x0 = hOf(d), cur = ORG.indexOf(orgAt(d));
+  const ang = (x) => (x - x0) * 15;                                         // óra → fok, felülről, órajárás szerint
+  const pt = (r, deg) => { const a = deg * Math.PI / 180; return [r1(cx + r * Math.sin(a)), r1(cy - r * Math.cos(a))]; };
+  const arc = (r, a0, a1, sweep = 1) => { const [p, q] = pt(r, a0), [u, v] = pt(r, a1); return { m: `${p} ${q}`, a: `A${r} ${r} 0 ${Math.abs(a1 - a0) > 180 ? 1 : 0} ${sweep} ${u} ${v}` }; };
+  const MYB = astroOn() ? [...new Set(bazi(getBirth()).P.map((p) => p[1]))] : [];
+  const rise = sunriseH(d), set = sunsetH(d);
+  let s = '';
+  // égbolt-sáv: 48 félórás darab
+  for (let i = 0; i < 48; i++) { const x = i / 2, a0 = ang(x), a1 = ang(x + 0.5) + 0.3, o = arc(110, a0, a1), w = arc(118, a1, a0, 0); s += `<path d="M${o.m} ${o.a} L${w.m} ${w.a} Z" fill="${skyAt(x + 0.25, rise, set)}"/>`; }
+  const noon = (rise + set) / 2, [sx, sy] = pt(114, ang(noon)), [mx, my] = pt(114, ang(noon + 12));
+  s += `<circle cx="${sx}" cy="${sy}" r="7" fill="#FBE29A" stroke="#E9B949" stroke-width="1.5"><title>${esc(t('dial_sun', { r: fmtH(rise), s: fmtH(set) }))}</title></circle>`;
+  s += `<path d="M${r1(mx + 4)} ${r1(my - 6)} a7 7 0 1 0 0 12 a5.5 5.5 0 1 1 0 -12z" fill="#E8EEF7" stroke="#B9C6D8" stroke-width="1"/>`;
+  // 12 szerv-ág; a felső három (előző, mostani, következő) kiemelve és felirattal
+  ORG.forEach((o, i) => {
+    const k = ((i - cur + 18) % 12) - 6, on = k === 0, top = Math.abs(k) <= 1;
+    const a0 = ang(o.s) + 1.2, a1 = ang(o.s + 2) - 1.2, ro = R + (on ? 6 : 0), ri = R - W, out = arc(ro, a0, a1), inn = arc(ri, a1, a0, 0);
+    s += `<a href="#szerv-${slug(o.c)}" data-dial="${i}" aria-label="${esc(orgN(o.c))}, ${t('hours', { w: win(o) })}"><path d="M${out.m} ${out.a} L${inn.m} ${inn.a} Z" style="fill:var(--${o.el})" opacity="${on ? 1 : top ? 0.72 : 0.34}"/></a>`;
+    if (top) { const l = arc(R + 13, a0 - 10, a1 + 10); s += `<path id="dl${i}" d="M${l.m} ${l.a}" fill="none"/><text font-size="11" font-weight="${on ? 700 : 600}" style="fill:var(--${on ? 'on' : 'mut'})" pointer-events="none"><textPath href="#dl${i}" startOffset="50%" text-anchor="middle">${esc(C('org', o.c)[1])}</textPath></text>`; }
+    if (MYB.includes(i)) { const [qx, qy] = pt(ri - 0, (a0 + a1) / 2); s += `<circle cx="${qx}" cy="${qy}" r="3.5" style="fill:var(--on)" pointer-events="none"><title>${esc(t('my_windows'))}</title></circle>`; }
+  });
+  // „most” mutató felül, az égbolt-sávon (a felirattal nem ütközik)
+  s += `<line x1="${cx}" y1="${cy - 104}" x2="${cx}" y2="${cy - 125}" style="stroke:var(--on)" stroke-width="3.5" stroke-linecap="round" pointer-events="none"/><circle cx="${cx}" cy="${cy - 104}" r="3.5" style="fill:var(--on)" pointer-events="none"/>`;
+  return `<svg class="dial" viewBox="0 0 ${S} ${S}" role="img" aria-label="${esc(t('arc_label'))}" style="width:100%;max-width:${S}px;display:block;margin:0 auto;overflow:visible;font-family:Inter,sans-serif">${s}</svg>`;
+}
+const centerHtml = (o, d) => `<div class="eyebrow">${d ? t('now_el', { e: elT(o.el).n.toUpperCase() }) : elT(o.el).n.toUpperCase()}</div><div class="organ" style="font-size:${orgN(o.c).length > 11 ? 26 : orgN(o.c).length > 8 ? 32 : 38}px">${orgN(o.c)}</div><div class="sub">${String(o.s).padStart(2, '0')}:00–${String((o.s + 2) % 24).padStart(2, '0')}:00${d ? ' · ' + fmtLeft(minsLeft(o, d)) : ''}</div>`;
+// Rámutatásra / fókuszra a kör közepén az adott szerv látszik; elhagyva visszaáll a mostanira.
+const dialPreview = (e) => { const a = e.target.closest && e.target.closest('[data-dial]'), c = $('#view .arccenter'); if (!c) return; if (!c.dataset.now) c.dataset.now = c.innerHTML; c.innerHTML = a ? centerHtml(ORG[+a.dataset.dial]) : c.dataset.now; c.classList.toggle('preview', !!a); };
+['pointerover', 'focusin'].forEach((ev) => document.addEventListener(ev, (e) => { if (e.target.closest && (e.target.closest('[data-dial]') || $('#view .arccenter.preview'))) dialPreview(e); }));
 
 const V = {};
 /* ================= MA ================= */
@@ -836,7 +861,7 @@ V.ma = () => {
   const later = [1, 2].map((k) => ORG[(i + k) % 12]);
   return `${top(t('tab_ma'), `${dateStr(d)} · ${clockStr(d)}`, '', `<a class="iconbtn tonal" href="#kijelzo" aria-label="${t('kij_open')}">${ic('screen', 22)}</a>${settingsBtn()}`)}
   <section class="arcwrap" aria-label="${t('arc_label')}">${dayArc(d)}
-    <div class="arccenter"><div class="eyebrow">${t('now_el', { e: e.n.toUpperCase() })}</div><div class="organ" style="font-size:${orgN(o.c).length > 11 ? 30 : 40}px">${orgN(o.c)}</div><div class="sub">${String(o.s).padStart(2, '0')}:00–${String((o.s + 2) % 24).padStart(2, '0')}:00 · ${fmtLeft(minsLeft(o, d))}</div></div>
+    <div class="arccenter" aria-live="polite">${centerHtml(o, d)}</div>
   </section>
   <section class="pad stack">
     <div class="hero">

@@ -212,7 +212,7 @@
 Object.assign(window.SZ_LANG.hu.ui, {
   app: 'Szervóra', back_l: 'Vissza', close_l: 'Bezárás', settings_t: 'Beállítások', nav_l: 'Fő navigáció',
   tab_ma: 'Ma', tab_test: 'Test', tab_prac: 'Gyakorlat', tab_know: 'Tudás', tab_log: 'Napló',
-  arc_label: 'A nap szervszalagja: középen a mostani szerv, balra az elmúlt, jobbra a következő órák', now_el: 'MOST · {e}',
+  dial_sun: 'Napkelte {r}, naplemente {s}', arc_label: 'A nap teljes köre: felül a mostani szerv, órajárás szerint a következők. Rámutatva bármelyik szerv megtekinthető.', now_el: 'MOST · {e}',
   enough: 'Most ennyi elég', start_min: 'Indítás · {m} perc', only_breath: 'Csak légzés',
   rec_night_t: 'Lecsendesedés alvás előtt', rec_night_s: 'Lassú nyomás fentről lefelé, hosszabb kilégzéssel. Utána már ne nézz képernyőt.',
   rec_tense_t: 'Feszültségoldás', rec_tense_s: 'Mellkas közepe, csukló, majd a lábfej: négy pont, kb. négy perc.',

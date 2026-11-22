@@ -31,9 +31,10 @@ h2{margin:0;font-size:16px;font-weight:700}
 .iconbtn.tonal{background:var(--surf2)}
 .iconbtn[aria-pressed=true]{background:var(--acc);color:var(--onacc)}
 /* nap-szalag */
-.arcwrap{position:relative;padding:4px 8px 0;margin-bottom:14px}
-.arcwrap a path{transition:opacity .2s}.arcwrap a:hover path{opacity:.9}
-.arccenter{position:absolute;left:0;right:0;bottom:6px;text-align:center;pointer-events:none}
+.arcwrap{position:relative;padding:18px 8px 0;margin:0 auto 14px;max-width:380px}
+.arcwrap a path{transition:opacity .2s}.arcwrap a:hover path,.arcwrap a:focus-visible path{opacity:1}.arcwrap a:focus-visible{outline:none}.arcwrap a:focus-visible path{stroke:var(--on);stroke-width:2}
+.arccenter{position:absolute;left:24%;right:24%;top:calc(50% + 9px);transform:translateY(-50%);text-align:center;pointer-events:none}
+.arccenter.preview .eyebrow{color:var(--mut)}
 .arccenter .organ{font-family:'Inter Tight',Inter,sans-serif;font-weight:800;line-height:1.05;letter-spacing:-1px;margin:4px 0 2px}
 .arccenter .eyebrow{justify-content:center;color:var(--acc)}
 /* kártyák */

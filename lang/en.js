@@ -212,7 +212,7 @@
 Object.assign(window.SZ_LANG.en.ui, {
   app: 'Organ Clock', back_l: 'Back', close_l: 'Close', settings_t: 'Settings', nav_l: 'Main navigation',
   tab_ma: 'Today', tab_test: 'Body', tab_prac: 'Practice', tab_know: 'Learn', tab_log: 'Journal',
-  arc_label: 'Organ ribbon of the day: the current organ in the centre, past hours to the left, coming hours to the right', now_el: 'NOW · {e}',
+  dial_sun: 'Sunrise {r}, sunset {s}', arc_label: 'The full day: the current organ at the top, the next ones clockwise. Point at any organ to preview it.', now_el: 'NOW · {e}',
   enough: 'This is enough for now', start_min: 'Start · {m} min', only_breath: 'Just breathe',
   rec_night_t: 'Wind down before sleep', rec_night_s: 'Slow pressure from top to bottom, with a longer out-breath. No screens afterwards.',
   rec_tense_t: 'Release tension', rec_tense_s: 'Centre of the chest, wrist, then the foot: four points, about four minutes.',

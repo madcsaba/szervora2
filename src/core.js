@@ -142,16 +142,18 @@ const hm = (s) => { const [a, b] = String(s).split(':').map(Number); return a + 
 const fmtH = (x) => { const m = Math.round(mod24(x) * 60) % 1440; return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`; };
 const hOf = (d) => d.getHours() + d.getMinutes() / 60;
 const inWin = (x, a, b) => (a <= b ? x >= a && x < b : x >= a || x < b);
-function sunsetH(d, { lat, lon } = sunLoc()) {
-  // NOAA közelítés; helyi idő órában (a böngésző időzónájával).
+function sunEventH(d, rise, { lat, lon } = sunLoc()) {
+  // NOAA közelítés; helyi idő órában (a böngésző időzónájával). rise: napkelte, különben naplemente.
   const n = Math.floor((new Date(d.getFullYear(), d.getMonth(), d.getDate()) - new Date(d.getFullYear(), 0, 0)) / 864e5);
   const g = 2 * Math.PI / 365 * (n - 1);
   const eq = 229.18 * (0.000075 + 0.001868 * Math.cos(g) - 0.032077 * Math.sin(g) - 0.014615 * Math.cos(2 * g) - 0.040849 * Math.sin(2 * g));
   const dec = 0.006918 - 0.399912 * Math.cos(g) + 0.070257 * Math.sin(g) - 0.006758 * Math.cos(2 * g) + 0.000907 * Math.sin(2 * g) - 0.002697 * Math.cos(3 * g) + 0.00148 * Math.sin(3 * g);
   const la = lat * Math.PI / 180, ha = Math.acos(Math.min(1, Math.max(-1, Math.cos(90.833 * Math.PI / 180) / (Math.cos(la) * Math.cos(dec)) - Math.tan(la) * Math.tan(dec)))) * 180 / Math.PI;
   const noon = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12);
-  return mod24((720 - 4 * (lon - ha) - eq) / 60 - noon.getTimezoneOffset() / 60);
+  return mod24((720 - 4 * (lon + (rise ? ha : -ha)) - eq) / 60 - noon.getTimezoneOffset() / 60);
 }
+const sunsetH = (d) => sunEventH(d, false);
+const sunriseH = (d) => sunEventH(d, true);
 const getSched = () => { const u = store.get('sched', null); return u && u.bed && u.wake ? u : null; };
 function sched(d = now()) {
   const u = getSched();
