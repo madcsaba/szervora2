@@ -29,6 +29,7 @@ const num = (n) => n.toLocaleString(loc(), { maximumFractionDigits: 1 });
 
 /* ================= ikonok ================= */
 const IC = {
+  full: '<path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/>', fullx: '<path d="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5"/>',
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', practice: '<path d="M3 8h11a3 3 0 1 0-3-3M3 12h16a3 3 0 1 1-3 3M3 16h8"/>',
   layers: '<path d="M12 3 3 8l9 5 9-5-9-5zM3 13l9 5 9-5"/>', elements: '<path d="M12 3l8.6 6.2-3.3 10.1H6.7L3.4 9.2z"/><circle cx="12" cy="12" r="2.5"/>',
   body: '<circle cx="12" cy="4" r="2"/><path d="M8 8h8l-1 7h-1.5l-.5 6h-2l-.5-6H9z"/>', move: '<circle cx="12" cy="5" r="2"/><path d="M12 8v6M6 11l6-1 6 1M12 14l-4 6M12 14l4 6"/>',

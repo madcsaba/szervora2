@@ -119,6 +119,30 @@ test('napi kör: 12 ág, a felső háromnak egymást nem fedő felirata, rámuta
   await ctx.close();
 });
 
+test('elrendezés: asztalon oldalsáv és kétoszlopos Ma, mobilon alsó sáv', async () => {
+  for (const [w, h, desk] of [[1440, 900, true], [1920, 1080, true], [390, 844, false]]) {
+    const ctx = await browser.newContext({ timezoneId: 'Europe/Budapest', locale: 'hu-HU', viewport: { width: w, height: h } });
+    const page = await ctx.newPage(); const errors = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    await page.goto(`${URL_}#ma`); await page.waitForSelector('#view .hero');
+    const nav = await page.locator('#nav').boundingBox(), dial = await page.locator('.arcwrap').boundingBox(), hero = await page.locator('#view .hero').boundingBox();
+    if (desk) {
+      assert.ok(nav.x === 0 && nav.height >= h - 1 && nav.width < 320, `${w}px – bal oldali, teljes magasságú oldalsáv`);
+      assert.ok(await page.locator('#nav .navbrand').isVisible() && await page.locator('#nav [data-act=fs]').isVisible(), `${w}px – márka és teljes képernyő gomb`);
+      assert.ok(hero.x > dial.x + dial.width - 1 && hero.y < dial.y + dial.height, `${w}px – az ajánlás a kör mellett, jobbra`);
+      assert.ok(dial.width >= 420, `${w}px – nagy kör (${Math.round(dial.width)}px)`);
+      const scroll = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+      assert.ok(scroll <= 0, `${w}px – nincs vízszintes görgetés`);
+    } else {
+      assert.ok(nav.y > h - 120, '390px – alsó navigációs sáv');
+      assert.equal(await page.locator('#nav .navbrand').isVisible(), false);
+      assert.ok(hero.y >= dial.y + dial.height - 1, '390px – az ajánlás a kör alatt');
+    }
+    assert.deepEqual(errors, []);
+    await ctx.close();
+  }
+});
+
 test('a lecsendesedés az első, bármilyen check-in mellett', async () => {
   const exp = expected(22, 7);
   for (const x of [20.5, 22, 23.5, 0, 2.5, 4.5]) {

@@ -123,9 +123,9 @@ function dayArc(d) {
   });
   // „most” mutató felül, az égbolt-sávon (a felirattal nem ütközik)
   s += `<line x1="${cx}" y1="${cy - 104}" x2="${cx}" y2="${cy - 125}" style="stroke:var(--on)" stroke-width="3.5" stroke-linecap="round" pointer-events="none"/><circle cx="${cx}" cy="${cy - 104}" r="3.5" style="fill:var(--on)" pointer-events="none"/>`;
-  return `<svg class="dial" viewBox="0 0 ${S} ${S}" role="img" aria-label="${esc(t('arc_label'))}" style="width:100%;max-width:${S}px;display:block;margin:0 auto;overflow:visible;font-family:Inter,sans-serif">${s}</svg>`;
+  return `<svg class="dial" viewBox="0 0 ${S} ${S}" role="img" aria-label="${esc(t('arc_label'))}" style="width:100%;display:block;margin:0 auto;overflow:visible;font-family:Inter,sans-serif">${s}</svg>`;
 }
-const centerHtml = (o, d) => `<div class="eyebrow">${d ? t('now_el', { e: elT(o.el).n.toUpperCase() }) : elT(o.el).n.toUpperCase()}</div><div class="organ" style="font-size:${orgN(o.c).length > 11 ? 26 : orgN(o.c).length > 8 ? 32 : 38}px">${orgN(o.c)}</div><div class="sub">${String(o.s).padStart(2, '0')}:00–${String((o.s + 2) % 24).padStart(2, '0')}:00${d ? ' · ' + fmtLeft(minsLeft(o, d)) : ''}</div>`;
+const centerHtml = (o, d) => `<div class="eyebrow">${d ? t('now_el', { e: elT(o.el).n.toUpperCase() }) : elT(o.el).n.toUpperCase()}</div><div class="organ" style="--fs:${orgN(o.c).length > 11 ? 26 : orgN(o.c).length > 8 ? 32 : 38}">${orgN(o.c)}</div><div class="sub">${String(o.s).padStart(2, '0')}:00–${String((o.s + 2) % 24).padStart(2, '0')}:00${d ? ' · ' + fmtLeft(minsLeft(o, d)) : ''}</div>`;
 // Rámutatásra / fókuszra a kör közepén az adott szerv látszik; elhagyva visszaáll a mostanira.
 const dialPreview = (e) => { const a = e.target.closest && e.target.closest('[data-dial]'), c = $('#view .arccenter'); if (!c) return; if (!c.dataset.now) c.dataset.now = c.innerHTML; c.innerHTML = a ? centerHtml(ORG[+a.dataset.dial]) : c.dataset.now; c.classList.toggle('preview', !!a); };
 ['pointerover', 'focusin'].forEach((ev) => document.addEventListener(ev, (e) => { if (e.target.closest && (e.target.closest('[data-dial]') || $('#view .arccenter.preview'))) dialPreview(e); }));
@@ -136,10 +136,10 @@ V.ma = () => {
   const d = now(), o = orgAt(d), e = elT(o.el), h = d.getHours(), rec = recommend(d, lastCheckin()), i = ORG.indexOf(o), ci = lastCheckin();
   const later = [1, 2].map((k) => ORG[(i + k) % 12]);
   return `${top(t('tab_ma'), `${dateStr(d)} · ${clockStr(d)}`, '', `<a class="iconbtn tonal" href="#kijelzo" aria-label="${t('kij_open')}">${ic('screen', 22)}</a>${settingsBtn()}`)}
-  <section class="arcwrap" aria-label="${t('arc_label')}">${dayArc(d)}
+  <div class="dash"><section class="arcwrap" aria-label="${t('arc_label')}">${dayArc(d)}
     <div class="arccenter" aria-live="polite">${centerHtml(o, d)}</div>
   </section>
-  <section class="pad stack">
+  <section class="pad stack dside">
     <div class="hero">
       <div class="eyebrow acc">${ic(CALM(d) ? 'moon' : 'today', 18)}${t('enough')}</div>
       <h2 class="display">${rec.ti}</h2>
@@ -153,7 +153,7 @@ V.ma = () => {
     <div class="grid2">${later.map((x) => `<a class="tile big" href="#szerv-${slug(x.c)}"><div class="k">${String(x.s).padStart(2, '0')}:00 · ${elT(x.el).n}</div><div class="v">${orgN(x.c)}</div></a>`).join('')}</div>
     <div class="card quiet"><div class="s">${C('org', o.c)[2]}</div></div>
     ${disclaimer()}
-  </section>`;
+  </section></div>`;
 };
 /* ---- check-in lap ---- */
 let CI = { e: 1, m: 1, s: 1 };
@@ -185,7 +185,7 @@ V.szerv = (code) => {
   if (L.erzelmek) cards.push(`<div class="card"><span class="tag">${t('tag_emo')}</span><div class="t">${e.emo}</div><div class="s"><b>${t('in_balance')}</b> ${e.bal}</div><div class="s">${e.dis}</div></div>`);
   if (L.gyogynovenyek) cards.push(`<div class="card"><span class="tag">${t('tag_tea')}</span><div class="t">${e.tea}</div><div class="s">${t('tea_note')}</div></div>`);
   return `${top(orgN(o.c), `${o.py} · ${o.yy} · ${e.n}`, 'ma')}
-  <section class="pad stack">
+  <section class="pad stack dgrid">
     <div class="hero"><div class="han bgglyph" aria-hidden="true">${o.han}</div><div class="chips">${['hours', active ? 'active_now' : 'in_hm'].map((k) => `<span>${k === 'hours' ? t('hours', { w: win(o) }) : k === 'active_now' ? t('active_now') : (startIn >= 60 ? t('in_hm', { h: Math.floor(startIn / 60), m: startIn % 60 }) : t('in_m', { m: startIn }))}</span>`).join('')}<span>${t('pair', { o: orgN(pair.c) })}</span></div><p style="margin-top:12px">${C('org', o.c)[2]}</p></div>
     <div class="sec"><h2>${t('relations')}</h2><span>${t('element_x', { e: e.n })}</span></div><div class="grid3">${relTiles(e)}</div>
     ${cards.join('')}
@@ -206,7 +206,7 @@ V.test = (arg) => {
   <div class="pad"><label for="tq" class="sr">${t('search_body')}</label><div class="search">${ic('search', 20)}<input id="tq" type="search" placeholder="${esc(t('search_body'))}" value="${esc(TS.q)}" autocomplete="off"><span id="tcount" class="sub" style="white-space:nowrap"></span></div></div>
   <div class="pills" role="group" aria-label="${t('channel')}">${[['all', t('all_ch')], ...CHORDER.map((c) => [c, chA(c)])].map(([k, n]) => `<button type="button" class="pill" data-act="tch" data-k="${k}" aria-pressed="${k === TS.ch}" ${k !== 'all' ? `aria-label="${esc(chT(k)[0])}" style="--dotc:var(--${CHEL[k]})"` : ''}>${k !== 'all' ? '<span class="dot" style="background:var(--dotc)"></span>' : ''}${n}</button>`).join('')}</div>
   <div class="pad" style="margin-top:8px"><div class="seg" role="group" aria-label="${t('view')}">${[['2d', 'mode_2d'], ['3d', 'mode_3d']].map(([k, n]) => `<button type="button" data-act="tmode" data-k="${k}" aria-pressed="${TS.mode === k}">${t(n)}</button>`).join('')}<a href="#foto">${t('mode_foto')}</a></div></div>
-  ${TS.mode === '3d' ? `<div class="map map3" id="tmap" tabindex="0" aria-label="${t('map3_label')}"><canvas></canvas>
+  <div class="split"><div class="smain">${TS.mode === '3d' ? `<div class="map map3" id="tmap" tabindex="0" aria-label="${t('map3_label')}"><canvas></canvas>
     <div class="layerbox" role="group" aria-label="${t('layers_l')}">${[['chOn', 'wave', 'layer_ch'], ['pts', 'hand', 'layer_pts']].map(([k, i, l]) => `<button type="button" data-act="tlayer" data-k="${k}" aria-pressed="${TS[k]}">${ic(i, 20)}<span>${t(l)}</span></button>`).join('')}<button type="button" data-m3="auto" aria-pressed="false">${ic('reset', 20)}<span>${t('auto_rot')}</span></button></div>
     <div class="mapview" role="group" aria-label="${t('view')}">${[['front', 'front'], ['side', 'side_v'], ['back', 'back']].map(([k, n], i) => `<button type="button" class="pill" data-m3="${k}" aria-pressed="${i === 0}">${t(n)}</button>`).join('')}</div>
     <div class="mapctl"><button type="button" data-m3="zin" aria-label="${t('zoom_in')}">+</button><span data-zl>1×</span><button type="button" data-m3="zout" aria-label="${t('zoom_out')}">−</button><button type="button" data-m3="zreset" aria-label="${t('zoom_reset')}">${ic('reset', 18)}</button></div>
@@ -214,8 +214,8 @@ V.test = (arg) => {
     <div class="layerbox" role="group" aria-label="${t('layers_l')}">${layers.map(([k, i, l]) => `<button type="button" data-act="tlayer" data-k="${k}" aria-pressed="${TS[k]}">${ic(i, 20)}<span>${t(l)}</span></button>`).join('')}</div>
     <div class="mapview" role="group" aria-label="${t('view')}">${['f', 'b'].map((k) => `<button type="button" class="pill" data-mz="view-${k}" aria-pressed="${k === TS.v}">${t(k === 'f' ? 'front' : 'back')}</button>`).join('')}</div>
     <div class="mapctl"><button type="button" data-mz="zin" aria-label="${t('zoom_in')}">+</button><span data-zl>1×</span><button type="button" data-mz="zout" aria-label="${t('zoom_out')}">−</button><button type="button" data-mz="zreset" aria-label="${t('zoom_reset')}">${ic('reset', 18)}</button></div>
-  </div>`}
-  <section class="pad stack" style="margin-top:12px"><div class="card" id="tcard" aria-live="polite"></div>${row('screen', t('foto_t'), t('foto_row_s'), '#foto')}${disclaimer()}</section>`;
+  </div>`}</div>
+  <section class="pad stack sside" style="margin-top:12px"><div class="card" id="tcard" aria-live="polite"></div>${row('screen', t('foto_t'), t('foto_row_s'), '#foto')}${disclaimer()}</section></div>`;
 };
 function tCard(p) {
   const tx = ptT(p.id), m = measureText(p), c = ec(p.el);
@@ -263,8 +263,7 @@ V.pont = (s) => {
   const p = PBS[s] || PBY['Sz-7'], c = ec(p.el), tx = ptT(p.id), v = p.v.includes('f') ? 'f' : 'b';
   const crop = `<svg viewBox="${p.x - 46} ${p.y - 40} 92 80" role="img" aria-label="${esc(t('crop_label', { p: C('area', p.id) }))}" class="crop"><g opacity="${L.csontok ? .42 : 1}">${bodyInner(v)}</g>${L.csontok ? skelSvg(v, SK()) : ''}${CHP[p.ch] && CHP[p.ch][0] === v ? flowPath(p.ch, true) : ''}<circle cx="${p.x}" cy="${p.y}" r="6" style="fill:${c.c}" opacity=".25"/><circle cx="${p.x}" cy="${p.y}" r="2.6" style="fill:${c.c};stroke:#fff" stroke-width="1"/>${L.csontok ? measureSvg(p, SK(), 3.4) : ''}</svg>`;
   return `${top(C('area', p.id), `${chName(p.ch)} · ${pc(p)} · ${p.py}`, `test-p-${p.s}`)}
-  <section class="pad stack">
-    ${crop}
+  <div class="split"><div class="smain">${crop}</div><section class="pad stack sside">
     <div class="card"><span class="tag">${t('what_do')}</span><div class="t" style="font-size:17px">${tx[4]}</div><div class="kv" style="margin-top:8px"><div class="k">${t('where_exact')}</div><div class="v">${tx[2]}</div></div><div class="kv"><div class="k">${t('k_use')}</div><div class="v">${tx[3]}</div></div>${boneRows(p)}</div>
     ${tx[5] ? `<div class="warnbox">${ic('warn', 18)}<span>${tx[5]}</span></div>` : ''}
     <div class="seg" role="group" aria-label="${t('technique')}">${['ton', 'sed'].map((k) => `<button type="button" data-act="tech" data-k="${k}" aria-pressed="${k === tech}">${t(k === 'ton' ? 'tonify' : 'sedate')}</button>`).join('')}</div>
@@ -277,7 +276,7 @@ V.pont = (s) => {
     </div>
     ${row('hand', t('grips_contra'), t('tech_title'), '#technikak')}
     ${disclaimer()}
-  </section>`;
+  </section></div>`;
 };
 
 /* ================= GYAKORLAT ================= */
@@ -285,7 +284,7 @@ V.gyakorlat = (arg) => {
   const d = now(), o = orgAt(d), snd = C('snd', SOUND_OF[o.c]), rec = recommend(d, lastCheckin());
   const rcard = (r, hl) => { const rt = C('routines', r.id); return `<a class="rcard${hl ? ' hl' : ''}" href="#rutin-${r.id}"><span class="ic">${ic(r.icon)}</span><span class="grow"><span class="t">${rt[0]}</span><span class="s">${rt[1]}</span><span class="meta">${t('routine_meta', { m: Math.max(1, Math.round(r.sec / 60)), n: r.steps.length })}</span></span><span class="playdot">${ic('play', 18, 2.2)}</span></a>`; };
   return `${top(t('tab_prac'), t('prac_sub'), '', settingsBtn())}
-  <section class="pad stack">
+  <section class="pad stack dgrid">
     <div class="sec"><h2>${t('recommended')}</h2></div>
     ${rcard(rec.r, true)}
     <div class="sec"><h2>${t('routines_h')}</h2><span>${ROUT.length}</span></div>
@@ -394,16 +393,16 @@ V.tudas = (arg) => {
   const e = elT(el), mother = Object.keys(GEN).find((x) => GEN[x] === el), ctrlBy = Object.keys(CTRL).find((x) => CTRL[x] === el);
   const tabs = `<div class="seg tabs" role="tablist" aria-label="${t('view')}">${[['graf', 'graph', `#tudas-graf-${el}`], ['lexikon', 'lexicon', '#tudas-lexikon'], ['ciklusok', 'cycles', '#tudas-ciklusok'], ...(L.asztro ? [['asztro', 'astro', '#tudas-asztro']] : [])].map(([k, n, h]) => `<a role="tab" aria-selected="${k === tab}" href="${h}">${t(n)}</a>`).join('')}</div>`;
   let body = '';
-  if (tab === 'graf') body = `<div class="pad">${graphSvg(el)}</div><section class="pad stack">
+  if (tab === 'graf') body = `<div class="split"><div class="pad smain">${graphSvg(el)}</div><section class="pad stack sside">
     <div class="sub">${t('graph_hint')}</div>
     <div class="crumbs" aria-label="${t('path_h')}">${KPATH.map((k, i) => `<a href="#tudas-graf-${k}" class="${i === KPATH.length - 1 ? 'on' : ''}" style="--dotc:var(--${k})">${elT(k).n}</a>`).join('<span aria-hidden="true">→</span>')}</div>
     <div class="card"><span class="tag">${t('why_h')}</span><div class="t">${e.n} · ${e.fn}</div><div class="s">${t('k_sense')}: ${e.sense} · ${t('k_tissue')}: ${e.tissue} · ${t('k_emo')}: ${e.emo} · ${t('k_taste')}: ${e.taste}</div><div class="s">${t('feeds')}: <b>${elT(mother).n}</b> · ${t('ctrl_by')}: <b>${elT(ctrlBy).n}</b></div><div class="btnrow"><a class="btn tonal" href="#elem-${el}">${t('el_details')}</a></div></div>
-  </section>`;
+  </section></div>`;
   if (tab === 'lexikon') body = `<div class="pad"><label for="lexq" class="sr">${t('search_rel_label')}</label><div class="search">${ic('search', 20)}<input id="lexq" type="search" placeholder="${esc(t('search_ph_rel'))}" value="${esc(lexQ)}" autocomplete="off"></div></div>
   <div class="pills" role="group" aria-label="${t('filter_el')}">${[['all', t('all')], ...ELK.map((k) => [k, elT(k).n])].map(([k, n]) => `<button type="button" class="pill" data-act="lexel" data-k="${k}" aria-pressed="${k === lexEl}">${n}</button>`).join('')}</div>
   <section class="pad" id="lexlist">${lexList()}</section>`;
   if (tab === 'ciklusok') body = `<div class="pills" role="group" aria-label="${t('cycle')}">${Object.keys(CYCST).map((k) => `<button type="button" class="pill" data-act="cyc" data-k="${k}" aria-pressed="${k === elemCyc}">${C('cyc', k)[0]}</button>`).join('')}</div>
-  <div class="pad" id="cycfig">${cycleSvg(elemCyc)}</div><section class="pad stack"><div class="card" id="cyctext">${cycText()}</div></section>`;
+  <div class="split"><div class="pad smain" id="cycfig">${cycleSvg(elemCyc)}</div><section class="pad stack sside"><div class="card" id="cyctext">${cycText()}</div></section></div>`;
   if (tab === 'asztro') body = astroView();
   return `${top(t('tab_know'), t('know_sub'), '', settingsBtn())}<div class="pad">${tabs}</div>${body}<div class="pad">${disclaimer()}</div>`;
 };
@@ -433,7 +432,7 @@ V.naplo = () => {
   const recent = log.slice(-6).reverse().map((x) => { const d = new Date(x.t), when = new Intl.DateTimeFormat(loc(), { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(d); const what = x.type === 'ci' ? `${t('ci_label')}: ${t('lvl_e' + x.e)} · ${t('mood_' + x.m)}` : x.type === 'wake' ? `${t('wake_label')} · ${orgN(orgAt(d).c)}` : `${C('routines', x.r)[0]} ✓`; return `<div class="li"><span class="dot" style="background:var(--${orgAt(d).el})"></span><span class="grow">${what}</span><span class="sub">${when}</span></div>`; }).join('');
   const lastNight = (() => { const d = new Date(); d.setHours(2, 0, 0, 0); if (d > new Date()) d.setDate(d.getDate() - 1); return d; })();
   return `${top(t('tab_log'), t('log_sub'), '', settingsBtn())}
-  <section class="pad stack">
+  <section class="pad stack dgrid">
     <div class="btnrow" style="margin-top:0"><button type="button" class="btn tonal" data-act="checkin">${ic('emotion', 18)}${t('checkin_btn')}</button></div>
     <div class="card"><div class="t">${t('woke')}</div><div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap"><label for="waket" class="sub">${t('woke_at')}</label><input id="waket" type="time" value="02:10" class="tinput"><button type="button" class="btn" data-act="wakeadd" data-base="${lastNight.getTime()}">${ic('plus', 18, 2.2)}${t('add')}</button></div><div id="wakemsg" class="sub" aria-live="polite" style="margin-top:6px"></div></div>
     <div class="card" style="display:flex;gap:14px;align-items:center">${ringSvg}<div class="grow">${pattern ? `<span class="tag">${t('pattern')}</span><div class="display" style="font-size:19px;line-height:24px;margin-top:2px">${t('pattern_t', { n: wakes.length, k: mx, w: winTxt })}</div><div class="s">${t('pattern_s', { o: orgN(mo.c) })}</div>` : `<div class="s">${t('no_data')}</div>`}</div></div>
@@ -461,7 +460,7 @@ V.beallitasok = () => {
   const sw = (k, n, def) => `<div class="li"><label class="grow" for="pf-${k}">${t(n)}</label><input class="switch" type="checkbox" id="pf-${k}" data-pref="${k}"${store.get(k, def) ? ' checked' : ''}></div>`;
   const ly = (k) => `<div class="li"><label class="grow" for="ly-${k}"><span class="t">${t('ly_' + k)}</span><span class="s">${t('lyd_' + k)}</span></label><input class="switch" type="checkbox" role="switch" id="ly-${k}" data-layer="${k}"${L[k] ? ' checked' : ''}></div>`;
   return `${top(t('settings_t'), '', 'ma')}
-  <section class="pad stack">
+  <section class="pad stack dgrid">
     <div class="card stack"><div><div class="flabel">${ic('globe', 16)} ${t('language')}</div>${seg('lang', LANGS.map((k) => [k, PACK[k].name]), lang)}</div>
       <div><div class="flabel">${ic('today', 16)} ${t('theme')}</div>${seg('theme', [['auto', t('th_auto')], ['light', t('th_light')], ['dark', t('th_dark')]], store.get('theme', 'auto'))}</div>
       <div><div class="flabel">${ic('body', 16)} ${t('model')}</div>${seg('model', [['f', t('female')], ['m', t('male')]], MODEL)}</div></div>
@@ -608,7 +607,10 @@ function route() {
   $('#view').innerHTML = V[name](arg);
   const immersive = name === 'rutin' || name === 'kijelzo'; document.body.classList.toggle('immersive', immersive);
   const nav = $('#nav'); nav.setAttribute('aria-label', t('nav_l'));
-  nav.innerHTML = TABS.map(([href, n, icn]) => { const on = GROUP[name] === href; return `<a href="#${href}"${on ? ' aria-current="page"' : ''}><span class="ind">${ic(icn, 22, on ? 2.1 : 1.8)}</span><span>${t(n)}</span></a>`; }).join('');
+  const fsOn = !!document.fullscreenElement;
+  nav.innerHTML = `<div class="navbrand"><span class="han" aria-hidden="true">${HAN[orgAt(now()).el] || ''}</span><span><b>${t('app')}</b><small>${t('nav_sub')}</small></span></div>`
+    + TABS.map(([href, n, icn]) => { const on = GROUP[name] === href && name !== 'beallitasok'; return `<a href="#${href}"${on ? ' aria-current="page"' : ''}><span class="ind">${ic(icn, 22, on ? 2.1 : 1.8)}</span><span>${t(n)}</span></a>`; }).join('')
+    + `<div class="navx"><a href="#kijelzo"><span class="ind">${ic('screen', 20)}</span><span>${t('kij_open')}</span></a><a href="#beallitasok"${name === 'beallitasok' ? ' aria-current="page"' : ''}><span class="ind">${ic('gear', 20)}</span><span>${t('settings_t')}</span></a>${document.fullscreenEnabled ? `<button type="button" data-act="fs" aria-pressed="${fsOn}"><span class="ind">${ic(fsOn ? 'fullx' : 'full', 20)}</span><span>${t(fsOn ? 'fs_off' : 'fs_on')}</span><kbd>F</kbd></button>` : ''}</div>`;
   if (h !== lastHash) window.scrollTo(0, 0); lastHash = h;
   const sig = ac.signal;
   if (name === 'test') initTest(sig);
@@ -621,6 +623,7 @@ function route() {
   document.title = `${t(name === 'ma' ? 'app' : ({ szerv: 'organ_details', test: 'tab_test', pont: 'tab_test', gyakorlat: 'tab_prac', rutin: 'routine_label', technikak: 'tech_title', tudas: 'tab_know', elem: 'el_details', naplo: 'tab_log', beallitasok: 'settings_t', kijelzo: 'kij_open', foto: 'foto_t' })[name])} – ${t('app')}`;
 }
 document.addEventListener('click', (e) => {
+  if (e.target.closest('[data-act=fs]')) { toggleFs(); return; }
   const b = e.target.closest('[data-act]'); if (!b) return; const a = b.dataset.act;
   if (a === 'checkin') openSheet();
   if (a === 'ciclose') closeSheet();
@@ -651,6 +654,9 @@ document.addEventListener('click', (e) => {
   if (a === 'bclear') { store.set('birth', null); astroEdit = false; route(); }
 });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('#sheetbox .sheet')) closeSheet(); });
+const toggleFs = () => { try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen({ navigationUI: 'hide' }); } catch (e) {} };
+document.addEventListener('keydown', (e) => { if ((e.key === 'f' || e.key === 'F') && !e.ctrlKey && !e.metaKey && !e.altKey && !/^(INPUT|TEXTAREA|SELECT)$/.test((e.target.tagName || '')) && !e.target.isContentEditable) toggleFs(); });
+document.addEventListener('fullscreenchange', () => { const b = $('#nav [data-act=fs]'); if (!b) return; const on = !!document.fullscreenElement; b.setAttribute('aria-pressed', on); b.innerHTML = `<span class="ind">${ic(on ? 'fullx' : 'full', 20)}</span><span>${t(on ? 'fs_off' : 'fs_on')}</span><kbd>F</kbd>`; });
 document.addEventListener('input', (e) => { if (e.target.id === 'lexq') { lexQ = e.target.value; $('#lexlist').innerHTML = lexList(); } });
 document.addEventListener('change', (e) => {
   const ds = e.target.dataset || {};

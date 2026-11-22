@@ -7,7 +7,7 @@ TCM wellness-app (kínai szervóra) webes prototípusa, Android-irányú tervekk
 - `src/views2.js` – 2.0 felület: témamotor (elem × napszak), napi kör (`dayArc`: teljes 24 óra, a „most” felül, égbolt-sáv a valódi napkeltéből/naplementéből, élénk elemszínek évszak szerinti telítettséggel (ősz/tél fakóbb, az évszak eleme és az aktív szerv mindig élénk), a felső 3 ág felirattal, a többi rámutatásra előnézhető), Ma / Test / Gyakorlat / Tudás / Napló / Beállítások, check-in és ajánlómotor, lejátszó, tudásgráf, napló, kijelző mód, kínai asztrológia réteg, útválasztó.
 - `src/sk3d.js` – könyvtár nélküli 3D csontváz (Canvas 2D) és a fotós pontkereső.
 - `src/legacy.js` – 1.x nézetek és motorok, amiket a 2.0 újrahasznál (elem oldal, lexikon, időzítő, légzés, technikák).
-- `src/style.css` – stílusok (CSS-változók a témamotorból).
+- `src/style.css` – stílusok (CSS-változók a témamotorból). Mobilra készül; 1024px felett asztali, teljes képernyős elrendezés: bal oldalsáv (márka, fülek, Kijelző mód, Beállítások, Teljes képernyő gomb / `F` billentyű), nézetenként `.dash` (Ma: nagy kör + ajánlás), `.split` (Test, Tudás, pont: vizuális rész + részletek, sticky), `.dgrid` (listák rácsban). Új nézetnél ezeket az osztályokat használd.
 - `src/tzcoords.js` – időzóna → koordináta tábla a naplemente-számításhoz (generált: `tools/gen_tzcoords.py`).
 - `fonts/` – beágyazott betűtípusok (Inter, Inter Tight, Noto Serif SC részhalmaz; OFL). A `tools/fetch_fonts.py` tölti le egyszer; a build base64-ként ágyazza be, megnyitáskor nincs külső kérés. Új karakterhez bővítsd a `CHARS`/`HAN` listát és futtasd újra (a build figyelmeztet).
 - `lang/hu.js`, `lang/en.js` – nyelvi csomagok: `window.SZ_LANG.{hu,en} = { ui, c }`. Új felületi szöveg mindig mindkét nyelvbe kerüljön.

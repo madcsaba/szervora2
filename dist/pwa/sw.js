@@ -1,4 +1,4 @@
-const C='szervora-f7c3e65a82';
+const C='szervora-c9019b1d3a';
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(['./','index.html','manifest.webmanifest','icon-192.png','icon-512.png'])));self.skipWaiting()});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))));self.clients.claim()});
 const put=(q,res)=>{if(res.ok&&new URL(q.url).origin===location.origin){const cp=res.clone();caches.open(C).then(c=>c.put(q,cp)).catch(()=>{})}return res};
