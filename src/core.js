@@ -331,8 +331,8 @@ function BodyMap(root, o) {
   const M = { v: o.v || 'f', z: 1, tx: 0, ty: 0, sel: null, ch: null, nums: null, list: o.list || PTS, route: null };
   root.insertAdjacentHTML('afterbegin', `<div class="stage"><svg viewBox="0 0 310 480" aria-hidden="true"><g class="bg"></g><g class="sk"></g><g class="cg"></g><g class="rg"></g><g class="ms"></g></svg></div><div class="ptl"></div>`);
   const stage = $('.stage', root), ptl = $('.ptl', root), bgG = $('.bg', root), cg = $('.cg', root), rg = $('.rg', root), skG = $('.sk', root), msG = $('.ms', root), sig = o.signal;
-  M.bones = !!(L.csontok && store.get('bones', false));
-  M.drawSk = () => { bgG.style.opacity = M.bones ? .42 : 1; skG.innerHTML = M.bones ? skelSvg(M.v, SK()) : ''; msG.innerHTML = M.bones && M.sel && PBY[M.sel].v.includes(M.v) ? measureSvg(PBY[M.sel], SK(), 5.5) : ''; const bb = $('[data-mz=bones]', root); if (bb) bb.setAttribute('aria-pressed', M.bones); };
+  M.bones = false; M.skin = true; M.pts = true; M.chOn = true;
+  M.drawSk = () => { bgG.style.opacity = !M.skin ? (M.bones ? .1 : .16) : M.bones ? .42 : 1; skG.innerHTML = M.bones ? skelSvg(M.v, SK()) : ''; msG.innerHTML = M.bones && M.sel && PBY[M.sel].v.includes(M.v) ? measureSvg(PBY[M.sel], SK(), 5.5) : ''; const bb = $('[data-mz=bones]', root); if (bb) bb.setAttribute('aria-pressed', M.bones); };
   let W0 = 1, H0 = 1, k = 1, moved = false;
   const fit = () => { const r = root.getBoundingClientRect(); W0 = r.width || 1; H0 = r.height || 1; k = Math.min(W0 / 310, H0 / 480); };
   const clamp = () => { const cw = 310 * k * M.z, chh = 480 * k * M.z; M.tx = cw <= W0 ? (W0 - cw) / 2 : Math.min(0, Math.max(W0 - cw, M.tx)); M.ty = chh <= H0 ? (H0 - chh) / 2 : Math.min(0, Math.max(H0 - chh, M.ty)); };
@@ -344,12 +344,12 @@ function BodyMap(root, o) {
     const zl = $('[data-zl]', root); if (zl) zl.textContent = num(Math.round(M.z * 10) / 10) + '×';
   };
   M.drawCh = () => {
-    cg.innerHTML = M.ch && L.meridianok && CHP[M.ch] && CHP[M.ch][0] === M.v ? flowPath(M.ch, true) : '';
+    cg.innerHTML = M.ch && M.chOn && CHP[M.ch] && CHP[M.ch][0] === M.v ? flowPath(M.ch, true) : '';
     const rp = (M.route || []).map((id) => PBY[id]).filter((p) => p.v.includes(M.v));
     rg.innerHTML = rp.length > 1 ? `<polyline points="${rp.map((p) => p.x + ',' + p.y).join(' ')}" fill="none" style="stroke:var(--muted)" stroke-width="1.5" stroke-dasharray="3 4" vector-effect="non-scaling-stroke"/>` : '';
   };
   M.renderPts = () => {
-    ptl.innerHTML = M.list.filter((p) => p.v.includes(M.v)).map((p) => {
+    ptl.innerHTML = M.list.filter((p) => p.v.includes(M.v) && (M.pts || p.id === M.sel)).map((p) => {
       const cls = ['pt']; if (o.dim && o.dim(p)) cls.push('dim'); if (p.id === M.sel) cls.push('sel'); if (o.done && o.done(p)) cls.push('done');
       const lbl = M.nums && M.nums[p.id] ? M.nums[p.id] : pc(p);
       return `<button type="button" class="${cls.join(' ')}" data-pt="${p.id}" style="--c:${ec(p.el).c}" aria-label="${esc(pc(p) + ' ' + p.py + (p.id === M.sel ? ', ' + t('selected') : ''))}"><i></i><b>${lbl}</b></button>`;
@@ -379,7 +379,7 @@ function BodyMap(root, o) {
   root.addEventListener('dblclick', (e) => { const r = root.getBoundingClientRect(); M.zoomAt(1.8, e.clientX - r.left, e.clientY - r.top, true); }, { signal: sig });
   const ptrs = new Map(); let start = null, pinch = null;
   root.addEventListener('pointerdown', (e) => {
-    if (e.target.closest('.mapctl,.mapview')) return;
+    if (e.target.closest('.mapctl,.mapview,.layerbox')) return;
     ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (ptrs.size === 1) { start = { x: e.clientX, y: e.clientY, tx: M.tx, ty: M.ty }; moved = false; }
     if (ptrs.size === 2) { const [a, b] = [...ptrs.values()], r = root.getBoundingClientRect(); pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), z: M.z, mx: (a.x + b.x) / 2 - r.left, my: (a.y + b.y) / 2 - r.top, tx: M.tx, ty: M.ty }; }

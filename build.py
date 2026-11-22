@@ -1,30 +1,20 @@
-import re
-src = open('legacy_webapp1x/index.html', encoding='utf8').read().split('\n')
-L = lambda a, b: '\n'.join(src[a-1:b])
-core = L(157, 478)
-common = L(485, 490)
-bm = L(492, 563)
-def rep(s, a, b, n=1):
-    assert s.count(a) == n, (a, s.count(a)); return s.replace(a, b)
-bm = rep(bm, "M.bones = !!(L.csontok && store.get('bones', false));", "M.bones = false; M.skin = true; M.pts = true; M.chOn = true;")
-bm = rep(bm, "bgG.style.opacity = M.bones ? .42 : 1;", "bgG.style.opacity = !M.skin ? (M.bones ? .1 : .16) : M.bones ? .42 : 1;")
-bm = rep(bm, "cg.innerHTML = M.ch && L.meridianok &&", "cg.innerHTML = M.ch && M.chOn &&")
-bm = rep(bm, "M.list.filter((p) => p.v.includes(M.v)).map", "M.list.filter((p) => p.v.includes(M.v) && (M.pts || p.id === M.sel)).map")
-bm = rep(bm, "closest('.mapctl,.mapview')", "closest('.mapctl,.mapview,.layerbox')")
-elem = L(637, 656)
-elem = rep(elem, "top(t('el_details'), '', 'elemek')", "top(t('el_details'), '', 'tudas-graf-' + k)")
-elem = rep(elem, '<section class="hero" style', '<section class="hero solid" style')
-lex = L(657, 662)
-bone = L(693, 693)
-tech = L(730, 731) + '\n' + L(753, 775)
-br = L(794, 795) + '\n' + L(819, 839)
-techv = L(902, 920)
-techv = rep(techv, "top(t('tech_title'), t('tech_sub'), 'meridian-sz')", "top(t('tech_title'), t('tech_sub'), 'gyakorlat')")
-v2 = open('src/views2.js', encoding='utf8').read()
+"""Szervóra 2.0 build: a src/ fájlokból összefűzi az index.html-t.
+
+Sorrend: core.js, views2.js (útválasztó előtti rész), sk3d.js, legacy.js, views2.js útválasztó.
+Minden forrás a src/ mappában van; az 1.x webapp (legacy_webapp1x) már nem kell.
+"""
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+SRC = ROOT / 'src'
+read = lambda name: (SRC / name).read_text(encoding='utf8').rstrip('\n')
+
+v2 = read('views2.js') + '\n'
 mark = '/* ================= útválasztó ================= */'
+assert v2.count(mark) == 1, 'views2.js: az útválasztó jelölő pontosan egyszer szerepeljen'
 a, b = v2.split(mark)
-js = '\n'.join([core, common, bm, a, open('src/sk3d.js', encoding='utf8').read(), '/* ---- átvett nézetek és motorok (1.x) ---- */', elem, lex, bone, tech, br, techv, mark + b])
-css = open('src/style.css', encoding='utf8').read()
+js = '\n'.join([read('core.js'), a, read('sk3d.js') + '\n', '/* ---- átvett nézetek és motorok (1.x) ---- */', read('legacy.js') + '\n', mark + b])
+css = (SRC / 'style.css').read_text(encoding='utf8')
 han = '%E5%BF%83%E6%9C%A8%E7%81%AB%E5%9C%9F%E9%87%91%E6%B0%B4%E8%83%86%E8%82%9D%E8%82%BA%E5%A4%A7%E8%82%A0%E8%83%83%E8%84%BE%E5%B0%8F%E8%86%80%E8%83%B1%E8%82%BE%E5%8C%85%E4%B8%89%E7%84%A6'
 html = f'''<!DOCTYPE html>
 <html lang="hu">
@@ -52,6 +42,5 @@ html = f'''<!DOCTYPE html>
 </body>
 </html>
 '''
-open('index.html', 'w', encoding='utf8').write(html)
-open('/tmp/app.js', 'w', encoding='utf8').write('{\n' + js + '\n}')
-print(len(html))
+(ROOT / 'index.html').write_text(html, encoding='utf8')
+print('index.html', len(html), 'karakter')

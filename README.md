@@ -2,6 +2,4 @@
 
 Lásd: CLAUDE.md (szerkezet, szabályok, következő lépések).
 
-Megjegyzés: a build.py jelenleg az 1.x webapp fájljából (legacy_webapp1x/index.html) olvassa a core és legacy részeket.
-A src/core.js és src/legacy.js ugyanezek kimásolt változata: első lépésként a build.py-t érdemes átírni,
-hogy ezekből a fájlokból dolgozzon, és utána a legacy_webapp1x függőség megszüntethető.
+Build: `python3 build.py && python3 build_dist.py` – minden forrás a `src/` és `lang/` mappában van.

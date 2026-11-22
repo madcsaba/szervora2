@@ -2,8 +2,8 @@ V.elem = (k) => {
   if (!elT(k) || k === 'er') k = 'fa'; const e = elT(k), c = ec(k);
   const mother = Object.keys(GEN).find((x) => GEN[x] === k), ctrlBy = Object.keys(CTRL).find((x) => CTRL[x] === k), snd = C('snd', SOUND_OF[ELORG[k][0]]);
   const cc = (x, role) => `<a href="#elem-${x}" style="flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 4px;border-radius:12px;background:${ec(x).l};text-align:center"><span style="font-size:11px;line-height:1.2">${role}</span><span style="font-size:15px;font-weight:600">${elT(x).n}</span></a>`;
-  return `${top(t('el_details'), '', 'elemek')}
-  <section class="hero" style="background:${c.c}"><div class="bg han" aria-hidden="true">${HAN[k]}</div><div style="position:relative"><div class="big">${e.n}</div><div style="font-size:13px">${PY[k]} · ${e.fn}</div><div class="chips"><span>${e.season}</span><span>${e.climate}</span><span>${e.color}</span></div></div></section>
+  return `${top(t('el_details'), '', 'tudas-graf-' + k)}
+  <section class="hero solid" style="background:${c.c}"><div class="bg han" aria-hidden="true">${HAN[k]}</div><div style="position:relative"><div class="big">${e.n}</div><div style="font-size:13px">${PY[k]} · ${e.fn}</div><div class="chips"><span>${e.season}</span><span>${e.climate}</span><span>${e.color}</span></div></div></section>
   <section class="pad stack" style="margin-top:12px">
     <div class="sec"><h2>${t('organs_h')}</h2><span>${t('with_window')}</span></div>
     <div class="grid2">${ELORG[k].map((oc) => { const o = OBY[oc]; return `<a class="tile" href="#szerv-${slug(oc)}" style="background:${c.l}"><div class="k">${o.yy} · ${t('hours', { w: win(o) })}</div><div class="v">${orgN(oc)}</div></a>`; }).join('')}</div>
@@ -79,7 +79,7 @@ V.technikak = () => {
   const ing = (n, [a, b]) => `<div style="flex:1;padding:10px 6px;border-radius:12px;background:var(--bg);text-align:center">${dots(n)}<div style="font-size:14px;font-weight:600;margin-top:6px">${a}</div><div style="font-size:12px;color:var(--muted)">${b}</div></div>`;
   const finger = (w) => `<span style="display:block;width:${w}px;height:34px;border-radius:9px 9px 4px 4px;background:var(--body);border:1.5px solid var(--body-line)"></span>`;
   const cun = (n, k, w, cap) => `<div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="font-size:14px;font-weight:600;color:var(--jade-t)">${num(n)} ${T.cun_u}</div><div style="align-self:stretch;height:6px;border:1.5px solid var(--jade-t);border-bottom:0;margin:0 4px"></div><div style="display:flex;gap:1px">${Array.from({ length: k }, () => finger(w)).join('')}</div><div style="font-size:12px;color:var(--muted);text-align:center">${cap}</div></div>`;
-  return `${top(t('tech_title'), t('tech_sub'), 'meridian-sz')}
+  return `${top(t('tech_title'), t('tech_sub'), 'gyakorlat')}
   <section class="pad stack">
     <div class="card"><h2>${T.intensity}</h2><div style="display:flex;gap:6px;margin-top:10px">${T.ing.map((x, i) => ing(i + 1, x)).join('')}</div><p style="margin:10px 0 0;font-size:14px;line-height:20px;color:var(--muted)">${T.ing_note}</p></div>
     <div class="sec"><h2>${T.grips}</h2><span>${T.grips_n}</span></div>
