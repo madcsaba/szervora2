@@ -81,7 +81,8 @@ function dayArc(d) {
     const [x0, y0] = pt(ro, a0), [x1, y1] = pt(ro, a1), [x2, y2] = pt(ri, a1), [x3, y3] = pt(ri, a0);
     s += `<a href="#szerv-${slug(o.c)}" aria-label="${esc(orgN(o.c))}, ${t('hours', { w: win(o) })}"><path d="M${x0} ${y0} A${ro} ${ro} 0 0 1 ${x1} ${y1} L${x2} ${y2} A${ri} ${ri} 0 0 0 ${x3} ${y3} Z" style="fill:var(--${o.el})" opacity="${on ? 1 : k < 0 ? 0.3 : 0.62}"/></a>`;
     if (astroOn() && MYB.includes(ORG.indexOf(o))) { const [mx, my] = pt(ri - 9, c); s += `<circle cx="${mx}" cy="${my}" r="4" style="fill:var(--${o.el})"><title>${esc(t('my_windows'))}</title></circle>`; }
-    if (k >= 1 && k <= 2) { const [tx, ty] = pt(R + 14, c); s += `<text x="${tx}" y="${ty}" text-anchor="middle" font-size="11" font-weight="600" style="fill:var(--mut)" transform="rotate(${c - 270} ${tx} ${ty})">${C('org', o.c)[1]}</text>`; }
+    // A következő szerv neve az ív mentén, a szegmense elejétől: hosszú név sem csúszik rá a szomszédra.
+    if (k === 1) { const [lx0, ly0] = pt(R + 11, a0), [lx1, ly1] = pt(R + 11, a0 + 60); s += `<path id="arcnext" d="M${lx0} ${ly0} A${R + 11} ${R + 11} 0 0 1 ${lx1} ${ly1}" fill="none"/><text font-size="11" font-weight="600" style="fill:var(--mut)"><textPath href="#arcnext">${esc(C('org', o.c)[1])}</textPath></text>`; }
   }
   const o = ORG[cur], into = (((d.getHours() * 60 + d.getMinutes()) - o.s * 60 + 1440) % 1440) / 120;
   const [nx, ny] = pt(R + 7 - 18, 270 - 6.6 + into * 13.2);
@@ -440,7 +441,7 @@ function schedCard() {
   return `<div class="card stack" id="schedcard"><div class="t">${ic('sleep', 18)} ${t('sched_h')}</div><div class="s">${t('sched_s')}</div>
     <div class="grid2"><label class="flabel" style="flex-direction:column;align-items:stretch">${t('sched_bed')}<input id="sbed" class="tinput" type="time" value="${f(s.bed)}"></label><label class="flabel" style="flex-direction:column;align-items:stretch">${t('sched_wake')}<input id="swake" class="tinput" type="time" value="${f(s.wake)}"></label></div>
     <div class="kv"><div class="v" id="ssum">${t('sched_sum', { e: fmtH(s.eat0), w: fmtH(s.wake), c: fmtH(s.calm0) })}</div></div>
-    <div class="sub">${u ? t('sched_own') : t('sched_def', { b: fmtH(s.bed), w: fmtH(s.wake) })}</div>
+    <div class="sub">${u ? t('sched_own') : t('sched_def', { s: fmtH(sunsetH(now())), p: sunLoc().place || t('sched_tz'), b: fmtH(s.bed), w: fmtH(s.wake) })}</div>
     <div class="btnrow"><button type="button" class="btn" data-act="ssave">${t('sched_save')}</button>${u ? `<button type="button" class="btn tonal" data-act="sclear">${t('sched_clear')}</button>` : ''}</div>
     <div id="smsg" class="sub" aria-live="polite"></div><p class="note">${ic('shield', 14)} ${t('sched_local')}</p></div>`;
 }

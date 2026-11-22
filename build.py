@@ -1,6 +1,6 @@
 """Szervóra 2.0 build: a src/ fájlokból összefűzi az index.html-t.
 
-Sorrend: core.js, views2.js (útválasztó előtti rész), sk3d.js, legacy.js, views2.js útválasztó.
+Sorrend: tzcoords.js, core.js, views2.js (útválasztó előtti rész), sk3d.js, legacy.js, views2.js útválasztó.
 Minden forrás a src/ mappában van; az 1.x webapp (legacy_webapp1x) már nem kell.
 """
 from pathlib import Path
@@ -13,7 +13,7 @@ v2 = read('views2.js') + '\n'
 mark = '/* ================= útválasztó ================= */'
 assert v2.count(mark) == 1, 'views2.js: az útválasztó jelölő pontosan egyszer szerepeljen'
 a, b = v2.split(mark)
-js = '\n'.join([read('core.js'), a, read('sk3d.js') + '\n', '/* ---- átvett nézetek és motorok (1.x) ---- */', read('legacy.js') + '\n', mark + b])
+js = '\n'.join([read('tzcoords.js'), read('core.js'), a, read('sk3d.js') + '\n', '/* ---- átvett nézetek és motorok (1.x) ---- */', read('legacy.js') + '\n', mark + b])
 css = (SRC / 'style.css').read_text(encoding='utf8')
 
 # Betűtípusok beágyazva (fonts/, lásd tools/fetch_fonts.py): nincs külső kérés megnyitáskor.

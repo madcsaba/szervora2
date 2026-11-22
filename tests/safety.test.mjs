@@ -4,7 +4,8 @@
 // Az esti határok a felhasználó napirendjéből számolódnak (core.js: sched):
 //   evési szünet: lefekvés − 3 óra → ébredés
 //   esti lecsendesedés az első ajánlás: lefekvés − 1,5 óra → ébredés − 2 óra
-//   napirend nélkül: lefekvés = naplemente (Budapest) + 3,5 óra, 21:30–22:30 közé szorítva; ébredés 7:00
+//   napirend nélkül: lefekvés = naplemente + 3,5 óra (negyedórára kerekítve, 21:30–22:30 közé szorítva), ébredés 7:00;
+//   a naplemente helye a készülék időzónájából jön (src/tzcoords.js)
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -29,8 +30,8 @@ before(async () => { browser = await chromium.launch(); });
 after(async () => { await browser?.close(); });
 
 /** Megnyitja az appot rögzített helyi idővel (Budapest) és előre beállított tárolóval. */
-async function open({ day = '2026-03-11', sched = null, birth = null, checkin = null, hash = 'ma' } = {}) {
-  const ctx = await browser.newContext({ timezoneId: 'Europe/Budapest', locale: 'hu-HU' });
+async function open({ day = '2026-03-11', tz = 'Europe/Budapest', sched = null, birth = null, checkin = null, hash = 'ma' } = {}) {
+  const ctx = await browser.newContext({ timezoneId: tz, locale: 'hu-HU' });
   const page = await ctx.newPage();
   const errors = [], requests = [];
   page.on('pageerror', (e) => errors.push(e.message));
@@ -85,6 +86,24 @@ test('napirend nélkül nyáron a naplemente adja az alapot (lefekvés 22:30)', 
 
 test('napirend nélkül télen a 21:30-as alsó határ érvényes', () =>
   checkDay('tél', { day: '2026-12-21' }, expected(21.5, 7)));
+
+test('napirend nélkül a naplemente a készülék időzónájából: Budapest szeptemberben 22:15', () =>
+  checkDay('Budapest ősz', { day: '2026-09-22' }, expected(22.25, 7)));
+
+test('ugyanaznap Madridban később van naplemente → lefekvés 22:30', () =>
+  checkDay('Madrid ősz', { day: '2026-09-22', tz: 'Europe/Madrid' }, expected(22.5, 7)));
+
+test('a napíven egy felirat van (nincs egymásra csúszó név), és a napíven belül marad', async () => {
+  const { page, ctx, at } = await open();
+  for (const x of [8, 15, 20]) {   // köztük a leghosszabb név: „H. melegítő”
+    await at(x);
+    assert.equal(await page.locator('.arcwrap svg text').count(), 1, `${x}:00 – pontosan egy felirat`);
+    const box = await page.locator('.arcwrap svg text').boundingBox();
+    const svg = await page.locator('.arcwrap svg').boundingBox();
+    assert.ok(box.x + box.width <= svg.x + svg.width, `${x}:00 – a felirat a napíven belül marad`);
+  }
+  await ctx.close();
+});
 
 test('a lecsendesedés az első, bármilyen check-in mellett', async () => {
   const exp = expected(22, 7);

@@ -122,16 +122,27 @@ const win = (o) => `${o.s}–${(o.s + 2) % 24}`;
    Képlet (L = szokásos lefekvés, É = ébredés, órában):
    - étkezési szünet: L − 3 órától É-ig
    - esti lecsendesedés az első ajánlás: L − 1,5 órától É − 2 óráig
-   Ha a felhasználó nem adta meg (Beállítások → Napirend), az alap L a naplemente + 3,5 óra
-   (Budapest, negyedórára kerekítve, 21:30 és 22:30 közé szorítva), az alap É 7:00. Adat csak az eszközön (store 'sched'). */
-const SUN_LOC = { lat: 47.5, lon: 19.04 };
+   Ha a felhasználó nem adta meg (Beállítások → Napirend), az alap L a mai naplemente + 3,5 óra
+   (negyedórára kerekítve, 21:30 és 22:30 közé szorítva), az alap É 7:00. Adat csak az eszközön (store 'sched').
+   A naplemente helye a készülék órájából jön: az időzóna (pl. Europe/Budapest) fővárosának koordinátája
+   (src/tzcoords.js); ismeretlen zónánál a UTC-eltolásból becsült hosszúság, 47,5° szélesség.
+   Nincs hálózati kérés és nincs helymeghatározás. */
+let SUN_LOC = null;
+function sunLoc() {
+  if (SUN_LOC) return SUN_LOC;
+  let tz = ''; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
+  const hit = TZ_COORDS.split(';').find((x) => x.startsWith(tz + ':'));
+  if (tz && hit) { const [la, lo] = hit.slice(tz.length + 1).split(',').map(Number); return (SUN_LOC = { lat: la, lon: lo, tz, place: tz.split('/').pop().replace(/_/g, ' ') }); }
+  const y = new Date().getFullYear(), std = Math.max(new Date(y, 0, 1).getTimezoneOffset(), new Date(y, 6, 1).getTimezoneOffset());
+  return (SUN_LOC = { lat: 47.5, lon: -std / 4, tz, place: '' });
+}
 const SCHED_DEF_WAKE = 7, SCHED_BED_MIN = 21.5, SCHED_BED_MAX = 22.5;
 const mod24 = (x) => ((x % 24) + 24) % 24;
 const hm = (s) => { const [a, b] = String(s).split(':').map(Number); return a + (b || 0) / 60; };
 const fmtH = (x) => { const m = Math.round(mod24(x) * 60) % 1440; return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`; };
 const hOf = (d) => d.getHours() + d.getMinutes() / 60;
 const inWin = (x, a, b) => (a <= b ? x >= a && x < b : x >= a || x < b);
-function sunsetH(d, { lat, lon } = SUN_LOC) {
+function sunsetH(d, { lat, lon } = sunLoc()) {
   // NOAA közelítés; helyi idő órában (a böngésző időzónájával).
   const n = Math.floor((new Date(d.getFullYear(), d.getMonth(), d.getDate()) - new Date(d.getFullYear(), 0, 0)) / 864e5);
   const g = 2 * Math.PI / 365 * (n - 1);
