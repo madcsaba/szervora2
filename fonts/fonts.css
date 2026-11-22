@@ -1,0 +1,25 @@
+/* tools/fetch_fonts.py generálta – ne szerkeszd kézzel. Licenc: SIL OFL 1.1 (lásd fonts/OFL-*.txt) */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url(inter.woff2) format('woff2');
+  unicode-range: U+20-7e, U+a0-101, U+112-113, U+11a-11b, U+12a-12b, U+14c-14d, U+150-151, U+16a-16b, U+170-171, U+1cd-1dc, U+2010, U+2013-2014, U+2018-201a, U+201c-201e, U+2022, U+2026, U+2032-2033, U+2039-203a, U+20ac, U+2190-2193, U+2212, U+2713;
+}
+@font-face {
+  font-family: 'Inter Tight';
+  font-style: normal;
+  font-weight: 600 800;
+  font-display: swap;
+  src: url(inter-tight.woff2) format('woff2');
+  unicode-range: U+20-7e, U+a0-101, U+112-113, U+11a-11b, U+12a-12b, U+14c-14d, U+150-151, U+16a-16b, U+170-171, U+1cd-1dc, U+2010, U+2013-2014, U+2018-201a, U+201c-201e, U+2022, U+2026, U+2032-2033, U+2039-203a, U+20ac, U+2190-2193, U+2212, U+2713;
+}
+@font-face {
+  font-family: 'Noto Serif SC';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(noto-serif-sc.woff2) format('woff2');
+  unicode-range: U+4e01, U+4e09, U+4e11, U+4e19, U+4e59, U+4ea5, U+5305, U+5348, U+536f, U+571f, U+58ec, U+5927, U+5b50, U+5bc5, U+5c0f, U+5df1, U+5df3, U+5e9a, U+5fc3, U+620a, U+620c, U+6728, U+672a, U+6c34, U+706b, U+7126, U+7532-7533, U+7678, U+809d, U+80a0, U+80ba, U+80be, U+80c3, U+80c6, U+80f1, U+813e, U+8180, U+8f9b, U+8fb0, U+9149, U+91d1;
+}

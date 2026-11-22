@@ -15,7 +15,19 @@ assert v2.count(mark) == 1, 'views2.js: az útválasztó jelölő pontosan egysz
 a, b = v2.split(mark)
 js = '\n'.join([read('core.js'), a, read('sk3d.js') + '\n', '/* ---- átvett nézetek és motorok (1.x) ---- */', read('legacy.js') + '\n', mark + b])
 css = (SRC / 'style.css').read_text(encoding='utf8')
-han = '%E5%BF%83%E6%9C%A8%E7%81%AB%E5%9C%9F%E9%87%91%E6%B0%B4%E8%83%86%E8%82%9D%E8%82%BA%E5%A4%A7%E8%82%A0%E8%83%83%E8%84%BE%E5%B0%8F%E8%86%80%E8%83%B1%E8%82%BE%E5%8C%85%E4%B8%89%E7%84%A6'
+
+# Betűtípusok beágyazva (fonts/, lásd tools/fetch_fonts.py): nincs külső kérés megnyitáskor.
+import base64, re
+FONTS = ROOT / 'fonts'
+fonts_css = re.sub(r'url\(([\w.-]+\.woff2)\)',
+                   lambda m: 'url(data:font/woff2;base64,' + base64.b64encode((FONTS / m.group(1)).read_bytes()).decode() + ')',
+                   (FONTS / 'fonts.css').read_text(encoding='utf8'))
+covered = set((FONTS / 'charset.txt').read_text(encoding='utf8'))
+text = ''.join((ROOT / 'lang' / n).read_text(encoding='utf8') for n in ('hu.js', 'en.js')) + js
+missing = sorted({c for c in text if ord(c) > 0x7e and c not in covered
+                  and not 0x300 <= ord(c) <= 0x36f and not 0xfe00 <= ord(c) <= 0xfe0f and not ord(c) >= 0x1f000})
+if missing:
+    print('FIGYELEM: a betűtípus nem fedi le ezeket a karaktereket (bővítsd a CHARS-t a tools/fetch_fonts.py-ban):', ''.join(missing))
 html = f'''<!DOCTYPE html>
 <html lang="hu">
 <head>
@@ -23,9 +35,8 @@ html = f'''<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#F6FBF6">
 <title>Szervóra 2.0</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700;800&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600&text={han}&display=swap">
 <style>
+{fonts_css}
 {css}
 </style>
 </head>

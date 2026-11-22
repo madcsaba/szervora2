@@ -8,6 +8,7 @@ TCM wellness-app (kínai szervóra) webes prototípusa, Android-irányú tervekk
 - `src/sk3d.js` – könyvtár nélküli 3D csontváz (Canvas 2D) és a fotós pontkereső.
 - `src/legacy.js` – 1.x nézetek és motorok, amiket a 2.0 újrahasznál (elem oldal, lexikon, időzítő, légzés, technikák).
 - `src/style.css` – stílusok (CSS-változók a témamotorból).
+- `fonts/` – beágyazott betűtípusok (Inter, Inter Tight, Noto Serif SC részhalmaz; OFL). A `tools/fetch_fonts.py` tölti le egyszer; a build base64-ként ágyazza be, megnyitáskor nincs külső kérés. Új karakterhez bővítsd a `CHARS`/`HAN` listát és futtasd újra (a build figyelmeztet).
 - `lang/hu.js`, `lang/en.js` – nyelvi csomagok: `window.SZ_LANG.{hu,en} = { ui, c }`. Új felületi szöveg mindig mindkét nyelvbe kerüljön.
 - `build.py` – a `src/` fájlokat fűzi össze `index.html`-lé (sorrend: core → views2 útválasztó előtti része → sk3d → legacy → útválasztó). Külső/1.x függősége nincs, az 1.x webapp (`legacy_webapp1x`) el lett távolítva – a `src/` az egyetlen forrás, ott szerkessz; `build_dist.py` – egyfájlos `dist/szervora.html` és telepíthető PWA (`dist/pwa/`).
 
