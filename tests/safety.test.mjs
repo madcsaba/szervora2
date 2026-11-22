@@ -149,7 +149,9 @@ test('pont oldal: 3D csontváz a ponthoz nagyítva, váltható a közeli rajzra'
     const page = await ctx.newPage(); const errors = [];
     page.on('pageerror', (e) => errors.push(e.message));
     await page.goto(`${URL_}#pont-szb-8`); await page.waitForSelector('#pmap canvas');
-    assert.match(await page.textContent('#pmap [data-zl]'), /^3[.,]6×$/, `${w}px – kézpontnál közelről indul`);
+    // az első képkocka után frissül a felirat; ha nem nagyít 3,6×-re, itt időtúllépéssel bukik el
+    await page.waitForFunction(() => /^3[.,]6×$/.test(document.querySelector('#pmap [data-zl]').textContent), null, { timeout: 5000 })
+      .catch(async () => assert.fail(`${w}px – kézpontnál közelről indul (felirat: ${await page.textContent('#pmap [data-zl]')})`));
     assert.equal(await page.locator('#pmap .mapview [aria-pressed=true]').count(), 1, `${w}px – egy nézetgomb aktív`);
     const nonBlank = await page.evaluate(() => { const c = document.querySelector('#pmap canvas'), d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4 * 16) if (d[i] > 0) n++; return n; });
     assert.ok(nonBlank > 200, `${w}px – a csontváz kirajzolódik`);
