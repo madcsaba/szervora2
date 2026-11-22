@@ -1422,6 +1422,21 @@ function recommend(d, ci) {
 const SKY = { night: '#1E2A4A', dawn: '#E49C86', gold: '#F0C66B', day: '#A6D1EC', dusk: '#DE8559', eve: '#6A4B7C' };
 const hex2 = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
 const mixHex = (a, b, f) => { const x = hex2(a), y = hex2(b); return '#' + x.map((v, i) => Math.round(v + (y[i] - v) * f).toString(16).padStart(2, '0')).join(''); };
+// Élénk elemszínek a szervórához (fa, tűz, föld, fém, víz), világos/sötét témára.
+const DIAL_EL = {
+  l: { fa: '#2E9E4F', tuz: '#E3412C', fold: '#DFA015', fem: '#8697A3', viz: '#1D5FB4' },
+  d: { fa: '#3DBE63', tuz: '#FF5A41', fold: '#F2B92B', fem: '#D2DAE0', viz: '#3D8AF0' }
+};
+// Évszak → telítettség: tavasz (fa) és nyár (tűz) élénk, késő nyár (föld) kicsit visszafogott, ősz (fém) és tél (víz) fakóbb.
+const SEASON_SAT = { fa: 1, tuz: 1, fold: 0.88, fem: 0.66, viz: 0.56 };
+const dialSeason = (d) => { const loc = sunLoc(); return seasonEl(loc.lat < 0 ? new Date(d.getFullYear(), d.getMonth() + 6, 15) : d); };
+function toneHex(h, sat, lift = 0) {
+  let [r, g, b] = hex2(h).map((v) => v / 255); const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l0 = (mx + mn) / 2, dd = mx - mn;
+  let hh = 0, ss = 0; if (dd) { ss = dd / (1 - Math.abs(2 * l0 - 1)); hh = mx === r ? ((g - b) / dd) % 6 : mx === g ? (b - r) / dd + 2 : (r - g) / dd + 4; }
+  ss = Math.min(1, ss * sat); const l = Math.min(0.92, Math.max(0.08, l0 + lift)), c = (1 - Math.abs(2 * l - 1)) * ss, x = c * (1 - Math.abs((hh % 2) - 1)), m = l - c / 2;
+  [r, g, b] = hh < 1 ? [c, x, 0] : hh < 2 ? [x, c, 0] : hh < 3 ? [0, c, x] : hh < 4 ? [0, x, c] : hh < 5 ? [x, 0, c] : [c, 0, x];
+  return '#' + [r, g, b].map((v) => Math.round((v + m) * 255).toString(16).padStart(2, '0')).join('');
+}
 function skyAt(x, rise, set) {
   const k = [[rise - 1.2, SKY.night], [rise - 0.3, SKY.dawn], [rise + 0.8, SKY.gold], [rise + 2.5, SKY.day], [set - 2.5, SKY.day], [set - 0.8, SKY.gold], [set + 0.1, SKY.dusk], [set + 0.8, SKY.eve], [set + 1.6, SKY.night]];
   let y = x; if (y < k[0][0]) y += 24; if (y > k[k.length - 1][0] + 24) y -= 24;
@@ -1434,10 +1449,13 @@ function dayArc(d) {
   const pt = (r, deg) => { const a = deg * Math.PI / 180; return [r1(cx + r * Math.sin(a)), r1(cy - r * Math.cos(a))]; };
   const arc = (r, a0, a1, sweep = 1) => { const [p, q] = pt(r, a0), [u, v] = pt(r, a1); return { m: `${p} ${q}`, a: `A${r} ${r} 0 ${Math.abs(a1 - a0) > 180 ? 1 : 0} ${sweep} ${u} ${v}` }; };
   const MYB = astroOn() ? [...new Set(bazi(getBirth()).P.map((p) => p[1]))] : [];
-  const rise = sunriseH(d), set = sunsetH(d);
+  const rise = sunriseH(d), set = sunsetH(d), sea = dialSeason(d), sat = SEASON_SAT[sea], pal = DIAL_EL[MODE === 'd' ? 'd' : 'l'];
+  // ősszel/télen fakóbb (kicsit világosabb is), az évszak elemének szervei élénkebbek maradnak;
+  // az aktív (mostani) szerv mindig a saját teljes, élénk színében látszik
+  const elCol = (el) => toneHex(pal[el], el === sea ? Math.min(1, sat + 0.3) : sat, (1 - sat) * (MODE === 'd' ? -0.06 : 0.1));
   let s = '';
   // égbolt-sáv: 48 félórás darab
-  for (let i = 0; i < 48; i++) { const x = i / 2, a0 = ang(x), a1 = ang(x + 0.5) + 0.3, o = arc(110, a0, a1), w = arc(118, a1, a0, 0); s += `<path d="M${o.m} ${o.a} L${w.m} ${w.a} Z" fill="${skyAt(x + 0.25, rise, set)}"/>`; }
+  for (let i = 0; i < 48; i++) { const x = i / 2, a0 = ang(x), a1 = ang(x + 0.5) + 0.3, o = arc(110, a0, a1), w = arc(118, a1, a0, 0); s += `<path d="M${o.m} ${o.a} L${w.m} ${w.a} Z" fill="${toneHex(skyAt(x + 0.25, rise, set), 0.55 + 0.45 * sat)}"/>`; }
   const noon = (rise + set) / 2, [sx, sy] = pt(114, ang(noon)), [mx, my] = pt(114, ang(noon + 12));
   s += `<circle cx="${sx}" cy="${sy}" r="7" fill="#FBE29A" stroke="#E9B949" stroke-width="1.5"><title>${esc(t('dial_sun', { r: fmtH(rise), s: fmtH(set) }))}</title></circle>`;
   s += `<path d="M${r1(mx + 4)} ${r1(my - 6)} a7 7 0 1 0 0 12 a5.5 5.5 0 1 1 0 -12z" fill="#E8EEF7" stroke="#B9C6D8" stroke-width="1"/>`;
@@ -1445,7 +1463,7 @@ function dayArc(d) {
   ORG.forEach((o, i) => {
     const k = ((i - cur + 18) % 12) - 6, on = k === 0, top = Math.abs(k) <= 1;
     const a0 = ang(o.s) + 1.2, a1 = ang(o.s + 2) - 1.2, ro = R + (on ? 6 : 0), ri = R - W, out = arc(ro, a0, a1), inn = arc(ri, a1, a0, 0);
-    s += `<a href="#szerv-${slug(o.c)}" data-dial="${i}" aria-label="${esc(orgN(o.c))}, ${t('hours', { w: win(o) })}"><path d="M${out.m} ${out.a} L${inn.m} ${inn.a} Z" style="fill:var(--${o.el})" opacity="${on ? 1 : top ? 0.72 : 0.34}"/></a>`;
+    s += `<a href="#szerv-${slug(o.c)}" data-dial="${i}" aria-label="${esc(orgN(o.c))}, ${t('hours', { w: win(o) })}"><path d="M${out.m} ${out.a} L${inn.m} ${inn.a} Z" fill="${on ? pal[o.el] : elCol(o.el)}" opacity="${on || top ? 1 : 0.86}"/></a>`;
     if (top) { const l = arc(R + 13, a0 - 10, a1 + 10); s += `<path id="dl${i}" d="M${l.m} ${l.a}" fill="none"/><text font-size="11" font-weight="${on ? 700 : 600}" style="fill:var(--${on ? 'on' : 'mut'})" pointer-events="none"><textPath href="#dl${i}" startOffset="50%" text-anchor="middle">${esc(C('org', o.c)[1])}</textPath></text>`; }
     if (MYB.includes(i)) { const [qx, qy] = pt(ri - 0, (a0 + a1) / 2); s += `<circle cx="${qx}" cy="${qy}" r="3.5" style="fill:var(--on)" pointer-events="none"><title>${esc(t('my_windows'))}</title></circle>`; }
   });

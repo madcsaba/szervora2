@@ -4,7 +4,7 @@ TCM wellness-app (kínai szervóra) webes prototípusa, Android-irányú tervekk
 
 ## Szerkezet
 - `src/core.js` – nyelvfüggetlen adatmotor (eredetileg az 1.x webappból): szervek (ORG), elemek, csatornák (CHP), pontok (PTS), csontváz-adatbázis (SKEL, SEG, PSPEC, place/layout), rutinok (ROUT), SVG-rajzolók, BodyMap.
-- `src/views2.js` – 2.0 felület: témamotor (elem × napszak), napi kör (`dayArc`: teljes 24 óra, a „most” felül, égbolt-sáv a valódi napkeltéből/naplementéből, a felső 3 ág felirattal, a többi rámutatásra előnézhető), Ma / Test / Gyakorlat / Tudás / Napló / Beállítások, check-in és ajánlómotor, lejátszó, tudásgráf, napló, kijelző mód, kínai asztrológia réteg, útválasztó.
+- `src/views2.js` – 2.0 felület: témamotor (elem × napszak), napi kör (`dayArc`: teljes 24 óra, a „most” felül, égbolt-sáv a valódi napkeltéből/naplementéből, élénk elemszínek évszak szerinti telítettséggel (ősz/tél fakóbb, az évszak eleme és az aktív szerv mindig élénk), a felső 3 ág felirattal, a többi rámutatásra előnézhető), Ma / Test / Gyakorlat / Tudás / Napló / Beállítások, check-in és ajánlómotor, lejátszó, tudásgráf, napló, kijelző mód, kínai asztrológia réteg, útválasztó.
 - `src/sk3d.js` – könyvtár nélküli 3D csontváz (Canvas 2D) és a fotós pontkereső.
 - `src/legacy.js` – 1.x nézetek és motorok, amiket a 2.0 újrahasznál (elem oldal, lexikon, időzítő, légzés, technikák).
 - `src/style.css` – stílusok (CSS-változók a témamotorból).
