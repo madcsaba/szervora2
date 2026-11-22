@@ -14,7 +14,9 @@ TCM wellness-app (kínai szervóra) webes prototípusa, Android-irányú tervekk
 
 Fejlesztés: `python3 build.py && python3 build_dist.py`, majd `index.html` megnyitása böngészőben.
 
-Közzététel: a `main` ágra pusholva a `.github/workflows/pages.yml` újraépíti és GitHub Pages-re teszi a `dist/pwa/` tartalmát. A service worker gyorsítótár-neve a build tartalmának hash-e (`build_dist.py`), az oldal betöltése hálózat-elsőbbségű, így a telepített PWA is frissül.
+Tesztek: `npm install` (egyszer), majd `npm run build && npm test`. A `tests/safety.test.mjs` a kész appon (Playwright, rögzített órával) ellenőrzi a lenti nem lazítható szabályokat: étkezési szünet 19–7 között, esti lecsendesedés elsőbbsége, az asztrológia nem írja felül az ajánlást, nincs hálózati kérés, a nyelvi kulcsok egyeznek. Szabályt érintő változásnál előbb a tesztet frissítsd.
+
+Közzététel: a `.github/workflows/ci.yml` minden pushnál buildel és tesztel (és ellenőrzi, hogy a commitolt `index.html`/`dist` friss); a `main` ágon zöld tesztek után GitHub Pages-re teszi a `dist/pwa/` tartalmát. A service worker gyorsítótár-neve a build tartalmának hash-e (`build_dist.py`), az oldal betöltése hálózat-elsőbbségű, így a telepített PWA is frissül.
 
 ## Tartalmi és biztonsági szabályok (nem lazíthatók)
 - Este 19 és reggel 7 között nem ajánlunk étkezést; ezt jelezni kell (`EAT(h)`).
