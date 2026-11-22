@@ -14,16 +14,20 @@ TCM wellness-app (kínai szervóra) webes prototípusa, Android-irányú tervekk
 
 Fejlesztés: `python3 build.py && python3 build_dist.py`, majd `index.html` megnyitása böngészőben.
 
-Tesztek: `npm install` (egyszer), majd `npm run build && npm test`. A `tests/safety.test.mjs` a kész appon (Playwright, rögzített órával) ellenőrzi a lenti nem lazítható szabályokat: étkezési szünet 19–7 között, esti lecsendesedés elsőbbsége, az asztrológia nem írja felül az ajánlást, nincs hálózati kérés, a nyelvi kulcsok egyeznek. Szabályt érintő változásnál előbb a tesztet frissítsd.
+Tesztek: `npm install` (egyszer), majd `npm run build && npm test`. A `tests/safety.test.mjs` a kész appon (Playwright, rögzített órával) ellenőrzi a lenti nem lazítható szabályokat: a napirendből számolt evési szünet és esti lecsendesedés (több napirendre és napirend nélkül nyáron/télen), a Napirend beállítás, az asztrológia nem írja felül az ajánlást, nincs hálózati kérés, a nyelvi kulcsok egyeznek. Szabályt érintő változásnál előbb a tesztet frissítsd.
 
 Közzététel: a `.github/workflows/ci.yml` minden pushnál buildel és tesztel (és ellenőrzi, hogy a commitolt `index.html`/`dist` friss); a `main` ágon zöld tesztek után GitHub Pages-re teszi a `dist/pwa/` tartalmát. A service worker gyorsítótár-neve a build tartalmának hash-e (`build_dist.py`), az oldal betöltése hálózat-elsőbbségű, így a telepített PWA is frissül.
 
 ## Tartalmi és biztonsági szabályok (nem lazíthatók)
-- Este 19 és reggel 7 között nem ajánlunk étkezést; ezt jelezni kell (`EAT(h)`).
+- Az esti határok a felhasználó napirendjéből számolódnak (`core.js`: `sched`, `EAT(d)`, `CALM(d)`; Beállítások → Napirend, csak az eszközön tárolva). L = szokásos lefekvés, É = ébredés:
+  - lefekvés előtt 3 órától ébredésig nem ajánlunk étkezést, és ezt jelezni kell;
+  - lefekvés előtt 1,5 órától ébredés előtt 2 óráig az esti lecsendesedés az első ajánlás;
+  - ha nincs megadva napirend: L = naplemente (Budapest) + 3,5 óra, negyedórára kerekítve, 21:30 és 22:30 közé szorítva; É = 7:00 (alapértékkel: evési szünet kb. 18:30/19:30-tól 7:00-ig).
+  - Beégetett órát (pl. „19 óra”) a szövegekbe ne írj; helyőrzővel (`{t}`) és `fmtH(sched()...)`-val dolgozz.
 - Nincs betegség-gyógyítási állítás és diagnózis. A napló mintái „megfigyelés, nem diagnózis”.
-- Az ajánlómotor biztonsági szűrője elsőbbséget élvez; este mindig a lecsendesedés az első.
-- A kínai asztrológia kulturális, kikapcsolható réteg, tudományos alátámasztás nélkül; soha nem ad egészségügyi tanácsot, és nem írja felül az ajánlást.
-- Felhasználói adat (napló, születési adat, fotó) csak az eszközön marad.
+- Az ajánlómotor biztonsági szűrője elsőbbséget élvez; az esti sávban (`CALM`) mindig a lecsendesedés az első.
+- A kínai asztrológia kulturális, kikapcsolható réteg, tudományos alátámasztás nélkül; soha nem ad egészségügyi tanácsot, nem írja felül az ajánlást, és nem befolyásolja az esti határokat (a születési adat nem napirend).
+- Felhasználói adat (napló, születési adat, napirend, fotó) csak az eszközön marad.
 - A pontleírások Temesvári Gabriella „Pontmasszázs” könyvének átfogalmazott tényein alapulnak: szó szerinti átvétel nincs, a rajzok saját készítésűek.
 
 ## Következő lépések (a tervtábla szerint)

@@ -360,8 +360,8 @@ nav.tabs a[aria-current=page] .ind{background:var(--cont);color:var(--acc)}
     switch_side: 'Válts oldalt!', prev: 'Előző', next: 'Következő', sound_t: 'Hangjelzés', vibrate_t: 'Rezgés', routine_steps: 'A rutin lépései',
     routine_done: 'Kész! Maradj még egy percig nyugalomban, és figyeld, hogyan érzed magad.', start_routine: 'Rutin indítása', dur_t: 'Időtartam: {t}',
     routine_label: 'Rutin', live_label: 'Élő meridián: {c}', schematic: 'sematikus',
-    nofood: 'Étkezési szünet', nofood_sub: '19 óra után már ne egyél: este az emésztés pihen. Következő étkezés: reggeli 7–9 óra között, a Gyomor idejében.', nofood_chip: 'étkezési szünet',
-    night_food: 'Ebben az időszakban nem javasolt étkezni. Az elem ételeit napközben, 19 óra előtt fogyaszd:', eat_window: 'Napközben, 7 és 19 óra között.',
+    nofood: 'Étkezési szünet', nofood_sub: 'Lefekvés előtt 3 órával már ne egyél: este az emésztés pihen. Következő étkezés: reggeli 7–9 óra között, a Gyomor idejében.', nofood_chip: 'étkezési szünet',
+    night_food: 'Ebben az időszakban nem javasolt étkezni. Az elem ételeit napközben, {t} előtt fogyaszd:', eat_window: 'Napközben, {a} és {b} között.',
     k_bone: 'CSONT', k_from: 'KIINDULÁS', k_meas: 'TÁVOLSÁG', up: 'felfelé', down: 'lefelé', m_along: '{d} cun {dir}',
     side_rad: '{o} cun a hüvelykujj felé', side_uln: '{o} cun a kisujj felé', side_lat: '{o} cun kifelé', side_med: '{o} cun befelé', side_t: '{o} cun oldalra', here: 'pontosan itt',
     m_below: '{v} tövisnyúlványa alatt', bones_btn: 'Csontok', bones_h: 'Csontarányos cun-mérés',
@@ -380,7 +380,7 @@ nav.tabs a[aria-current=page] .ind{background:var(--cont);color:var(--acc)}
       Sz: ['Szív', 'Szív', 'Könnyű, meleg ebéd és egy rövid, csendes pihenő.'],
       'Véb': ['Vékonybél', 'Vékonybél', 'Az emésztés és a szétválogatás ideje: rendszerezés, könnyebb feladatok.'],
       H: ['Hólyag', 'Hólyag', 'Igyál eleget; jó lendület a munkához, tanuláshoz.'],
-      V: ['Vese', 'Vese', 'Lassíts: könnyű, meleg vacsora 19 óra előtt, pihentető tevékenység.'],
+      V: ['Vese', 'Vese', 'Lassíts: könnyű, meleg vacsora, pihentető tevékenység.'],
       Szb: ['Szívburok', 'Szívburok', 'A kapcsolatok ideje: beszélgetés, közös program, ellazulás. Ételt már ne egyél.'],
       Hm: ['Hármasmelegítő', 'H. melegítő', 'Készülj az alvásra: halk fények, képernyő nélkül.']
     },
@@ -520,7 +520,7 @@ Object.assign(window.SZ_LANG.hu.ui, {
   lvl_e0: 'Fáradt', lvl_e1: 'Rendben', lvl_e2: 'Friss', mood_0: 'Feszült', mood_1: 'Semleges', mood_2: 'Nyugodt',
   sleep_0: 'Gyenge', sleep_1: 'Közepes', sleep_2: 'Jó',
   for_you: 'NEKED MOST', lets_go: 'Kezdjük', save_ci: 'Csak mentés', on_device: 'Csak ezen az eszközön tárolódik.',
-  eat_pause: 'Evési szünet 7 óráig', eat_pause_s: 'Este és éjjel nem ajánlunk étkezést. Víz, langyos tea rendben van.',
+  eat_pause: 'Evési szünet {t}-ig', eat_pause_s: 'Lefekvés előtt 3 órával és éjjel nem ajánlunk étkezést. Víz, langyos tea rendben van.',
   later: 'Később ma',
   search_body: 'Terület vagy cél: csukló, alvás, fejfájás…', all_ch: 'Mind', layers_l: 'Rétegek',
   layer_skin: 'Bőr', layer_ch: 'Csatorna', layer_pts: 'Pontok', layer_bones: 'Csontok', guide_there: 'Vezess oda',
@@ -539,7 +539,8 @@ Object.assign(window.SZ_LANG.hu.ui, {
   checkins_n: ['{n} állapot', '{n} állapot'], wakes_n: ['{n} ébredés', '{n} ébredés'], done_n: ['{n} gyakorlat', '{n} gyakorlat'], not_diag: 'Nem diagnózis',
   sample: 'Mintaadatok betöltése', clear_data: 'Adatok törlése',
   local_only: 'Minden adat csak ebben a böngészőben marad.', sample_note: 'A mintaadatok jelölve vannak, és bármikor törölhetők. Egészségadat-szinkron (Health Connect) csak a natív appban lehetséges.',
-  theme: 'Téma', th_auto: 'Napszak szerint', th_light: 'Világos', th_dark: 'Sötét', guidance_h: 'Vezetés', in_m: '{m} perc múlva', kij_open: 'Kijelző mód', kij_sub: 'Képernyőkímélő töltés közben: óra, szerv, élő meridián', kij_full: 'Teljes képernyő', kij_full_no: 'A teljes képernyőt itt nem engedi a böngésző.', kij_next: 'Utána: {o} · {h}:00', kij_tap: 'Koppints a vezérlőkhöz', kij_wake_ok: 'A képernyő ébren marad, amíg ez a lap nyitva van.', kij_wake_no: 'A böngésző itt nem tartja ébren a képernyőt. Nyisd meg a lapot külön fülön, vagy állítsd hosszabbra a képernyő kikapcsolását.', voice: 'Hangos vezetés (felolvasás)', content_h: 'Tartalmi rétegek'
+  theme: 'Téma', th_auto: 'Napszak szerint', th_light: 'Világos', th_dark: 'Sötét', guidance_h: 'Vezetés', in_m: '{m} perc múlva', kij_open: 'Kijelző mód', kij_sub: 'Képernyőkímélő töltés közben: óra, szerv, élő meridián', kij_full: 'Teljes képernyő', kij_full_no: 'A teljes képernyőt itt nem engedi a böngésző.', kij_next: 'Utána: {o} · {h}:00', kij_tap: 'Koppints a vezérlőkhöz', kij_wake_ok: 'A képernyő ébren marad, amíg ez a lap nyitva van.', kij_wake_no: 'A böngésző itt nem tartja ébren a képernyőt. Nyisd meg a lapot külön fülön, vagy állítsd hosszabbra a képernyő kikapcsolását.', voice: 'Hangos vezetés (felolvasás)', content_h: 'Tartalmi rétegek',
+  sched_h: 'Napirend', sched_s: 'Ebből számoljuk az esti evési szünetet (lefekvés előtt 3 órától ébredésig) és a lecsendesedést (lefekvés előtt másfél órától).', sched_bed: 'Szokásos lefekvés', sched_wake: 'Szokásos ébredés', sched_save: 'Mentés', sched_clear: 'Alapérték', sched_sum: 'Evési szünet: {e}–{w} · Lecsendesedés: {c}-tól', sched_def: 'Még nem adtad meg: a naplemente alapján (Budapest) számolt alapérték, lefekvés {b}, ébredés {w}.', sched_own: 'A saját napirended alapján.', sched_err: 'Adj meg lefekvést és ébredést; az alvásidő 4 és 14 óra között legyen.', sched_local: 'A napirendet csak ezen az eszközön tároljuk.', sched_saved: 'Elmentve.',
 });
 Object.assign(window.SZ_LANG.hu.c.routines, { fesz: ['Feszültségoldás', 'Mellkas, csukló, lábfej – ha összeszorul valami'] });
 Object.assign(window.SZ_LANG.hu.c.how, { fesz: 'Kezdd a mellkas közepén, szelíd körkörös nyomással. Utána a csukló belső oldala, majd a lábfej háta. Végig lassú, hosszú kilégzés, a vállak lazák.' });
@@ -659,8 +660,8 @@ Object.assign(window.SZ_LANG.hu.ui, {
     switch_side: 'Switch sides!', prev: 'Previous', next: 'Next', sound_t: 'Sound cue', vibrate_t: 'Vibration', routine_steps: 'Routine steps',
     routine_done: 'Done! Rest for another minute and notice how you feel.', start_routine: 'Start routine', dur_t: 'Duration: {t}',
     routine_label: 'Routine', live_label: 'Live meridian: {c}', schematic: 'schematic',
-    nofood: 'No more eating today', nofood_sub: 'Don’t eat after 7 pm: digestion rests in the evening. Next meal: breakfast between 7 and 9 am, in the Stomach’s time.', nofood_chip: 'no eating now',
-    night_food: 'Eating is not recommended in this time window. Have this element’s foods during the day, before 7 pm:', eat_window: 'During the day, between 7 am and 7 pm.',
+    nofood: 'No more eating today', nofood_sub: 'Don’t eat in the 3 hours before bed: digestion rests in the evening. Next meal: breakfast between 7 and 9 am, in the Stomach’s time.', nofood_chip: 'no eating now',
+    night_food: 'Eating is not recommended in this time window. Have this element’s foods during the day, before {t}:', eat_window: 'During the day, between {a} and {b}.',
     k_bone: 'BONE', k_from: 'FROM', k_meas: 'DISTANCE', up: 'up', down: 'down', m_along: '{d} cun {dir}',
     side_rad: '{o} cun towards the thumb', side_uln: '{o} cun towards the little finger', side_lat: '{o} cun outwards', side_med: '{o} cun inwards', side_t: '{o} cun to the side', here: 'right here',
     m_below: 'below the {v} spinous process', bones_btn: 'Bones', bones_h: 'Bone-proportional cun',
@@ -679,7 +680,7 @@ Object.assign(window.SZ_LANG.hu.ui, {
       Sz: ['Heart', 'Heart', 'A light, warm lunch and a short, quiet rest.'],
       'Véb': ['Small Intestine', 'Small Int.', 'Time for digesting and sorting: organising, lighter tasks.'],
       H: ['Bladder', 'Bladder', 'Drink enough; good momentum for work and study.'],
-      V: ['Kidney', 'Kidney', 'Slow down: a light, warm dinner before 7 pm, restful activities.'],
+      V: ['Kidney', 'Kidney', 'Slow down: a light, warm dinner, restful activities.'],
       Szb: ['Pericardium', 'Pericardium', 'Time for connection: conversation, shared time, relaxing. No more food now.'],
       Hm: ['Triple Burner', 'Tr. Burner', 'Get ready for sleep: dim lights, no screens.']
     },
@@ -819,7 +820,7 @@ Object.assign(window.SZ_LANG.en.ui, {
   lvl_e0: 'Tired', lvl_e1: 'OK', lvl_e2: 'Fresh', mood_0: 'Tense', mood_1: 'Neutral', mood_2: 'Calm',
   sleep_0: 'Poor', sleep_1: 'Fair', sleep_2: 'Good',
   for_you: 'FOR YOU NOW', lets_go: 'Let’s go', save_ci: 'Just save', on_device: 'Stored on this device only.',
-  eat_pause: 'Eating pause until 7 am', eat_pause_s: 'We don’t suggest eating in the evening or at night. Water or warm tea is fine.',
+  eat_pause: 'Eating pause until {t}', eat_pause_s: 'We don’t suggest eating in the 3 hours before bed or at night. Water or warm tea is fine.',
   later: 'Later today',
   search_body: 'Area or goal: wrist, sleep, headache…', all_ch: 'All', layers_l: 'Layers',
   layer_skin: 'Skin', layer_ch: 'Channel', layer_pts: 'Points', layer_bones: 'Bones', guide_there: 'Guide me',
@@ -838,7 +839,8 @@ Object.assign(window.SZ_LANG.en.ui, {
   checkins_n: ['{n} check-in', '{n} check-ins'], wakes_n: ['{n} waking', '{n} wakings'], done_n: ['{n} session', '{n} sessions'], not_diag: 'Not a diagnosis',
   sample: 'Load sample data', clear_data: 'Clear data',
   local_only: 'All data stays in this browser only.', sample_note: 'Sample data is marked and can be cleared any time. Health data sync (Health Connect) is only possible in the native app.',
-  theme: 'Theme', th_auto: 'By time of day', th_light: 'Light', th_dark: 'Dark', guidance_h: 'Guidance', in_m: 'in {m} min', kij_open: 'Display mode', kij_sub: 'A screensaver while charging: clock, organ, live meridian', kij_full: 'Full screen', kij_full_no: 'The browser does not allow full screen here.', kij_next: 'Next: {o} · {h}:00', kij_tap: 'Tap for controls', kij_wake_ok: 'The screen stays on while this page is open.', kij_wake_no: 'The browser cannot keep the screen on here. Open the page in its own tab, or set a longer screen timeout.', voice: 'Spoken guidance (read aloud)', content_h: 'Content layers'
+  theme: 'Theme', th_auto: 'By time of day', th_light: 'Light', th_dark: 'Dark', guidance_h: 'Guidance', in_m: 'in {m} min', kij_open: 'Display mode', kij_sub: 'A screensaver while charging: clock, organ, live meridian', kij_full: 'Full screen', kij_full_no: 'The browser does not allow full screen here.', kij_next: 'Next: {o} · {h}:00', kij_tap: 'Tap for controls', kij_wake_ok: 'The screen stays on while this page is open.', kij_wake_no: 'The browser cannot keep the screen on here. Open the page in its own tab, or set a longer screen timeout.', voice: 'Spoken guidance (read aloud)', content_h: 'Content layers',
+  sched_h: 'Daily rhythm', sched_s: 'Used to set the evening eating pause (from 3 hours before bed until waking) and the wind-down (from 1.5 hours before bed).', sched_bed: 'Usual bedtime', sched_wake: 'Usual wake-up', sched_save: 'Save', sched_clear: 'Default', sched_sum: 'Eating pause: {e}–{w} · Wind-down from {c}', sched_def: 'Not set yet: default based on sunset (Budapest), bedtime {b}, wake-up {w}.', sched_own: 'Based on your own rhythm.', sched_err: 'Enter a bedtime and wake-up; sleep should be between 4 and 14 hours.', sched_local: 'Your rhythm is stored on this device only.', sched_saved: 'Saved.',
 });
 Object.assign(window.SZ_LANG.en.c.routines, { fesz: ['Release tension', 'Chest, wrist, foot – when something tightens'] });
 Object.assign(window.SZ_LANG.en.c.how, { fesz: 'Begin at the centre of the chest with gentle circular pressure. Then the inner wrist, then the top of the foot. Keep a slow, long out-breath throughout, shoulders loose.' });
@@ -1001,7 +1003,6 @@ const ROUT = [
 ];
 ROUT.forEach((r) => { r.sec = r.steps.reduce((s, x) => s + x[1], 0); });
 const RBY = Object.fromEntries(ROUT.map((r) => [r.id, r]));
-const routineFor = (h) => h >= 5 && h < 10 ? 'reggel' : h >= 13 && h < 16 ? 'emesztes' : h >= 20 || h < 5 ? 'esti' : 'kepernyo';
 const CYCST = { tap: { pairs: Object.entries(GEN), curve: true, c: 'var(--jade-t)', w: 2.5 }, szab: { pairs: Object.entries(CTRL), c: 'var(--ink)', w: 2.5 }, vissza: { pairs: Object.entries(CTRL).map(([a, b]) => [b, a]), c: 'var(--tuz)', w: 2.5, dash: '7 5' }, legy: { pairs: Object.entries(CTRL), c: 'var(--tuz)', w: 4.5 } };
 const LAYERS = [['', [['base', 'clock']]], ['g_know', [['elemek', 'elements'], ['kapcsolatok', 'book'], ['meridianok', 'body'], ['atlasz', 'point'], ['csontok', 'bone'], ['technikak', 'hand']]], ['g_prac', [['rutinok', 'hand'], ['mozgas', 'move'], ['legzes', 'breath'], ['taplalkozas', 'food']]], ['g_extra', [['erzelmek', 'emotion'], ['gyogynovenyek', 'herb'], ['evszak', 'season'], ['alvas', 'sleep']]]];
 const DEFAULT_LAYERS = { elemek: true, kapcsolatok: true, meridianok: true, atlasz: true, csontok: true, technikak: true, rutinok: true, mozgas: true, legzes: true, taplalkozas: true, erzelmek: false, gyogynovenyek: false, evszak: false, alvas: false };
@@ -1016,8 +1017,40 @@ const seasonEl = (d) => { const m = d.getMonth() + 1; return m >= 3 && m <= 5 ? 
 const minsLeft = (o, d) => { const end = ((o.s + 2) % 24) * 60, cur = d.getHours() * 60 + d.getMinutes(); const diff = (end - cur + 1440) % 1440; return diff === 0 ? 120 : diff; };
 const fmtLeft = (m) => m >= 60 ? t('left_hm', { h: Math.floor(m / 60), m: m % 60 }) : t('left_m', { m });
 const win = (o) => `${o.s}–${(o.s + 2) % 24}`;
-const EAT = (h) => h >= 7 && h < 19;
-const nightOrg = (o) => o.s >= 19 || o.s < 7;
+/* ---- napirend: az esti határok a felhasználó lefekvési és ébredési idejéből ----
+   Képlet (L = szokásos lefekvés, É = ébredés, órában):
+   - étkezési szünet: L − 3 órától É-ig
+   - esti lecsendesedés az első ajánlás: L − 1,5 órától É − 2 óráig
+   Ha a felhasználó nem adta meg (Beállítások → Napirend), az alap L a naplemente + 3,5 óra
+   (Budapest, negyedórára kerekítve, 21:30 és 22:30 közé szorítva), az alap É 7:00. Adat csak az eszközön (store 'sched'). */
+const SUN_LOC = { lat: 47.5, lon: 19.04 };
+const SCHED_DEF_WAKE = 7, SCHED_BED_MIN = 21.5, SCHED_BED_MAX = 22.5;
+const mod24 = (x) => ((x % 24) + 24) % 24;
+const hm = (s) => { const [a, b] = String(s).split(':').map(Number); return a + (b || 0) / 60; };
+const fmtH = (x) => { const m = Math.round(mod24(x) * 60) % 1440; return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`; };
+const hOf = (d) => d.getHours() + d.getMinutes() / 60;
+const inWin = (x, a, b) => (a <= b ? x >= a && x < b : x >= a || x < b);
+function sunsetH(d, { lat, lon } = SUN_LOC) {
+  // NOAA közelítés; helyi idő órában (a böngésző időzónájával).
+  const n = Math.floor((new Date(d.getFullYear(), d.getMonth(), d.getDate()) - new Date(d.getFullYear(), 0, 0)) / 864e5);
+  const g = 2 * Math.PI / 365 * (n - 1);
+  const eq = 229.18 * (0.000075 + 0.001868 * Math.cos(g) - 0.032077 * Math.sin(g) - 0.014615 * Math.cos(2 * g) - 0.040849 * Math.sin(2 * g));
+  const dec = 0.006918 - 0.399912 * Math.cos(g) + 0.070257 * Math.sin(g) - 0.006758 * Math.cos(2 * g) + 0.000907 * Math.sin(2 * g) - 0.002697 * Math.cos(3 * g) + 0.00148 * Math.sin(3 * g);
+  const la = lat * Math.PI / 180, ha = Math.acos(Math.min(1, Math.max(-1, Math.cos(90.833 * Math.PI / 180) / (Math.cos(la) * Math.cos(dec)) - Math.tan(la) * Math.tan(dec)))) * 180 / Math.PI;
+  const noon = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12);
+  return mod24((720 - 4 * (lon - ha) - eq) / 60 - noon.getTimezoneOffset() / 60);
+}
+const getSched = () => { const u = store.get('sched', null); return u && u.bed && u.wake ? u : null; };
+function sched(d = now()) {
+  const u = getSched();
+  const bed = u ? hm(u.bed) : Math.min(SCHED_BED_MAX, Math.max(SCHED_BED_MIN, Math.round((sunsetH(d) + 3.5) * 4) / 4));
+  const wake = u ? hm(u.wake) : SCHED_DEF_WAKE;
+  return { own: !!u, bed, wake, eat0: mod24(bed - 3), calm0: mod24(bed - 1.5), calm1: mod24(wake - 2) };
+}
+const eatAt = (x, s) => !inWin(mod24(x), s.eat0, s.wake);
+const EAT = (d) => eatAt(hOf(d), sched(d));
+const CALM = (d) => { const s = sched(d); return inWin(hOf(d), s.calm0, s.calm1); };
+const nightOrg = (o) => !eatAt(o.s + 1, sched());
 const mmss = (s) => { s = Math.max(0, Math.round(s)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
 const qt = (s) => lang === 'hu' ? `„${s}”` : `“${s}”`;
 
@@ -1360,11 +1393,11 @@ const lastCheckin = () => { const c = getLog().filter((x) => x.type === 'ci').po
 /* ================= ajánlómotor + biztonsági szűrő ================= */
 function recommend(d, ci) {
   const h = d.getHours(); let id, ti, su;
-  if (h >= 21 || h < 5) { id = 'esti'; ti = t('rec_night_t'); su = t('rec_night_s'); }
+  if (CALM(d)) { id = 'esti'; ti = t('rec_night_t'); su = t('rec_night_s'); }
   else if (ci && ci.m === 0) { id = 'fesz'; ti = t('rec_tense_t'); su = t('rec_tense_s'); }
   else if (ci && ci.e === 0) { id = 'reggel'; ti = t('rec_low_t'); su = t('rec_low_s'); }
   else { id = h >= 5 && h < 10 ? 'reggel' : h >= 13 && h < 16 ? 'emesztes' : 'kepernyo'; const rt = C('routines', id); ti = rt[0]; su = rt[1]; }
-  if (id === 'emesztes' && !EAT(h)) id = 'kepernyo';
+  if (id === 'emesztes' && !EAT(d)) id = 'kepernyo';
   return { id, ti, su, r: RBY[id] };
 }
 
@@ -1397,14 +1430,14 @@ V.ma = () => {
   </section>
   <section class="pad stack">
     <div class="hero">
-      <div class="eyebrow acc">${ic(h >= 21 || h < 5 ? 'moon' : 'today', 18)}${t('enough')}</div>
+      <div class="eyebrow acc">${ic(CALM(d) ? 'moon' : 'today', 18)}${t('enough')}</div>
       <h2 class="display">${rec.ti}</h2>
       <p>${rec.su}</p>
       <div class="btnrow"><a class="btn" href="#rutin-${rec.id}">${ic('play', 20, 2.2)}${t('start_min', { m: Math.max(1, Math.round(rec.r.sec / 60)) })}</a><a class="btn tonal" href="#gyakorlat-legzes">${t('only_breath')}</a></div>
     </div>
     <button type="button" class="row" data-act="checkin" style="width:100%;text-align:left;cursor:pointer;border:0"><span class="ic">${ic('emotion')}</span><span class="grow"><span class="t">${t('checkin_btn')}</span><span class="s">${ci ? `${t('ci_last')}: ${t('lvl_e' + ci.e)} · ${t('mood_' + ci.m)}` : t('checkin_sub')}</span></span>${ic('chev', 18)}</button>
     ${astroOn() ? astroTodayRow(d) : ''}
-    ${!EAT(h) ? `<div class="row flat"><span class="ic">${ic('nofood')}</span><span class="grow"><span class="t">${t('eat_pause')}</span><span class="s">${t('eat_pause_s')}</span></span></div>` : ''}
+    ${!EAT(d) ? `<div class="row flat"><span class="ic">${ic('nofood')}</span><span class="grow"><span class="t">${t('eat_pause', { t: fmtH(sched(d).wake) })}</span><span class="s">${t('eat_pause_s')}</span></span></div>` : ''}
     <div class="sec"><h2>${t('later')}</h2></div>
     <div class="grid2">${later.map((x) => `<a class="tile big" href="#szerv-${slug(x.c)}"><div class="k">${String(x.s).padStart(2, '0')}:00 · ${elT(x.el).n}</div><div class="v">${orgN(x.c)}</div></a>`).join('')}</div>
     <div class="card quiet"><div class="s">${C('org', o.c)[2]}</div></div>
@@ -1436,7 +1469,7 @@ V.szerv = (code) => {
   const cards = [];
   cards.push(`<a class="card livecard" href="#test-ch-${slug(o.c)}">${miniFigure(o.c)}<span class="grow"><span class="tag">${t('tag_meridian')}</span><span class="t">${chName(o.c)}</span><span class="s">${t('live_flow', { f: chT(o.c)[2] })}</span></span>${ic('chev', 18)}</a>`);
   if (L.mozgas) cards.push(row('move', t('heal_sound', { s: snd[1] }), t('min5', { o: snd[0] }), '#gyakorlat', t('tag_qigong')));
-  if (L.taplalkozas) cards.push(nightOrg(o) ? `<div class="card quiet"><span class="tag">${t('tag_food')}</span><div style="display:flex;gap:10px;margin-top:4px"><span style="color:var(--mut)">${ic('nofood', 20)}</span><div class="s">${t('night_food')} <b>${e.foods}</b></div></div></div>` : row('food', t('taste_color', { t: e.taste, c: e.color.toLowerCase() }), e.foods, `#elem-${o.el}`, t('tag_food')));
+  if (L.taplalkozas) cards.push(nightOrg(o) ? `<div class="card quiet"><span class="tag">${t('tag_food')}</span><div style="display:flex;gap:10px;margin-top:4px"><span style="color:var(--mut)">${ic('nofood', 20)}</span><div class="s">${t('night_food', { t: fmtH(sched().eat0) })} <b>${e.foods}</b></div></div></div>` : row('food', t('taste_color', { t: e.taste, c: e.color.toLowerCase() }), e.foods, `#elem-${o.el}`, t('tag_food')));
   pts.forEach((p) => cards.push(row('hand', C('area', p.id), `${pc(p)} · ${ptT(p.id)[3]}`, `#pont-${p.s}`, t('tag_press'))));
   if (L.erzelmek) cards.push(`<div class="card"><span class="tag">${t('tag_emo')}</span><div class="t">${e.emo}</div><div class="s"><b>${t('in_balance')}</b> ${e.bal}</div><div class="s">${e.dis}</div></div>`);
   if (L.gyogynovenyek) cards.push(`<div class="card"><span class="tag">${t('tag_tea')}</span><div class="t">${e.tea}</div><div class="s">${t('tea_note')}</div></div>`);
@@ -1721,6 +1754,7 @@ V.beallitasok = () => {
     <div class="card stack"><div><div class="flabel">${ic('globe', 16)} ${t('language')}</div>${seg('lang', LANGS.map((k) => [k, PACK[k].name]), lang)}</div>
       <div><div class="flabel">${ic('today', 16)} ${t('theme')}</div>${seg('theme', [['auto', t('th_auto')], ['light', t('th_light')], ['dark', t('th_dark')]], store.get('theme', 'auto'))}</div>
       <div><div class="flabel">${ic('body', 16)} ${t('model')}</div>${seg('model', [['f', t('female')], ['m', t('male')]], MODEL)}</div></div>
+    ${schedCard()}
     <div class="sec"><h2>${t('guidance_h')}</h2></div><div class="list">${sw('sound', 'sound_t', true)}${sw('vibrate', 'vibrate_t', true)}${sw('voice', 'voice', false)}</div>
     <div class="sec"><h2>${t('content_h')}</h2></div><div class="list">${['mozgas', 'legzes', 'taplalkozas', 'csontok', 'erzelmek', 'gyogynovenyek', 'asztro'].map(ly).join('')}</div>
     ${row('screen', t('kij_open'), t('kij_sub'), '#kijelzo')}
@@ -1729,6 +1763,17 @@ V.beallitasok = () => {
     ${disclaimer()}
   </section>`;
 };
+
+/* ---- napirend (az esti határok forrása, lásd core.js: sched) ---- */
+function schedCard() {
+  const u = getSched(), s = sched(), f = (x) => { const m = Math.round(mod24(x) * 60) % 1440; return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`; };
+  return `<div class="card stack" id="schedcard"><div class="t">${ic('sleep', 18)} ${t('sched_h')}</div><div class="s">${t('sched_s')}</div>
+    <div class="grid2"><label class="flabel" style="flex-direction:column;align-items:stretch">${t('sched_bed')}<input id="sbed" class="tinput" type="time" value="${f(s.bed)}"></label><label class="flabel" style="flex-direction:column;align-items:stretch">${t('sched_wake')}<input id="swake" class="tinput" type="time" value="${f(s.wake)}"></label></div>
+    <div class="kv"><div class="v" id="ssum">${t('sched_sum', { e: fmtH(s.eat0), w: fmtH(s.wake), c: fmtH(s.calm0) })}</div></div>
+    <div class="sub">${u ? t('sched_own') : t('sched_def', { b: fmtH(s.bed), w: fmtH(s.wake) })}</div>
+    <div class="btnrow"><button type="button" class="btn" data-act="ssave">${t('sched_save')}</button>${u ? `<button type="button" class="btn tonal" data-act="sclear">${t('sched_clear')}</button>` : ''}</div>
+    <div id="smsg" class="sub" aria-live="polite"></div><p class="note">${ic('shield', 14)} ${t('sched_local')}</p></div>`;
+}
 
 /* ================= KIJELZŐ MÓD (képernyőkímélő) ================= */
 function kInner() {
@@ -1741,7 +1786,7 @@ function kInner() {
       <div class="kbar" aria-hidden="true"><i style="width:${r1(frac)}%"></i></div>
       <div class="kline"><span class="dot" style="background:var(--${CHEL[o.c]})"></span>${chName(o.c)}</div><div class="sub">${t('live_flow', { f: chT(o.c)[2] })}</div>
       <div class="kline" style="margin-top:14px"><span class="dot" style="background:var(--${nx.el})"></span>${t('kij_next', { o: orgN(nx.c), h: String(nx.s).padStart(2, '0') })}</div>
-      ${!EAT(h) ? `<div class="kline kmut">${ic('nofood', 18)}${t('eat_pause')}</div>` : ''}
+      ${!EAT(d) ? `<div class="kline kmut">${ic('nofood', 18)}${t('eat_pause', { t: fmtH(sched(d).wake) })}</div>` : ''}
     </div></div>`;
 }
 V.kijelzo = () => `<div class="kij${(() => { const h = now().getHours(); return h >= 22 || h < 6 ? ' dim' : ''; })()}" id="kij" style="${styleVars(themeVars(CUREL, 'd'))}">
@@ -2066,7 +2111,7 @@ V.elem = (k) => {
     <div class="sec"><h2>${t('in_cycles')}</h2></div>
     <div style="display:flex;gap:6px">${cc(mother, t('feeds'))}${cc(GEN[k], t('feeds_it'))}${cc(ctrlBy, t('ctrl_by'))}${cc(CTRL[k], t('ctrls'))}</div>
     <div class="grid2"><div class="card" style="padding:10px 12px"><span class="tag">${t('balanced')}</span><div style="font-size:14px;line-height:19px;margin-top:2px">${e.bal}</div></div><div class="card" style="padding:10px 12px"><span class="tag" style="color:var(--tuz-t)">${t('disturbed')}</span><div style="font-size:14px;line-height:19px;margin-top:2px">${e.dis}</div></div></div>
-    ${L.taplalkozas ? `<div class="card"><span class="tag">${t('tag_food')}</span><div style="font-size:15px;font-weight:600;margin-top:2px">${t('taste_x', { t: e.taste })}</div><div style="font-size:14px;line-height:20px">${e.foods}</div><div style="font-size:13px;line-height:19px;color:var(--muted);margin-top:4px">${e.tfx}</div><div style="font-size:12px;font-weight:600;color:var(--jade-t);margin-top:6px;display:flex;align-items:center;gap:6px">${ic('clock', 14)}${t('eat_window')}</div></div>` : ''}
+    ${L.taplalkozas ? `<div class="card"><span class="tag">${t('tag_food')}</span><div style="font-size:15px;font-weight:600;margin-top:2px">${t('taste_x', { t: e.taste })}</div><div style="font-size:14px;line-height:20px">${e.foods}</div><div style="font-size:13px;line-height:19px;color:var(--muted);margin-top:4px">${e.tfx}</div><div style="font-size:12px;font-weight:600;color:var(--jade-t);margin-top:6px;display:flex;align-items:center;gap:6px">${ic('clock', 14)}${t('eat_window', { a: fmtH(sched().wake), b: fmtH(sched().eat0) })}</div></div>` : ''}
     ${L.mozgas ? row('move', t('heal_sound', { s: snd[1] }), snd[0], `#gyakorlat-${slug(ELORG[k][0])}`, t('tag_move')) : ''}
     ${L.gyogynovenyek ? `<div class="card"><span class="tag">${t('tag_tea')}</span><div style="font-size:15px;font-weight:600">${e.tea}</div></div>` : ''}
     ${disclaimer()}
@@ -2198,6 +2243,8 @@ document.addEventListener('click', (e) => {
   if (a === 'bsave') { const dt = $('#bdate').value, tm = $('#btime').value, lon = parseFloat($('#blon').value), tzb = $('[data-act=btz][aria-pressed=true]'); if (!dt || !tm || isNaN(lon) || lon < -180 || lon > 180) { $('#bmsg').textContent = t('birth_err'); return; } store.set('birth', { date: dt, time: tm, lon, tz: tzb ? +tzb.dataset.k : 1 }); astroEdit = false; L.asztro = true; store.set('layers', L); route(); }
   if (a === 'bedit') { astroEdit = true; route(); }
   if (a === 'bcancel') { astroEdit = false; route(); }
+  if (a === 'ssave') { const bed = $('#sbed').value, wake = $('#swake').value, len = mod24(hm(wake) - hm(bed)); if (!bed || !wake || len < 4 || len > 14) { $('#smsg').textContent = t('sched_err'); return; } store.set('sched', { bed, wake }); route(); const m = $('#smsg'); if (m) m.textContent = t('sched_saved'); }
+  if (a === 'sclear') { store.set('sched', null); route(); }
   if (a === 'bclear') { store.set('birth', null); astroEdit = false; route(); }
 });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('#sheetbox .sheet')) closeSheet(); });

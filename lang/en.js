@@ -62,8 +62,8 @@
     switch_side: 'Switch sides!', prev: 'Previous', next: 'Next', sound_t: 'Sound cue', vibrate_t: 'Vibration', routine_steps: 'Routine steps',
     routine_done: 'Done! Rest for another minute and notice how you feel.', start_routine: 'Start routine', dur_t: 'Duration: {t}',
     routine_label: 'Routine', live_label: 'Live meridian: {c}', schematic: 'schematic',
-    nofood: 'No more eating today', nofood_sub: 'Don’t eat after 7 pm: digestion rests in the evening. Next meal: breakfast between 7 and 9 am, in the Stomach’s time.', nofood_chip: 'no eating now',
-    night_food: 'Eating is not recommended in this time window. Have this element’s foods during the day, before 7 pm:', eat_window: 'During the day, between 7 am and 7 pm.',
+    nofood: 'No more eating today', nofood_sub: 'Don’t eat in the 3 hours before bed: digestion rests in the evening. Next meal: breakfast between 7 and 9 am, in the Stomach’s time.', nofood_chip: 'no eating now',
+    night_food: 'Eating is not recommended in this time window. Have this element’s foods during the day, before {t}:', eat_window: 'During the day, between {a} and {b}.',
     k_bone: 'BONE', k_from: 'FROM', k_meas: 'DISTANCE', up: 'up', down: 'down', m_along: '{d} cun {dir}',
     side_rad: '{o} cun towards the thumb', side_uln: '{o} cun towards the little finger', side_lat: '{o} cun outwards', side_med: '{o} cun inwards', side_t: '{o} cun to the side', here: 'right here',
     m_below: 'below the {v} spinous process', bones_btn: 'Bones', bones_h: 'Bone-proportional cun',
@@ -82,7 +82,7 @@
       Sz: ['Heart', 'Heart', 'A light, warm lunch and a short, quiet rest.'],
       'Véb': ['Small Intestine', 'Small Int.', 'Time for digesting and sorting: organising, lighter tasks.'],
       H: ['Bladder', 'Bladder', 'Drink enough; good momentum for work and study.'],
-      V: ['Kidney', 'Kidney', 'Slow down: a light, warm dinner before 7 pm, restful activities.'],
+      V: ['Kidney', 'Kidney', 'Slow down: a light, warm dinner, restful activities.'],
       Szb: ['Pericardium', 'Pericardium', 'Time for connection: conversation, shared time, relaxing. No more food now.'],
       Hm: ['Triple Burner', 'Tr. Burner', 'Get ready for sleep: dim lights, no screens.']
     },
@@ -222,7 +222,7 @@ Object.assign(window.SZ_LANG.en.ui, {
   lvl_e0: 'Tired', lvl_e1: 'OK', lvl_e2: 'Fresh', mood_0: 'Tense', mood_1: 'Neutral', mood_2: 'Calm',
   sleep_0: 'Poor', sleep_1: 'Fair', sleep_2: 'Good',
   for_you: 'FOR YOU NOW', lets_go: 'Let’s go', save_ci: 'Just save', on_device: 'Stored on this device only.',
-  eat_pause: 'Eating pause until 7 am', eat_pause_s: 'We don’t suggest eating in the evening or at night. Water or warm tea is fine.',
+  eat_pause: 'Eating pause until {t}', eat_pause_s: 'We don’t suggest eating in the 3 hours before bed or at night. Water or warm tea is fine.',
   later: 'Later today',
   search_body: 'Area or goal: wrist, sleep, headache…', all_ch: 'All', layers_l: 'Layers',
   layer_skin: 'Skin', layer_ch: 'Channel', layer_pts: 'Points', layer_bones: 'Bones', guide_there: 'Guide me',
@@ -241,7 +241,8 @@ Object.assign(window.SZ_LANG.en.ui, {
   checkins_n: ['{n} check-in', '{n} check-ins'], wakes_n: ['{n} waking', '{n} wakings'], done_n: ['{n} session', '{n} sessions'], not_diag: 'Not a diagnosis',
   sample: 'Load sample data', clear_data: 'Clear data',
   local_only: 'All data stays in this browser only.', sample_note: 'Sample data is marked and can be cleared any time. Health data sync (Health Connect) is only possible in the native app.',
-  theme: 'Theme', th_auto: 'By time of day', th_light: 'Light', th_dark: 'Dark', guidance_h: 'Guidance', in_m: 'in {m} min', kij_open: 'Display mode', kij_sub: 'A screensaver while charging: clock, organ, live meridian', kij_full: 'Full screen', kij_full_no: 'The browser does not allow full screen here.', kij_next: 'Next: {o} · {h}:00', kij_tap: 'Tap for controls', kij_wake_ok: 'The screen stays on while this page is open.', kij_wake_no: 'The browser cannot keep the screen on here. Open the page in its own tab, or set a longer screen timeout.', voice: 'Spoken guidance (read aloud)', content_h: 'Content layers'
+  theme: 'Theme', th_auto: 'By time of day', th_light: 'Light', th_dark: 'Dark', guidance_h: 'Guidance', in_m: 'in {m} min', kij_open: 'Display mode', kij_sub: 'A screensaver while charging: clock, organ, live meridian', kij_full: 'Full screen', kij_full_no: 'The browser does not allow full screen here.', kij_next: 'Next: {o} · {h}:00', kij_tap: 'Tap for controls', kij_wake_ok: 'The screen stays on while this page is open.', kij_wake_no: 'The browser cannot keep the screen on here. Open the page in its own tab, or set a longer screen timeout.', voice: 'Spoken guidance (read aloud)', content_h: 'Content layers',
+  sched_h: 'Daily rhythm', sched_s: 'Used to set the evening eating pause (from 3 hours before bed until waking) and the wind-down (from 1.5 hours before bed).', sched_bed: 'Usual bedtime', sched_wake: 'Usual wake-up', sched_save: 'Save', sched_clear: 'Default', sched_sum: 'Eating pause: {e}–{w} · Wind-down from {c}', sched_def: 'Not set yet: default based on sunset (Budapest), bedtime {b}, wake-up {w}.', sched_own: 'Based on your own rhythm.', sched_err: 'Enter a bedtime and wake-up; sleep should be between 4 and 14 hours.', sched_local: 'Your rhythm is stored on this device only.', sched_saved: 'Saved.',
 });
 Object.assign(window.SZ_LANG.en.c.routines, { fesz: ['Release tension', 'Chest, wrist, foot – when something tightens'] });
 Object.assign(window.SZ_LANG.en.c.how, { fesz: 'Begin at the centre of the chest with gentle circular pressure. Then the inner wrist, then the top of the foot. Keep a slow, long out-breath throughout, shoulders loose.' });

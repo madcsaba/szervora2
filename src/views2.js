@@ -63,11 +63,11 @@ const lastCheckin = () => { const c = getLog().filter((x) => x.type === 'ci').po
 /* ================= ajánlómotor + biztonsági szűrő ================= */
 function recommend(d, ci) {
   const h = d.getHours(); let id, ti, su;
-  if (h >= 21 || h < 5) { id = 'esti'; ti = t('rec_night_t'); su = t('rec_night_s'); }
+  if (CALM(d)) { id = 'esti'; ti = t('rec_night_t'); su = t('rec_night_s'); }
   else if (ci && ci.m === 0) { id = 'fesz'; ti = t('rec_tense_t'); su = t('rec_tense_s'); }
   else if (ci && ci.e === 0) { id = 'reggel'; ti = t('rec_low_t'); su = t('rec_low_s'); }
   else { id = h >= 5 && h < 10 ? 'reggel' : h >= 13 && h < 16 ? 'emesztes' : 'kepernyo'; const rt = C('routines', id); ti = rt[0]; su = rt[1]; }
-  if (id === 'emesztes' && !EAT(h)) id = 'kepernyo';
+  if (id === 'emesztes' && !EAT(d)) id = 'kepernyo';
   return { id, ti, su, r: RBY[id] };
 }
 
@@ -100,14 +100,14 @@ V.ma = () => {
   </section>
   <section class="pad stack">
     <div class="hero">
-      <div class="eyebrow acc">${ic(h >= 21 || h < 5 ? 'moon' : 'today', 18)}${t('enough')}</div>
+      <div class="eyebrow acc">${ic(CALM(d) ? 'moon' : 'today', 18)}${t('enough')}</div>
       <h2 class="display">${rec.ti}</h2>
       <p>${rec.su}</p>
       <div class="btnrow"><a class="btn" href="#rutin-${rec.id}">${ic('play', 20, 2.2)}${t('start_min', { m: Math.max(1, Math.round(rec.r.sec / 60)) })}</a><a class="btn tonal" href="#gyakorlat-legzes">${t('only_breath')}</a></div>
     </div>
     <button type="button" class="row" data-act="checkin" style="width:100%;text-align:left;cursor:pointer;border:0"><span class="ic">${ic('emotion')}</span><span class="grow"><span class="t">${t('checkin_btn')}</span><span class="s">${ci ? `${t('ci_last')}: ${t('lvl_e' + ci.e)} · ${t('mood_' + ci.m)}` : t('checkin_sub')}</span></span>${ic('chev', 18)}</button>
     ${astroOn() ? astroTodayRow(d) : ''}
-    ${!EAT(h) ? `<div class="row flat"><span class="ic">${ic('nofood')}</span><span class="grow"><span class="t">${t('eat_pause')}</span><span class="s">${t('eat_pause_s')}</span></span></div>` : ''}
+    ${!EAT(d) ? `<div class="row flat"><span class="ic">${ic('nofood')}</span><span class="grow"><span class="t">${t('eat_pause', { t: fmtH(sched(d).wake) })}</span><span class="s">${t('eat_pause_s')}</span></span></div>` : ''}
     <div class="sec"><h2>${t('later')}</h2></div>
     <div class="grid2">${later.map((x) => `<a class="tile big" href="#szerv-${slug(x.c)}"><div class="k">${String(x.s).padStart(2, '0')}:00 · ${elT(x.el).n}</div><div class="v">${orgN(x.c)}</div></a>`).join('')}</div>
     <div class="card quiet"><div class="s">${C('org', o.c)[2]}</div></div>
@@ -139,7 +139,7 @@ V.szerv = (code) => {
   const cards = [];
   cards.push(`<a class="card livecard" href="#test-ch-${slug(o.c)}">${miniFigure(o.c)}<span class="grow"><span class="tag">${t('tag_meridian')}</span><span class="t">${chName(o.c)}</span><span class="s">${t('live_flow', { f: chT(o.c)[2] })}</span></span>${ic('chev', 18)}</a>`);
   if (L.mozgas) cards.push(row('move', t('heal_sound', { s: snd[1] }), t('min5', { o: snd[0] }), '#gyakorlat', t('tag_qigong')));
-  if (L.taplalkozas) cards.push(nightOrg(o) ? `<div class="card quiet"><span class="tag">${t('tag_food')}</span><div style="display:flex;gap:10px;margin-top:4px"><span style="color:var(--mut)">${ic('nofood', 20)}</span><div class="s">${t('night_food')} <b>${e.foods}</b></div></div></div>` : row('food', t('taste_color', { t: e.taste, c: e.color.toLowerCase() }), e.foods, `#elem-${o.el}`, t('tag_food')));
+  if (L.taplalkozas) cards.push(nightOrg(o) ? `<div class="card quiet"><span class="tag">${t('tag_food')}</span><div style="display:flex;gap:10px;margin-top:4px"><span style="color:var(--mut)">${ic('nofood', 20)}</span><div class="s">${t('night_food', { t: fmtH(sched().eat0) })} <b>${e.foods}</b></div></div></div>` : row('food', t('taste_color', { t: e.taste, c: e.color.toLowerCase() }), e.foods, `#elem-${o.el}`, t('tag_food')));
   pts.forEach((p) => cards.push(row('hand', C('area', p.id), `${pc(p)} · ${ptT(p.id)[3]}`, `#pont-${p.s}`, t('tag_press'))));
   if (L.erzelmek) cards.push(`<div class="card"><span class="tag">${t('tag_emo')}</span><div class="t">${e.emo}</div><div class="s"><b>${t('in_balance')}</b> ${e.bal}</div><div class="s">${e.dis}</div></div>`);
   if (L.gyogynovenyek) cards.push(`<div class="card"><span class="tag">${t('tag_tea')}</span><div class="t">${e.tea}</div><div class="s">${t('tea_note')}</div></div>`);
@@ -424,6 +424,7 @@ V.beallitasok = () => {
     <div class="card stack"><div><div class="flabel">${ic('globe', 16)} ${t('language')}</div>${seg('lang', LANGS.map((k) => [k, PACK[k].name]), lang)}</div>
       <div><div class="flabel">${ic('today', 16)} ${t('theme')}</div>${seg('theme', [['auto', t('th_auto')], ['light', t('th_light')], ['dark', t('th_dark')]], store.get('theme', 'auto'))}</div>
       <div><div class="flabel">${ic('body', 16)} ${t('model')}</div>${seg('model', [['f', t('female')], ['m', t('male')]], MODEL)}</div></div>
+    ${schedCard()}
     <div class="sec"><h2>${t('guidance_h')}</h2></div><div class="list">${sw('sound', 'sound_t', true)}${sw('vibrate', 'vibrate_t', true)}${sw('voice', 'voice', false)}</div>
     <div class="sec"><h2>${t('content_h')}</h2></div><div class="list">${['mozgas', 'legzes', 'taplalkozas', 'csontok', 'erzelmek', 'gyogynovenyek', 'asztro'].map(ly).join('')}</div>
     ${row('screen', t('kij_open'), t('kij_sub'), '#kijelzo')}
@@ -432,6 +433,17 @@ V.beallitasok = () => {
     ${disclaimer()}
   </section>`;
 };
+
+/* ---- napirend (az esti határok forrása, lásd core.js: sched) ---- */
+function schedCard() {
+  const u = getSched(), s = sched(), f = (x) => { const m = Math.round(mod24(x) * 60) % 1440; return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`; };
+  return `<div class="card stack" id="schedcard"><div class="t">${ic('sleep', 18)} ${t('sched_h')}</div><div class="s">${t('sched_s')}</div>
+    <div class="grid2"><label class="flabel" style="flex-direction:column;align-items:stretch">${t('sched_bed')}<input id="sbed" class="tinput" type="time" value="${f(s.bed)}"></label><label class="flabel" style="flex-direction:column;align-items:stretch">${t('sched_wake')}<input id="swake" class="tinput" type="time" value="${f(s.wake)}"></label></div>
+    <div class="kv"><div class="v" id="ssum">${t('sched_sum', { e: fmtH(s.eat0), w: fmtH(s.wake), c: fmtH(s.calm0) })}</div></div>
+    <div class="sub">${u ? t('sched_own') : t('sched_def', { b: fmtH(s.bed), w: fmtH(s.wake) })}</div>
+    <div class="btnrow"><button type="button" class="btn" data-act="ssave">${t('sched_save')}</button>${u ? `<button type="button" class="btn tonal" data-act="sclear">${t('sched_clear')}</button>` : ''}</div>
+    <div id="smsg" class="sub" aria-live="polite"></div><p class="note">${ic('shield', 14)} ${t('sched_local')}</p></div>`;
+}
 
 /* ================= KIJELZŐ MÓD (képernyőkímélő) ================= */
 function kInner() {
@@ -444,7 +456,7 @@ function kInner() {
       <div class="kbar" aria-hidden="true"><i style="width:${r1(frac)}%"></i></div>
       <div class="kline"><span class="dot" style="background:var(--${CHEL[o.c]})"></span>${chName(o.c)}</div><div class="sub">${t('live_flow', { f: chT(o.c)[2] })}</div>
       <div class="kline" style="margin-top:14px"><span class="dot" style="background:var(--${nx.el})"></span>${t('kij_next', { o: orgN(nx.c), h: String(nx.s).padStart(2, '0') })}</div>
-      ${!EAT(h) ? `<div class="kline kmut">${ic('nofood', 18)}${t('eat_pause')}</div>` : ''}
+      ${!EAT(d) ? `<div class="kline kmut">${ic('nofood', 18)}${t('eat_pause', { t: fmtH(sched(d).wake) })}</div>` : ''}
     </div></div>`;
 }
 V.kijelzo = () => `<div class="kij${(() => { const h = now().getHours(); return h >= 22 || h < 6 ? ' dim' : ''; })()}" id="kij" style="${styleVars(themeVars(CUREL, 'd'))}">
@@ -593,6 +605,8 @@ document.addEventListener('click', (e) => {
   if (a === 'bsave') { const dt = $('#bdate').value, tm = $('#btime').value, lon = parseFloat($('#blon').value), tzb = $('[data-act=btz][aria-pressed=true]'); if (!dt || !tm || isNaN(lon) || lon < -180 || lon > 180) { $('#bmsg').textContent = t('birth_err'); return; } store.set('birth', { date: dt, time: tm, lon, tz: tzb ? +tzb.dataset.k : 1 }); astroEdit = false; L.asztro = true; store.set('layers', L); route(); }
   if (a === 'bedit') { astroEdit = true; route(); }
   if (a === 'bcancel') { astroEdit = false; route(); }
+  if (a === 'ssave') { const bed = $('#sbed').value, wake = $('#swake').value, len = mod24(hm(wake) - hm(bed)); if (!bed || !wake || len < 4 || len > 14) { $('#smsg').textContent = t('sched_err'); return; } store.set('sched', { bed, wake }); route(); const m = $('#smsg'); if (m) m.textContent = t('sched_saved'); }
+  if (a === 'sclear') { store.set('sched', null); route(); }
   if (a === 'bclear') { store.set('birth', null); astroEdit = false; route(); }
 });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('#sheetbox .sheet')) closeSheet(); });

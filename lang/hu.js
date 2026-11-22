@@ -62,8 +62,8 @@
     switch_side: 'Válts oldalt!', prev: 'Előző', next: 'Következő', sound_t: 'Hangjelzés', vibrate_t: 'Rezgés', routine_steps: 'A rutin lépései',
     routine_done: 'Kész! Maradj még egy percig nyugalomban, és figyeld, hogyan érzed magad.', start_routine: 'Rutin indítása', dur_t: 'Időtartam: {t}',
     routine_label: 'Rutin', live_label: 'Élő meridián: {c}', schematic: 'sematikus',
-    nofood: 'Étkezési szünet', nofood_sub: '19 óra után már ne egyél: este az emésztés pihen. Következő étkezés: reggeli 7–9 óra között, a Gyomor idejében.', nofood_chip: 'étkezési szünet',
-    night_food: 'Ebben az időszakban nem javasolt étkezni. Az elem ételeit napközben, 19 óra előtt fogyaszd:', eat_window: 'Napközben, 7 és 19 óra között.',
+    nofood: 'Étkezési szünet', nofood_sub: 'Lefekvés előtt 3 órával már ne egyél: este az emésztés pihen. Következő étkezés: reggeli 7–9 óra között, a Gyomor idejében.', nofood_chip: 'étkezési szünet',
+    night_food: 'Ebben az időszakban nem javasolt étkezni. Az elem ételeit napközben, {t} előtt fogyaszd:', eat_window: 'Napközben, {a} és {b} között.',
     k_bone: 'CSONT', k_from: 'KIINDULÁS', k_meas: 'TÁVOLSÁG', up: 'felfelé', down: 'lefelé', m_along: '{d} cun {dir}',
     side_rad: '{o} cun a hüvelykujj felé', side_uln: '{o} cun a kisujj felé', side_lat: '{o} cun kifelé', side_med: '{o} cun befelé', side_t: '{o} cun oldalra', here: 'pontosan itt',
     m_below: '{v} tövisnyúlványa alatt', bones_btn: 'Csontok', bones_h: 'Csontarányos cun-mérés',
@@ -82,7 +82,7 @@
       Sz: ['Szív', 'Szív', 'Könnyű, meleg ebéd és egy rövid, csendes pihenő.'],
       'Véb': ['Vékonybél', 'Vékonybél', 'Az emésztés és a szétválogatás ideje: rendszerezés, könnyebb feladatok.'],
       H: ['Hólyag', 'Hólyag', 'Igyál eleget; jó lendület a munkához, tanuláshoz.'],
-      V: ['Vese', 'Vese', 'Lassíts: könnyű, meleg vacsora 19 óra előtt, pihentető tevékenység.'],
+      V: ['Vese', 'Vese', 'Lassíts: könnyű, meleg vacsora, pihentető tevékenység.'],
       Szb: ['Szívburok', 'Szívburok', 'A kapcsolatok ideje: beszélgetés, közös program, ellazulás. Ételt már ne egyél.'],
       Hm: ['Hármasmelegítő', 'H. melegítő', 'Készülj az alvásra: halk fények, képernyő nélkül.']
     },
@@ -222,7 +222,7 @@ Object.assign(window.SZ_LANG.hu.ui, {
   lvl_e0: 'Fáradt', lvl_e1: 'Rendben', lvl_e2: 'Friss', mood_0: 'Feszült', mood_1: 'Semleges', mood_2: 'Nyugodt',
   sleep_0: 'Gyenge', sleep_1: 'Közepes', sleep_2: 'Jó',
   for_you: 'NEKED MOST', lets_go: 'Kezdjük', save_ci: 'Csak mentés', on_device: 'Csak ezen az eszközön tárolódik.',
-  eat_pause: 'Evési szünet 7 óráig', eat_pause_s: 'Este és éjjel nem ajánlunk étkezést. Víz, langyos tea rendben van.',
+  eat_pause: 'Evési szünet {t}-ig', eat_pause_s: 'Lefekvés előtt 3 órával és éjjel nem ajánlunk étkezést. Víz, langyos tea rendben van.',
   later: 'Később ma',
   search_body: 'Terület vagy cél: csukló, alvás, fejfájás…', all_ch: 'Mind', layers_l: 'Rétegek',
   layer_skin: 'Bőr', layer_ch: 'Csatorna', layer_pts: 'Pontok', layer_bones: 'Csontok', guide_there: 'Vezess oda',
@@ -241,7 +241,8 @@ Object.assign(window.SZ_LANG.hu.ui, {
   checkins_n: ['{n} állapot', '{n} állapot'], wakes_n: ['{n} ébredés', '{n} ébredés'], done_n: ['{n} gyakorlat', '{n} gyakorlat'], not_diag: 'Nem diagnózis',
   sample: 'Mintaadatok betöltése', clear_data: 'Adatok törlése',
   local_only: 'Minden adat csak ebben a böngészőben marad.', sample_note: 'A mintaadatok jelölve vannak, és bármikor törölhetők. Egészségadat-szinkron (Health Connect) csak a natív appban lehetséges.',
-  theme: 'Téma', th_auto: 'Napszak szerint', th_light: 'Világos', th_dark: 'Sötét', guidance_h: 'Vezetés', in_m: '{m} perc múlva', kij_open: 'Kijelző mód', kij_sub: 'Képernyőkímélő töltés közben: óra, szerv, élő meridián', kij_full: 'Teljes képernyő', kij_full_no: 'A teljes képernyőt itt nem engedi a böngésző.', kij_next: 'Utána: {o} · {h}:00', kij_tap: 'Koppints a vezérlőkhöz', kij_wake_ok: 'A képernyő ébren marad, amíg ez a lap nyitva van.', kij_wake_no: 'A böngésző itt nem tartja ébren a képernyőt. Nyisd meg a lapot külön fülön, vagy állítsd hosszabbra a képernyő kikapcsolását.', voice: 'Hangos vezetés (felolvasás)', content_h: 'Tartalmi rétegek'
+  theme: 'Téma', th_auto: 'Napszak szerint', th_light: 'Világos', th_dark: 'Sötét', guidance_h: 'Vezetés', in_m: '{m} perc múlva', kij_open: 'Kijelző mód', kij_sub: 'Képernyőkímélő töltés közben: óra, szerv, élő meridián', kij_full: 'Teljes képernyő', kij_full_no: 'A teljes képernyőt itt nem engedi a böngésző.', kij_next: 'Utána: {o} · {h}:00', kij_tap: 'Koppints a vezérlőkhöz', kij_wake_ok: 'A képernyő ébren marad, amíg ez a lap nyitva van.', kij_wake_no: 'A böngésző itt nem tartja ébren a képernyőt. Nyisd meg a lapot külön fülön, vagy állítsd hosszabbra a képernyő kikapcsolását.', voice: 'Hangos vezetés (felolvasás)', content_h: 'Tartalmi rétegek',
+  sched_h: 'Napirend', sched_s: 'Ebből számoljuk az esti evési szünetet (lefekvés előtt 3 órától ébredésig) és a lecsendesedést (lefekvés előtt másfél órától).', sched_bed: 'Szokásos lefekvés', sched_wake: 'Szokásos ébredés', sched_save: 'Mentés', sched_clear: 'Alapérték', sched_sum: 'Evési szünet: {e}–{w} · Lecsendesedés: {c}-tól', sched_def: 'Még nem adtad meg: a naplemente alapján (Budapest) számolt alapérték, lefekvés {b}, ébredés {w}.', sched_own: 'A saját napirended alapján.', sched_err: 'Adj meg lefekvést és ébredést; az alvásidő 4 és 14 óra között legyen.', sched_local: 'A napirendet csak ezen az eszközön tároljuk.', sched_saved: 'Elmentve.',
 });
 Object.assign(window.SZ_LANG.hu.c.routines, { fesz: ['Feszültségoldás', 'Mellkas, csukló, lábfej – ha összeszorul valami'] });
 Object.assign(window.SZ_LANG.hu.c.how, { fesz: 'Kezdd a mellkas közepén, szelíd körkörös nyomással. Utána a csukló belső oldala, majd a lábfej háta. Végig lassú, hosszú kilégzés, a vállak lazák.' });

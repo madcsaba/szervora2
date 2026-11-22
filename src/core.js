@@ -104,7 +104,6 @@ const ROUT = [
 ];
 ROUT.forEach((r) => { r.sec = r.steps.reduce((s, x) => s + x[1], 0); });
 const RBY = Object.fromEntries(ROUT.map((r) => [r.id, r]));
-const routineFor = (h) => h >= 5 && h < 10 ? 'reggel' : h >= 13 && h < 16 ? 'emesztes' : h >= 20 || h < 5 ? 'esti' : 'kepernyo';
 const CYCST = { tap: { pairs: Object.entries(GEN), curve: true, c: 'var(--jade-t)', w: 2.5 }, szab: { pairs: Object.entries(CTRL), c: 'var(--ink)', w: 2.5 }, vissza: { pairs: Object.entries(CTRL).map(([a, b]) => [b, a]), c: 'var(--tuz)', w: 2.5, dash: '7 5' }, legy: { pairs: Object.entries(CTRL), c: 'var(--tuz)', w: 4.5 } };
 const LAYERS = [['', [['base', 'clock']]], ['g_know', [['elemek', 'elements'], ['kapcsolatok', 'book'], ['meridianok', 'body'], ['atlasz', 'point'], ['csontok', 'bone'], ['technikak', 'hand']]], ['g_prac', [['rutinok', 'hand'], ['mozgas', 'move'], ['legzes', 'breath'], ['taplalkozas', 'food']]], ['g_extra', [['erzelmek', 'emotion'], ['gyogynovenyek', 'herb'], ['evszak', 'season'], ['alvas', 'sleep']]]];
 const DEFAULT_LAYERS = { elemek: true, kapcsolatok: true, meridianok: true, atlasz: true, csontok: true, technikak: true, rutinok: true, mozgas: true, legzes: true, taplalkozas: true, erzelmek: false, gyogynovenyek: false, evszak: false, alvas: false };
@@ -119,8 +118,40 @@ const seasonEl = (d) => { const m = d.getMonth() + 1; return m >= 3 && m <= 5 ? 
 const minsLeft = (o, d) => { const end = ((o.s + 2) % 24) * 60, cur = d.getHours() * 60 + d.getMinutes(); const diff = (end - cur + 1440) % 1440; return diff === 0 ? 120 : diff; };
 const fmtLeft = (m) => m >= 60 ? t('left_hm', { h: Math.floor(m / 60), m: m % 60 }) : t('left_m', { m });
 const win = (o) => `${o.s}–${(o.s + 2) % 24}`;
-const EAT = (h) => h >= 7 && h < 19;
-const nightOrg = (o) => o.s >= 19 || o.s < 7;
+/* ---- napirend: az esti határok a felhasználó lefekvési és ébredési idejéből ----
+   Képlet (L = szokásos lefekvés, É = ébredés, órában):
+   - étkezési szünet: L − 3 órától É-ig
+   - esti lecsendesedés az első ajánlás: L − 1,5 órától É − 2 óráig
+   Ha a felhasználó nem adta meg (Beállítások → Napirend), az alap L a naplemente + 3,5 óra
+   (Budapest, negyedórára kerekítve, 21:30 és 22:30 közé szorítva), az alap É 7:00. Adat csak az eszközön (store 'sched'). */
+const SUN_LOC = { lat: 47.5, lon: 19.04 };
+const SCHED_DEF_WAKE = 7, SCHED_BED_MIN = 21.5, SCHED_BED_MAX = 22.5;
+const mod24 = (x) => ((x % 24) + 24) % 24;
+const hm = (s) => { const [a, b] = String(s).split(':').map(Number); return a + (b || 0) / 60; };
+const fmtH = (x) => { const m = Math.round(mod24(x) * 60) % 1440; return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`; };
+const hOf = (d) => d.getHours() + d.getMinutes() / 60;
+const inWin = (x, a, b) => (a <= b ? x >= a && x < b : x >= a || x < b);
+function sunsetH(d, { lat, lon } = SUN_LOC) {
+  // NOAA közelítés; helyi idő órában (a böngésző időzónájával).
+  const n = Math.floor((new Date(d.getFullYear(), d.getMonth(), d.getDate()) - new Date(d.getFullYear(), 0, 0)) / 864e5);
+  const g = 2 * Math.PI / 365 * (n - 1);
+  const eq = 229.18 * (0.000075 + 0.001868 * Math.cos(g) - 0.032077 * Math.sin(g) - 0.014615 * Math.cos(2 * g) - 0.040849 * Math.sin(2 * g));
+  const dec = 0.006918 - 0.399912 * Math.cos(g) + 0.070257 * Math.sin(g) - 0.006758 * Math.cos(2 * g) + 0.000907 * Math.sin(2 * g) - 0.002697 * Math.cos(3 * g) + 0.00148 * Math.sin(3 * g);
+  const la = lat * Math.PI / 180, ha = Math.acos(Math.min(1, Math.max(-1, Math.cos(90.833 * Math.PI / 180) / (Math.cos(la) * Math.cos(dec)) - Math.tan(la) * Math.tan(dec)))) * 180 / Math.PI;
+  const noon = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12);
+  return mod24((720 - 4 * (lon - ha) - eq) / 60 - noon.getTimezoneOffset() / 60);
+}
+const getSched = () => { const u = store.get('sched', null); return u && u.bed && u.wake ? u : null; };
+function sched(d = now()) {
+  const u = getSched();
+  const bed = u ? hm(u.bed) : Math.min(SCHED_BED_MAX, Math.max(SCHED_BED_MIN, Math.round((sunsetH(d) + 3.5) * 4) / 4));
+  const wake = u ? hm(u.wake) : SCHED_DEF_WAKE;
+  return { own: !!u, bed, wake, eat0: mod24(bed - 3), calm0: mod24(bed - 1.5), calm1: mod24(wake - 2) };
+}
+const eatAt = (x, s) => !inWin(mod24(x), s.eat0, s.wake);
+const EAT = (d) => eatAt(hOf(d), sched(d));
+const CALM = (d) => { const s = sched(d); return inWin(hOf(d), s.calm0, s.calm1); };
+const nightOrg = (o) => !eatAt(o.s + 1, sched());
 const mmss = (s) => { s = Math.max(0, Math.round(s)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
 const qt = (s) => lang === 'hu' ? `„${s}”` : `“${s}”`;
 

@@ -399,7 +399,6 @@ const ROUT = [
 ];
 ROUT.forEach((r) => { r.sec = r.steps.reduce((s, x) => s + x[1], 0); });
 const RBY = Object.fromEntries(ROUT.map((r) => [r.id, r]));
-const routineFor = (h) => h >= 5 && h < 10 ? 'reggel' : h >= 13 && h < 16 ? 'emesztes' : h >= 20 || h < 5 ? 'esti' : 'kepernyo';
 const CYCST = { tap: { pairs: Object.entries(GEN), curve: true, c: 'var(--jade-t)', w: 2.5 }, szab: { pairs: Object.entries(CTRL), c: 'var(--ink)', w: 2.5 }, vissza: { pairs: Object.entries(CTRL).map(([a, b]) => [b, a]), c: 'var(--tuz)', w: 2.5, dash: '7 5' }, legy: { pairs: Object.entries(CTRL), c: 'var(--tuz)', w: 4.5 } };
 const LAYERS = [['', [['base', 'clock']]], ['g_know', [['elemek', 'elements'], ['kapcsolatok', 'book'], ['meridianok', 'body'], ['atlasz', 'point'], ['csontok', 'bone'], ['technikak', 'hand']]], ['g_prac', [['rutinok', 'hand'], ['mozgas', 'move'], ['legzes', 'breath'], ['taplalkozas', 'food']]], ['g_extra', [['erzelmek', 'emotion'], ['gyogynovenyek', 'herb'], ['evszak', 'season'], ['alvas', 'sleep']]]];
 const DEFAULT_LAYERS = { elemek: true, kapcsolatok: true, meridianok: true, atlasz: true, csontok: true, technikak: true, rutinok: true, mozgas: true, legzes: true, taplalkozas: true, erzelmek: false, gyogynovenyek: false, evszak: false, alvas: false };
@@ -414,8 +413,40 @@ const seasonEl = (d) => { const m = d.getMonth() + 1; return m >= 3 && m <= 5 ? 
 const minsLeft = (o, d) => { const end = ((o.s + 2) % 24) * 60, cur = d.getHours() * 60 + d.getMinutes(); const diff = (end - cur + 1440) % 1440; return diff === 0 ? 120 : diff; };
 const fmtLeft = (m) => m >= 60 ? t('left_hm', { h: Math.floor(m / 60), m: m % 60 }) : t('left_m', { m });
 const win = (o) => `${o.s}–${(o.s + 2) % 24}`;
-const EAT = (h) => h >= 7 && h < 19;
-const nightOrg = (o) => o.s >= 19 || o.s < 7;
+/* ---- napirend: az esti határok a felhasználó lefekvési és ébredési idejéből ----
+   Képlet (L = szokásos lefekvés, É = ébredés, órában):
+   - étkezési szünet: L − 3 órától É-ig
+   - esti lecsendesedés az első ajánlás: L − 1,5 órától É − 2 óráig
+   Ha a felhasználó nem adta meg (Beállítások → Napirend), az alap L a naplemente + 3,5 óra
+   (Budapest, negyedórára kerekítve, 21:30 és 22:30 közé szorítva), az alap É 7:00. Adat csak az eszközön (store 'sched'). */
+const SUN_LOC = { lat: 47.5, lon: 19.04 };
+const SCHED_DEF_WAKE = 7, SCHED_BED_MIN = 21.5, SCHED_BED_MAX = 22.5;
+const mod24 = (x) => ((x % 24) + 24) % 24;
+const hm = (s) => { const [a, b] = String(s).split(':').map(Number); return a + (b || 0) / 60; };
+const fmtH = (x) => { const m = Math.round(mod24(x) * 60) % 1440; return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`; };
+const hOf = (d) => d.getHours() + d.getMinutes() / 60;
+const inWin = (x, a, b) => (a <= b ? x >= a && x < b : x >= a || x < b);
+function sunsetH(d, { lat, lon } = SUN_LOC) {
+  // NOAA közelítés; helyi idő órában (a böngésző időzónájával).
+  const n = Math.floor((new Date(d.getFullYear(), d.getMonth(), d.getDate()) - new Date(d.getFullYear(), 0, 0)) / 864e5);
+  const g = 2 * Math.PI / 365 * (n - 1);
+  const eq = 229.18 * (0.000075 + 0.001868 * Math.cos(g) - 0.032077 * Math.sin(g) - 0.014615 * Math.cos(2 * g) - 0.040849 * Math.sin(2 * g));
+  const dec = 0.006918 - 0.399912 * Math.cos(g) + 0.070257 * Math.sin(g) - 0.006758 * Math.cos(2 * g) + 0.000907 * Math.sin(2 * g) - 0.002697 * Math.cos(3 * g) + 0.00148 * Math.sin(3 * g);
+  const la = lat * Math.PI / 180, ha = Math.acos(Math.min(1, Math.max(-1, Math.cos(90.833 * Math.PI / 180) / (Math.cos(la) * Math.cos(dec)) - Math.tan(la) * Math.tan(dec)))) * 180 / Math.PI;
+  const noon = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12);
+  return mod24((720 - 4 * (lon - ha) - eq) / 60 - noon.getTimezoneOffset() / 60);
+}
+const getSched = () => { const u = store.get('sched', null); return u && u.bed && u.wake ? u : null; };
+function sched(d = now()) {
+  const u = getSched();
+  const bed = u ? hm(u.bed) : Math.min(SCHED_BED_MAX, Math.max(SCHED_BED_MIN, Math.round((sunsetH(d) + 3.5) * 4) / 4));
+  const wake = u ? hm(u.wake) : SCHED_DEF_WAKE;
+  return { own: !!u, bed, wake, eat0: mod24(bed - 3), calm0: mod24(bed - 1.5), calm1: mod24(wake - 2) };
+}
+const eatAt = (x, s) => !inWin(mod24(x), s.eat0, s.wake);
+const EAT = (d) => eatAt(hOf(d), sched(d));
+const CALM = (d) => { const s = sched(d); return inWin(hOf(d), s.calm0, s.calm1); };
+const nightOrg = (o) => !eatAt(o.s + 1, sched());
 const mmss = (s) => { s = Math.max(0, Math.round(s)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
 const qt = (s) => lang === 'hu' ? `„${s}”` : `“${s}”`;
 
@@ -758,11 +789,11 @@ const lastCheckin = () => { const c = getLog().filter((x) => x.type === 'ci').po
 /* ================= ajánlómotor + biztonsági szűrő ================= */
 function recommend(d, ci) {
   const h = d.getHours(); let id, ti, su;
-  if (h >= 21 || h < 5) { id = 'esti'; ti = t('rec_night_t'); su = t('rec_night_s'); }
+  if (CALM(d)) { id = 'esti'; ti = t('rec_night_t'); su = t('rec_night_s'); }
   else if (ci && ci.m === 0) { id = 'fesz'; ti = t('rec_tense_t'); su = t('rec_tense_s'); }
   else if (ci && ci.e === 0) { id = 'reggel'; ti = t('rec_low_t'); su = t('rec_low_s'); }
   else { id = h >= 5 && h < 10 ? 'reggel' : h >= 13 && h < 16 ? 'emesztes' : 'kepernyo'; const rt = C('routines', id); ti = rt[0]; su = rt[1]; }
-  if (id === 'emesztes' && !EAT(h)) id = 'kepernyo';
+  if (id === 'emesztes' && !EAT(d)) id = 'kepernyo';
   return { id, ti, su, r: RBY[id] };
 }
 
@@ -795,14 +826,14 @@ V.ma = () => {
   </section>
   <section class="pad stack">
     <div class="hero">
-      <div class="eyebrow acc">${ic(h >= 21 || h < 5 ? 'moon' : 'today', 18)}${t('enough')}</div>
+      <div class="eyebrow acc">${ic(CALM(d) ? 'moon' : 'today', 18)}${t('enough')}</div>
       <h2 class="display">${rec.ti}</h2>
       <p>${rec.su}</p>
       <div class="btnrow"><a class="btn" href="#rutin-${rec.id}">${ic('play', 20, 2.2)}${t('start_min', { m: Math.max(1, Math.round(rec.r.sec / 60)) })}</a><a class="btn tonal" href="#gyakorlat-legzes">${t('only_breath')}</a></div>
     </div>
     <button type="button" class="row" data-act="checkin" style="width:100%;text-align:left;cursor:pointer;border:0"><span class="ic">${ic('emotion')}</span><span class="grow"><span class="t">${t('checkin_btn')}</span><span class="s">${ci ? `${t('ci_last')}: ${t('lvl_e' + ci.e)} · ${t('mood_' + ci.m)}` : t('checkin_sub')}</span></span>${ic('chev', 18)}</button>
     ${astroOn() ? astroTodayRow(d) : ''}
-    ${!EAT(h) ? `<div class="row flat"><span class="ic">${ic('nofood')}</span><span class="grow"><span class="t">${t('eat_pause')}</span><span class="s">${t('eat_pause_s')}</span></span></div>` : ''}
+    ${!EAT(d) ? `<div class="row flat"><span class="ic">${ic('nofood')}</span><span class="grow"><span class="t">${t('eat_pause', { t: fmtH(sched(d).wake) })}</span><span class="s">${t('eat_pause_s')}</span></span></div>` : ''}
     <div class="sec"><h2>${t('later')}</h2></div>
     <div class="grid2">${later.map((x) => `<a class="tile big" href="#szerv-${slug(x.c)}"><div class="k">${String(x.s).padStart(2, '0')}:00 · ${elT(x.el).n}</div><div class="v">${orgN(x.c)}</div></a>`).join('')}</div>
     <div class="card quiet"><div class="s">${C('org', o.c)[2]}</div></div>
@@ -834,7 +865,7 @@ V.szerv = (code) => {
   const cards = [];
   cards.push(`<a class="card livecard" href="#test-ch-${slug(o.c)}">${miniFigure(o.c)}<span class="grow"><span class="tag">${t('tag_meridian')}</span><span class="t">${chName(o.c)}</span><span class="s">${t('live_flow', { f: chT(o.c)[2] })}</span></span>${ic('chev', 18)}</a>`);
   if (L.mozgas) cards.push(row('move', t('heal_sound', { s: snd[1] }), t('min5', { o: snd[0] }), '#gyakorlat', t('tag_qigong')));
-  if (L.taplalkozas) cards.push(nightOrg(o) ? `<div class="card quiet"><span class="tag">${t('tag_food')}</span><div style="display:flex;gap:10px;margin-top:4px"><span style="color:var(--mut)">${ic('nofood', 20)}</span><div class="s">${t('night_food')} <b>${e.foods}</b></div></div></div>` : row('food', t('taste_color', { t: e.taste, c: e.color.toLowerCase() }), e.foods, `#elem-${o.el}`, t('tag_food')));
+  if (L.taplalkozas) cards.push(nightOrg(o) ? `<div class="card quiet"><span class="tag">${t('tag_food')}</span><div style="display:flex;gap:10px;margin-top:4px"><span style="color:var(--mut)">${ic('nofood', 20)}</span><div class="s">${t('night_food', { t: fmtH(sched().eat0) })} <b>${e.foods}</b></div></div></div>` : row('food', t('taste_color', { t: e.taste, c: e.color.toLowerCase() }), e.foods, `#elem-${o.el}`, t('tag_food')));
   pts.forEach((p) => cards.push(row('hand', C('area', p.id), `${pc(p)} · ${ptT(p.id)[3]}`, `#pont-${p.s}`, t('tag_press'))));
   if (L.erzelmek) cards.push(`<div class="card"><span class="tag">${t('tag_emo')}</span><div class="t">${e.emo}</div><div class="s"><b>${t('in_balance')}</b> ${e.bal}</div><div class="s">${e.dis}</div></div>`);
   if (L.gyogynovenyek) cards.push(`<div class="card"><span class="tag">${t('tag_tea')}</span><div class="t">${e.tea}</div><div class="s">${t('tea_note')}</div></div>`);
@@ -1119,6 +1150,7 @@ V.beallitasok = () => {
     <div class="card stack"><div><div class="flabel">${ic('globe', 16)} ${t('language')}</div>${seg('lang', LANGS.map((k) => [k, PACK[k].name]), lang)}</div>
       <div><div class="flabel">${ic('today', 16)} ${t('theme')}</div>${seg('theme', [['auto', t('th_auto')], ['light', t('th_light')], ['dark', t('th_dark')]], store.get('theme', 'auto'))}</div>
       <div><div class="flabel">${ic('body', 16)} ${t('model')}</div>${seg('model', [['f', t('female')], ['m', t('male')]], MODEL)}</div></div>
+    ${schedCard()}
     <div class="sec"><h2>${t('guidance_h')}</h2></div><div class="list">${sw('sound', 'sound_t', true)}${sw('vibrate', 'vibrate_t', true)}${sw('voice', 'voice', false)}</div>
     <div class="sec"><h2>${t('content_h')}</h2></div><div class="list">${['mozgas', 'legzes', 'taplalkozas', 'csontok', 'erzelmek', 'gyogynovenyek', 'asztro'].map(ly).join('')}</div>
     ${row('screen', t('kij_open'), t('kij_sub'), '#kijelzo')}
@@ -1127,6 +1159,17 @@ V.beallitasok = () => {
     ${disclaimer()}
   </section>`;
 };
+
+/* ---- napirend (az esti határok forrása, lásd core.js: sched) ---- */
+function schedCard() {
+  const u = getSched(), s = sched(), f = (x) => { const m = Math.round(mod24(x) * 60) % 1440; return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`; };
+  return `<div class="card stack" id="schedcard"><div class="t">${ic('sleep', 18)} ${t('sched_h')}</div><div class="s">${t('sched_s')}</div>
+    <div class="grid2"><label class="flabel" style="flex-direction:column;align-items:stretch">${t('sched_bed')}<input id="sbed" class="tinput" type="time" value="${f(s.bed)}"></label><label class="flabel" style="flex-direction:column;align-items:stretch">${t('sched_wake')}<input id="swake" class="tinput" type="time" value="${f(s.wake)}"></label></div>
+    <div class="kv"><div class="v" id="ssum">${t('sched_sum', { e: fmtH(s.eat0), w: fmtH(s.wake), c: fmtH(s.calm0) })}</div></div>
+    <div class="sub">${u ? t('sched_own') : t('sched_def', { b: fmtH(s.bed), w: fmtH(s.wake) })}</div>
+    <div class="btnrow"><button type="button" class="btn" data-act="ssave">${t('sched_save')}</button>${u ? `<button type="button" class="btn tonal" data-act="sclear">${t('sched_clear')}</button>` : ''}</div>
+    <div id="smsg" class="sub" aria-live="polite"></div><p class="note">${ic('shield', 14)} ${t('sched_local')}</p></div>`;
+}
 
 /* ================= KIJELZŐ MÓD (képernyőkímélő) ================= */
 function kInner() {
@@ -1139,7 +1182,7 @@ function kInner() {
       <div class="kbar" aria-hidden="true"><i style="width:${r1(frac)}%"></i></div>
       <div class="kline"><span class="dot" style="background:var(--${CHEL[o.c]})"></span>${chName(o.c)}</div><div class="sub">${t('live_flow', { f: chT(o.c)[2] })}</div>
       <div class="kline" style="margin-top:14px"><span class="dot" style="background:var(--${nx.el})"></span>${t('kij_next', { o: orgN(nx.c), h: String(nx.s).padStart(2, '0') })}</div>
-      ${!EAT(h) ? `<div class="kline kmut">${ic('nofood', 18)}${t('eat_pause')}</div>` : ''}
+      ${!EAT(d) ? `<div class="kline kmut">${ic('nofood', 18)}${t('eat_pause', { t: fmtH(sched(d).wake) })}</div>` : ''}
     </div></div>`;
 }
 V.kijelzo = () => `<div class="kij${(() => { const h = now().getHours(); return h >= 22 || h < 6 ? ' dim' : ''; })()}" id="kij" style="${styleVars(themeVars(CUREL, 'd'))}">
@@ -1464,7 +1507,7 @@ V.elem = (k) => {
     <div class="sec"><h2>${t('in_cycles')}</h2></div>
     <div style="display:flex;gap:6px">${cc(mother, t('feeds'))}${cc(GEN[k], t('feeds_it'))}${cc(ctrlBy, t('ctrl_by'))}${cc(CTRL[k], t('ctrls'))}</div>
     <div class="grid2"><div class="card" style="padding:10px 12px"><span class="tag">${t('balanced')}</span><div style="font-size:14px;line-height:19px;margin-top:2px">${e.bal}</div></div><div class="card" style="padding:10px 12px"><span class="tag" style="color:var(--tuz-t)">${t('disturbed')}</span><div style="font-size:14px;line-height:19px;margin-top:2px">${e.dis}</div></div></div>
-    ${L.taplalkozas ? `<div class="card"><span class="tag">${t('tag_food')}</span><div style="font-size:15px;font-weight:600;margin-top:2px">${t('taste_x', { t: e.taste })}</div><div style="font-size:14px;line-height:20px">${e.foods}</div><div style="font-size:13px;line-height:19px;color:var(--muted);margin-top:4px">${e.tfx}</div><div style="font-size:12px;font-weight:600;color:var(--jade-t);margin-top:6px;display:flex;align-items:center;gap:6px">${ic('clock', 14)}${t('eat_window')}</div></div>` : ''}
+    ${L.taplalkozas ? `<div class="card"><span class="tag">${t('tag_food')}</span><div style="font-size:15px;font-weight:600;margin-top:2px">${t('taste_x', { t: e.taste })}</div><div style="font-size:14px;line-height:20px">${e.foods}</div><div style="font-size:13px;line-height:19px;color:var(--muted);margin-top:4px">${e.tfx}</div><div style="font-size:12px;font-weight:600;color:var(--jade-t);margin-top:6px;display:flex;align-items:center;gap:6px">${ic('clock', 14)}${t('eat_window', { a: fmtH(sched().wake), b: fmtH(sched().eat0) })}</div></div>` : ''}
     ${L.mozgas ? row('move', t('heal_sound', { s: snd[1] }), snd[0], `#gyakorlat-${slug(ELORG[k][0])}`, t('tag_move')) : ''}
     ${L.gyogynovenyek ? `<div class="card"><span class="tag">${t('tag_tea')}</span><div style="font-size:15px;font-weight:600">${e.tea}</div></div>` : ''}
     ${disclaimer()}
@@ -1596,6 +1639,8 @@ document.addEventListener('click', (e) => {
   if (a === 'bsave') { const dt = $('#bdate').value, tm = $('#btime').value, lon = parseFloat($('#blon').value), tzb = $('[data-act=btz][aria-pressed=true]'); if (!dt || !tm || isNaN(lon) || lon < -180 || lon > 180) { $('#bmsg').textContent = t('birth_err'); return; } store.set('birth', { date: dt, time: tm, lon, tz: tzb ? +tzb.dataset.k : 1 }); astroEdit = false; L.asztro = true; store.set('layers', L); route(); }
   if (a === 'bedit') { astroEdit = true; route(); }
   if (a === 'bcancel') { astroEdit = false; route(); }
+  if (a === 'ssave') { const bed = $('#sbed').value, wake = $('#swake').value, len = mod24(hm(wake) - hm(bed)); if (!bed || !wake || len < 4 || len > 14) { $('#smsg').textContent = t('sched_err'); return; } store.set('sched', { bed, wake }); route(); const m = $('#smsg'); if (m) m.textContent = t('sched_saved'); }
+  if (a === 'sclear') { store.set('sched', null); route(); }
   if (a === 'bclear') { store.set('birth', null); astroEdit = false; route(); }
 });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('#sheetbox .sheet')) closeSheet(); });
