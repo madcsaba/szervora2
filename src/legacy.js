@@ -51,7 +51,7 @@ const audio = () => { try { if (!AC) AC = new (window.AudioContext || window.web
 const beep = (f = 520, d = .18, when = 0) => { if (!AC || !store.get('sound', true)) return; try { const o = AC.createOscillator(), g = AC.createGain(), t0 = AC.currentTime + when; o.type = 'sine'; o.frequency.value = f; g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.18, t0 + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t0 + d); o.connect(g).connect(AC.destination); o.start(t0); o.stop(t0 + d + 0.05); } catch (e) {} };
 const buzz = (p) => { if (!store.get('vibrate', true)) return; try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
 const PATS = { calm: [['inhale', 4, 'in'], ['exhale', 6, 'out']], even: [['inhale', 5, 'in'], ['exhale', 5, 'out']], sleep: [['inhale', 4, 'in'], ['hold', 7, 'hold'], ['exhale', 8, 'out']] };
-let brPat = 'calm', brCycles = 8;
+let brPat = 'calm', brCycles = 8, brUser = false;
 function initBreath(signal) {
   if (!$('#core')) return;
   const core = $('#core'), ph = $('#phase'), numEl = $('#num'), go = $('#brgo'), prog = $('#brprog');
@@ -67,7 +67,7 @@ function initBreath(signal) {
     const b = e.target.closest('[data-act]'); if (!b) return; const a = b.dataset.act;
     if (a === 'brgo') { if (run) { pause(); return; } audio(); run = true; last = performance.now(); setPhase(P()[i][1] - elapsed); go.innerHTML = `${ic('pause', 16, 2)}${t('pause')}`; ui(); iv = setInterval(tick, 100); }
     if (a === 'brstop') finish(false);
-    if (a === 'pat') { brPat = b.dataset.k; $$('[data-act=pat]').forEach((x) => x.setAttribute('aria-pressed', x === b)); finish(false); }
+    if (a === 'pat') { brPat = b.dataset.k; brUser = true; $$('[data-act=pat]').forEach((x) => x.setAttribute('aria-pressed', x === b)); finish(false); }
     if (a === 'brcyc') { brCycles = brCycles === 6 ? 8 : brCycles === 8 ? 12 : 6; $('#brcycl').textContent = brCycles + '×'; $('#brcount').textContent = t('cycles_n', { n: brCycles }); finish(false); $('#brcyc').textContent = t('cyc_of', { a: 0, b: brCycles }); }
   }, { signal });
   signal.addEventListener('abort', () => clearInterval(iv));

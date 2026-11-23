@@ -166,6 +166,25 @@ const eatAt = (x, s) => !inWin(mod24(x), s.eat0, s.wake);
 const EAT = (d) => eatAt(hOf(d), sched(d));
 const CALM = (d) => { const s = sched(d); return inWin(hOf(d), s.calm0, s.calm1); };
 const nightOrg = (o) => !eatAt(o.s + 1, sched());
+/* Napszak a napirendből (a gyakorlatok ehhez igazodnak):
+   'night'   – a lecsendesedési sáv (CALM): lefekvés − 1,5 óra → ébredés − 2 óra
+   'morning' – ébredés − 2 óra → ébredés + 3 óra
+   'evening' – lefekvés − 3 óra → a lecsendesedés kezdete
+   'day'     – minden más */
+function daypart(d = now()) {
+  const s = sched(d), x = hOf(d);
+  if (inWin(x, s.calm0, s.calm1)) return 'night';
+  if (inWin(x, s.calm1, mod24(s.wake + 3))) return 'morning';
+  if (inWin(x, s.eat0, s.calm0)) return 'evening';
+  return 'day';
+}
+// Légzésminták: mikor kínáljuk, és melyik az alapértelmezett az adott napszakban.
+const PAT_FIT = { calm: ['morning', 'day', 'evening', 'night'], even: ['morning', 'day', 'evening'], sleep: ['night'] };
+const PAT_DEF = { morning: 'even', day: 'even', evening: 'calm', night: 'sleep' };
+// Rutinok: mely napszakban illenek (ami nincs itt, az mindig); az emésztési rutin evési szünetben nem.
+const ROUT_FIT = { esti: ['evening', 'night'], reggel: ['morning'], kepernyo: ['morning', 'day', 'evening'] };
+const ROUT_WHEN = { esti: 'fit_night', reggel: 'fit_morning', kepernyo: 'fit_day', emesztes: 'fit_meal' };
+const routFits = (id, d = now()) => (id !== 'emesztes' || EAT(d)) && (!ROUT_FIT[id] || ROUT_FIT[id].includes(daypart(d)));
 const mmss = (s) => { s = Math.max(0, Math.round(s)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
 const qt = (s) => lang === 'hu' ? `„${s}”` : `“${s}”`;
 

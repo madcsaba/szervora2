@@ -62,12 +62,14 @@ const lastCheckin = () => { const c = getLog().filter((x) => x.type === 'ci').po
 
 /* ================= ajánlómotor + biztonsági szűrő ================= */
 function recommend(d, ci) {
-  const h = d.getHours(); let id, ti, su;
+  // A napszak (core.js: daypart) a napirendből jön; a biztonsági szűrő elsőbbséget élvez.
+  const h = d.getHours(), dp = daypart(d); let id, ti, su;
   if (CALM(d)) { id = 'esti'; ti = t('rec_night_t'); su = t('rec_night_s'); }
   else if (ci && ci.m === 0) { id = 'fesz'; ti = t('rec_tense_t'); su = t('rec_tense_s'); }
-  else if (ci && ci.e === 0) { id = 'reggel'; ti = t('rec_low_t'); su = t('rec_low_s'); }
-  else { id = h >= 5 && h < 10 ? 'reggel' : h >= 13 && h < 16 ? 'emesztes' : 'kepernyo'; const rt = C('routines', id); ti = rt[0]; su = rt[1]; }
-  if (id === 'emesztes' && !EAT(d)) id = 'kepernyo';
+  // élénkítő sor alacsony energiához csak reggel/napközben – este nem pörgetünk fel
+  else if (ci && ci.e === 0 && dp !== 'evening') { id = 'reggel'; ti = t('rec_low_t'); su = t('rec_low_s'); }
+  else id = dp === 'morning' ? 'reggel' : h >= 13 && h < 16 && EAT(d) ? 'emesztes' : 'kepernyo';
+  if (!ti) { const rt = C('routines', id); ti = rt[0]; su = rt[1]; }
   return { id, ti, su, r: RBY[id] };
 }
 
@@ -307,11 +309,15 @@ V.gyakorlat = (arg) => {
   <section class="pad stack dgrid">
     <div class="sec"><h2>${t('recommended')}</h2></div>
     ${rcard(rec.r, true)}
-    <div class="sec"><h2>${t('routines_h')}</h2><span>${ROUT.length}</span></div>
-    ${ROUT.filter((r) => r.id !== rec.id).map((r) => rcard(r)).join('')}
-    ${L.legzes ? `<div class="card" id="legzes" style="--bc:var(--acc);--bl:var(--cont)">
+    ${(() => {
+      // a napszakhoz illő rutinok elöl, a többi összecsukva, jelölve, mikorra valók
+      const rest = ROUT.filter((r) => r.id !== rec.id), fit = rest.filter((r) => routFits(r.id, d)), other = rest.filter((r) => !routFits(r.id, d));
+      return `<div class="sec"><h2>${t('routines_h')}</h2><span>${fit.length + 1}</span></div>${fit.map((r) => rcard(r)).join('')}`
+        + (other.length ? `<details class="othertime"><summary><span class="t">${t('other_time')}</span><span class="sub">${other.length}</span></summary><div class="stack">${other.map((r) => rcard(r).replace('<span class="meta">', `<span class="meta"><span class="when">${t(ROUT_WHEN[r.id] || 'fit_any')}</span> · `)).join('')}</div></details>` : '');
+    })()}
+    ${L.legzes ? (() => { const dp = daypart(d), pats = Object.keys(PATS).filter((k) => PAT_FIT[k].includes(dp)); if (!pats.includes(brPat) || !brUser) brPat = PAT_DEF[dp]; return ''; })() + `<div class="card" id="legzes" style="--bc:var(--acc);--bl:var(--cont)">
       <div class="sec" style="padding:0"><h2>${t('breath_h')}</h2><span id="brcount">${t('cycles_n', { n: brCycles })}</span></div>
-      <div class="seg" style="margin-top:10px" role="group" aria-label="${t('rhythm')}">${Object.keys(PATS).map((k) => `<button type="button" data-act="pat" data-k="${k}" aria-pressed="${k === brPat}">${t('pat_' + k)}</button>`).join('')}</div>
+      <div class="seg" style="margin-top:10px" role="group" aria-label="${t('rhythm')}">${Object.keys(PATS).filter((k) => PAT_FIT[k].includes(daypart(d))).map((k) => `<button type="button" data-act="pat" data-k="${k}" aria-pressed="${k === brPat}">${t('pat_' + k)}</button>`).join('')}</div>
       <div class="breath"><div class="r1"></div><div class="r2"></div><div class="core" id="core"><div id="phase" style="font-size:16px;font-weight:600">${t('ready')}</div><div class="n" id="num">${PATS[brPat][0][1]}</div></div></div>
       <p id="brhint" class="s" style="text-align:center;margin:12px 0 0">${t('exhale_hint', { s: snd[1] })}</p>
       <div style="margin-top:12px"><div style="display:flex;justify-content:space-between" class="sub"><span id="brcyc">${t('cyc_of', { a: 0, b: brCycles })}</span><span id="brleft"></span></div><div class="prog"><i id="brprog"></i></div></div>

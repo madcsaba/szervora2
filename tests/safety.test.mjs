@@ -37,17 +37,17 @@ async function open({ day = '2026-03-11', tz = 'Europe/Budapest', sched = null, 
   page.on('pageerror', (e) => errors.push(e.message));
   page.on('request', (r) => { if (!/^(file|data|blob):/.test(r.url())) requests.push(r.url()); });
   const seed = { lang: 'hu', birth, ...(sched ? { sched } : {}) };
-  await page.addInitScript((s) => { if (location.protocol !== 'file:') return; for (const [k, v] of Object.entries(s)) localStorage.setItem('szervora.' + k, JSON.stringify(v)); }, seed);
+  // A check-in a (rögzített) oldalidőhöz képest 10 perce történt; minden betöltéskor beírjuk.
+  await page.addInitScript(([s, c]) => { if (location.protocol !== 'file:') return; for (const [k, v] of Object.entries(s)) localStorage.setItem('szervora.' + k, JSON.stringify(v)); localStorage.setItem('szervora.log', JSON.stringify(c ? [{ type: 'ci', t: Date.now() - 10 * 60e3, s: 1, ...c }] : [])); }, [seed, checkin]);
   /** Az óra beállítása és az oldal újratöltése (a check-in ehhez az időhöz képest 10 perce történt). */
   const at = async (x) => {
     // Budapest szerinti helyi idő → időbélyeg, a böngészőben számolva (nyári időszámítás is helyes).
     const [y, m, d] = day.split('-').map(Number);
     const ms = await page.evaluate(([yy, mm, dd, hh, mi]) => new Date(yy, mm - 1, dd, hh, mi).getTime(), [y, m, d, Math.floor(x), Math.round((x % 1) * 60)]);
     await page.clock.setFixedTime(ms);
-    await page.evaluate((c) => localStorage.setItem('szervora.log', JSON.stringify(c ? [{ type: 'ci', t: Date.now() - 10 * 60e3, s: 1, ...c }] : [])), checkin);
     await page.goto('about:blank');           // teljes újratöltés kell (csak hash-váltásnál nem töltene újra)
     await page.goto(`${URL_}#${hash}`);
-    await page.waitForSelector('#view .hero');
+    await page.waitForSelector('#view .top');   // minden nézetnek van fejléce
   };
   await page.goto(URL_ + '#' + hash);  // file:// eredet, hogy a localStorage elérhető legyen
   return { page, ctx, errors, requests, at };
@@ -167,6 +167,37 @@ test('pont oldal: 3D csontváz a ponthoz nagyítva, váltható a közeli rajzra'
     assert.deepEqual(errors, []);
     await ctx.close();
   }
+});
+
+test('gyakorlatok a napszakhoz igazodnak (napirend 22:30–7:00)', async () => {
+  const cases = [
+    // [idő, elérhető légzésminták, alapértelmezett, a főlistán NEM lehet, a „Más napszakra” részben kell]
+    [7.5, ['calm', 'even'], 'even', ['esti'], ['esti']],
+    [12, ['calm', 'even'], 'even', ['esti', 'reggel'], ['esti', 'reggel']],
+    [19.75, ['calm', 'even'], 'calm', ['reggel', 'emesztes'], ['reggel', 'emesztes']],
+    [22.5, ['calm', 'sleep'], 'sleep', ['reggel', 'kepernyo', 'emesztes'], ['reggel', 'kepernyo', 'emesztes']],
+    [2, ['calm', 'sleep'], 'sleep', ['reggel', 'kepernyo'], ['reggel', 'kepernyo']],
+  ];
+  const { page, ctx, errors, at } = await open({ sched: { bed: '22:30', wake: '07:00' }, hash: 'gyakorlat' });
+  for (const [x, pats, def, notMain, inOther] of cases) {
+    await at(x);
+    const got = await page.$$eval('[data-act=pat]', (bs) => bs.map((b) => b.dataset.k));
+    assert.deepEqual(got, pats, `${label(x)} – légzésminták`);
+    assert.equal(await page.getAttribute('[data-act=pat][aria-pressed=true]', 'data-k'), def, `${label(x)} – alapértelmezett minta`);
+    const main = await page.$$eval('.dgrid > .rcard', (as) => as.map((a) => a.getAttribute('href').slice('#rutin-'.length)));
+    for (const id of notMain) assert.ok(!main.includes(id), `${label(x)} – „${id}” nincs a főlistán`);
+    const other = await page.$$eval('.othertime .rcard', (as) => as.map((a) => a.getAttribute('href').slice('#rutin-'.length)));
+    for (const id of inOther) assert.ok(other.includes(id), `${label(x)} – „${id}” a „Más napszakra” részben`);
+  }
+  // Ma: reggel a reggeli rutin az ajánlás, alacsony energiánál este nem élénkítő
+  await at(7.5); await page.goto(`${URL_}#ma`); await page.waitForSelector('#view .hero');
+  assert.equal(await recId(page), 'reggel', '7:30 – reggeli ébresztő');
+  assert.deepEqual(errors, []);
+  await ctx.close();
+  const low = await open({ sched: { bed: '22:30', wake: '07:00' }, checkin: { e: 0, m: 1 } });
+  await low.at(10); assert.equal(await recId(low.page), 'reggel', '10:00, alacsony energia – élénkítő sor');
+  await low.at(19.75); assert.notEqual(await recId(low.page), 'reggel', '19:45, alacsony energia – este nem élénkítő sor');
+  await low.ctx.close();
 });
 
 test('a lecsendesedés az első, bármilyen check-in mellett', async () => {

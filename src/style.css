@@ -297,7 +297,8 @@ nav.tabs a[aria-current=page] .ind{background:var(--cont);color:var(--acc)}
   .split .smain svg{max-height:calc(100vh - 220px);width:100%}
   /* listák rácsban: címsorok teljes szélességben, kártyák oszlopokban */
   .dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px;align-items:start}
-  .dgrid>.sec,.dgrid>.note,.dgrid>.btn,.dgrid>h2,.dgrid>p,.dgrid>.hero,.dgrid>.grid2,.dgrid>.grid3{grid-column:1/-1}
+  .dgrid>.sec,.dgrid>.note,.dgrid>.btn,.dgrid>h2,.dgrid>p,.dgrid>.hero,.dgrid>.grid2,.dgrid>.grid3,.dgrid>.othertime{grid-column:1/-1}
+  .othertime[open]>.stack{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px}
   .split .smain{position:sticky;top:24px}
   .split .smain .crop{max-height:calc(100vh - 200px);width:100%}
   .dgrid>.btn{justify-self:start}
@@ -312,3 +313,12 @@ nav.tabs a[aria-current=page] .ind{background:var(--cont);color:var(--acc)}
   .kinfo{max-width:460px}
   .korg{font-size:clamp(48px,5vw,84px)}
 }
+
+.othertime{border-radius:var(--r-l);background:var(--surf2)}
+.othertime>summary{display:flex;align-items:center;gap:8px;padding:14px 16px;cursor:pointer;list-style:none;font-weight:600}
+.othertime>summary::-webkit-details-marker{display:none}
+.othertime>summary::after{content:'';margin-left:auto;width:8px;height:8px;border-right:2px solid var(--mut);border-bottom:2px solid var(--mut);transform:rotate(45deg);transition:transform .2s}
+.othertime[open]>summary::after{transform:rotate(-135deg)}
+.othertime>.stack{padding:0 12px 12px}
+.othertime .rcard{opacity:.8}
+.othertime .when{font-weight:700}

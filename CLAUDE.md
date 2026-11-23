@@ -27,6 +27,7 @@ Közzététel: a `.github/workflows/ci.yml` minden pushnál buildel és tesztel 
   - Beégetett órát (pl. „19 óra”) a szövegekbe ne írj; helyőrzővel (`{t}`) és `fmtH(sched()...)`-val dolgozz.
 - Nincs betegség-gyógyítási állítás és diagnózis. A napló mintái „megfigyelés, nem diagnózis”.
 - Az ajánlómotor biztonsági szűrője elsőbbséget élvez; az esti sávban (`CALM`) mindig a lecsendesedés az első.
+- A gyakorlatok a napszakhoz igazodnak (`core.js`: `daypart` a napirendből – reggel / nappal / este / éjjel; `PAT_FIT`, `PAT_DEF`, `ROUT_FIT`): az Elalvó 4–7–8 légzés csak a lecsendesedési sávban jelenik meg, reggel és napközben az Egyenletes 5–5 az alap; a napszakhoz nem illő rutinok a „Más napszakra” részbe kerülnek; alacsony energiánál este nem ajánlunk élénkítő sort.
 - A kínai asztrológia kulturális, kikapcsolható réteg, tudományos alátámasztás nélkül; soha nem ad egészségügyi tanácsot, nem írja felül az ajánlást, és nem befolyásolja az esti határokat (a születési adat nem napirend).
 - Felhasználói adat (napló, születési adat, napirend, fotó) csak az eszközön marad.
 - A pontleírások Temesvári Gabriella „Pontmasszázs” könyvének átfogalmazott tényein alapulnak: szó szerinti átvétel nincs, a rajzok saját készítésűek.
