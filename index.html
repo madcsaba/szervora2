@@ -385,10 +385,10 @@ nav.tabs a[aria-current=page] .ind{background:var(--cont);color:var(--acc)}
 .vconsent{margin-top:10px}
 
 /* lapozható fogalomtár */
-.gtrack{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin-top:10px;outline:none;overscroll-behavior-x:contain}
+.gtrack{display:flex;gap:0;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin-top:10px;outline:none;overscroll-behavior-x:contain}
 .gtrack::-webkit-scrollbar{display:none}
 .gtrack:focus-visible{box-shadow:0 0 0 2px var(--acc);border-radius:12px}
-.gslide{flex:0 0 100%;scroll-snap-align:start;min-width:0}
+.gslide{flex:0 0 100%;scroll-snap-align:start;min-width:0;padding:0 2px;box-sizing:border-box}
 .gslide h3{margin:4px 0 6px;font:700 19px/1.25 'Inter Tight',Inter,sans-serif}
 .gslide p{margin:0;font-size:15px;line-height:23px;color:var(--on)}
 .gctl{display:flex;align-items:center;gap:8px;margin-top:12px}
