@@ -27,6 +27,32 @@ function vidRow(ids, title) {
 }
 const vidSound = (key) => VID_SOUND[key] ? vidRow(VID_SOUND[key], t('vid_sound', { s: C('snd', key)[1], o: C('snd', key)[0] })) : '';
 const vidElem = (el) => vidRow(VID_ELEM[el], t('vid_elem', { a: t('animal_' + el), e: elT(el).n }));
+// „12 órás szervóra” sorozat: szerv → videó; az éjszakai szervekhez (Eh, M, T) a 22–6 órás videó
+const VID_CLOCK = { Gy: 'cEsXETOojB0', Lh: 'FFaWGSuROUc', Sz: 'ImRLxLjPA-g', 'Véb': 'XNS9mpU42bk', H: 'kDo7sTnQ4eA', V: 'RRCmMRcxuUs', Szb: '_bQP48QobFs', Hm: 'wA6FR21WiTM', Vab: 'vmW01SiQHLg' };
+const VID_NIGHT = 'qFOtJM_sid0';
+const vidClock = (o) => VID_CLOCK[o.c] ? vidRow(VID_CLOCK[o.c], t('vid_clock', { o: orgN(o.c), w: win(o) })) : vidRow(VID_NIGHT, t('vid_clock_night'));
+// pontok → videók (csak egészségügyi állítás nélküli címek; generálva: research/taichi-zidong)
+const VID_PT = {'Kor-20': ['pISqhgwOd8o', 'DzHMOrsNbIE', 'RIly8Tq10_c', 'DBHh0c6drxg'], 'T-1': ['yAIGO8fnUpM', '8faCQQGZB64', 'qJYhEIwl9GI', 'pUtXMc_Alss'], 'Bef-17': ['x9U5dJtoyPw', 'WQXpCvc8Pf0', 'Ut-nUrrQCjw', '2xNEAwtyaSM'], 'Bef-12': ['LgbSVS-8ufY', 'spfz5vqgUTg', 'lmLf7Z2YdvI'], 'Bef-6': ['TDWXPUJ8mPg', 'M4AXBtCVjXI'], 'Bef-4': ['PNGSyDrbiZs', 'sqjPeEvVlps', 'rZeSwSHR7lY', '2HylgNwNAkY'], 'T-5': ['UlS0fCZfbpE', 'GtviOO5rAJg', 'YLP9KMqTteY'], 'Vab-11': ['KbmOwLpAJU4', 'nNRoYHAmO9I', 'miJJiYqpRYk', 'UPHSejNZUM8'], 'T-9': ['Tx29mpoMQ2Y', 'Jwr4dO50puo', 'TR0-VDHOAhg'], 'Szb-6': ['BE8_koWU8Tw', 'Fcm9-UD8RmI', 'u8f0EhCBd3Y'], 'Szb-8': ['Qc-W_-dm61Y', 'xatcN7qLV_0', '13cZAb7KkQs'], 'Sz-3': ['rqDojI3Iuvc'], 'Lh-10': ['sUZ9-ZAQubg'], 'Gy-36': ['vreUrOntFvQ', 'M_uoDEXaVEY', 'R-GDvm-ThMg'], 'Gy-40': ['oANv0Mi7H9Q', 'eRZ9oJc1c-M'], 'V-3': ['1p14ccxuJc0', 'Up3AJoC89bE', 'FN_55JKrcss'], 'M-3': ['vWwwcaIWkEI', 'fR-Tf39Ii5o', 'Ao4p9Hl_Tn0', '1bRY6Q7IMVI'], 'Eh-20': ['u2kZmm1LfII', 'jxW-ROEHy3Y', 'Eymy4V6KdX0'], 'Kor-14': ['wlXw3zYvUDQ', 'uBcblb9X7sg', 'nfU6gD57YiU', 'lochfjkAV4I'], 'Eh-21': ['TpSdf_8LEHs'], 'H-23': ['VpNvXsQKUnU', 'pI-96X1zJFY', 'HD44u8qbqYE', 'RWCzYtWd4X0'], 'Kor-4': ['EhGP9JfcZeg', 'F4m4M2eRWzE', 'QV44F4TF8yg', 'adYMDWgRYTo'], 'H-40': ['y74Gr6GF55k'], 'H-60': ['Up3AJoC89bE', 'FN_55JKrcss'], 'Hm-5': ['PwpYJ9a9Q1U', 'BE8_koWU8Tw', 'Fcm9-UD8RmI', 'u8f0EhCBd3Y'], 'Vab-4': ['uNRtMqqBfek', 'jqFXxw4qT5s', '5qWl_KUYW5M', 'Wc5foT7YnSA'], 'Véb-3': ['dqTUn3LPHhY', 'NsEiKxuYoF0', '3Xt3UUtiPjU', 'wf3GRNTEDns'], 'T-11': ['_RfJbwHdHkg', 'rW5fwj2rSig'], 'Vab-1': ['ikxiGGdF03s', '3nd6u5N1DmM'], 'Szb-9': ['CYWEQ-ZTLpI', 'uDF6nCx6Y_E', 'a6xJbCS8exg'], 'Véb-1': ['PKehSrTE32U'], 'Sz-8': ['YHvIi02QlHQ', 'NaDh7TRQszo', 'v3sg1qsyfCo'], 'Hm-3': ['Wy9VgX5wKuU', 'q_6Bi5_PEzw', 'C9AVahc3Rs8'], 'M-2': ['i3QFzJD7fos', 'Mjc4u7l0eBE', 'TGo-ULCw0QQ'], 'Gy-44': ['hx0lG-ETqVg', 'gIIwdHLlBWw', 'c7fxnM3uVvY', 'i3QFzJD7fos'], 'Eh-44': ['s3KHdd3OMBM', 'PEE7vVR8Nw0'], 'V-1': ['g-XotS8pSCg', 'XJaXGrr4tkM', 'pKk0nbTEXjY', '0htT8o8BicA']};
+const vidPoint = (p) => vidRow(VID_PT[p.id], t('vid_point', { p: p.py, c: pc(p) }));
+// Kivétel: a Baduanjin 4. és 8. mozdulatának videócíme a mozdulat hagyományos kínai nevét viseli („…öt kimerülés és hét sérülés”,
+// „…minden baj elűzésére”), ezért az adatbázis állításként jelöli; az app a saját semleges nevét mutatja (c.vidnames.bdj).
+const VID_TRAD_NAME = ['-3MURmGe5u4', 'DvuTnwVUkVY'];
+// válogatott sorozatok; a megnevezések az app saját, semleges szövegei (lang: c.vidnames)
+const VID_SETS = {
+  bdj: ['YI0T9-4lkQM', 'SlVNvea6RVo', 'xitoWazP9HQ', '-3MURmGe5u4', '9x1ayfo-sHE', 'KwW3_aTLUCk', 'V-gn3Z3NZFY', 'DvuTnwVUkVY'],
+  yjj: ['bXZ0NIcLxtQ', 'xqCCDBuqKs4', 'u7TiOCokShk', 'CNJpy5T_uaI', 'J_QMYtxrSNI', '1q0q6rHUY5c'],
+  morning: ['TdkvJaqwj84', 'Mo38mo0IR-A', 'U92eaQtkIYA', 'fU9lzG6PXcU', 'Vavzn6Vtp4k', 'QQ7S32_zGvs', 'otWuXf_l1y4', 'ArL8qw5FXJ8'],
+  evening: ['O0OHRosCMtc', 'DC8jL-p28_4', '_YJfM4uDLlY', 'FEzn6D63QCc', 'VPgPf-q8DlU', 'mlkCpe5Mq84'],
+  eyes: ['gGdnK_pbvoQ', 'Ph43jYEKXH4', 'xXqt0f5Bguk', '-zOIBsH2QGA', 'QlghqeYtQUs'],
+  hand: ['HKlE7hjF7OA', 'XrQ6Ug8s-PY', 'IhUdx3hXnG4', 'vXoeLR23vHY', 'yWE0FnBcxZI', 'vWeRyj_XmmQ', '5zyMmPNNLiM', 'cPrH2LqNckI', 'rqO5KJO3OUk'],
+  foot: ['hB8kSgZjjhY', 'NEoScJSByZA', 'oK32rV9XcN4', 'XJSEN6Cl658', 'PL6R5Qt7uKM', 'GAT7GkkfiiU', 'boGgIJUqpR4', 'G-db1Zy0m8I', 'mIe7saybeoo', 'GNDQSDWQprk', 'Rsd_lZvujUU', 'mlkCpe5Mq84']
+};
+function vidList(key, title) {
+  if (!L.videok) return '';
+  const names = C('vidnames')[key];
+  return `<div class="card vidlist" data-vset="${key}"><span class="tag">${t('vid_tag')}</span><div class="t">${title}</div><div class="s">${t('vid_ext')}</div><ol>${VID_SETS[key].map((id, i) => `<li>${vidLink(id, `${ic('play', 14, 2.2)}<span>${names[i]}</span>`)}</li>`).join('')}</ol></div>`;
+}
+const vidDaypart = (d) => { const dp = daypart(d); return dp === 'morning' ? vidList('morning', t('vid_morning')) : dp === 'evening' || dp === 'night' ? vidList('evening', t('vid_evening')) : ''; };
 
 /* ================= KÉZ ÉS LÁB: pontok, ujj/lábujj–csatorna térkép ================= */
 // A pontok helye a WHO Standard Acupuncture Point Locations (2008) szerint, átfogalmazva (lang: pts, area).
@@ -194,7 +220,8 @@ V.ma = () => {
     ${!EAT(d) ? `<div class="row flat"><span class="ic">${ic('nofood')}</span><span class="grow"><span class="t">${t('eat_pause', { t: fmtH(sched(d).wake) })}</span><span class="s">${t('eat_pause_s')}</span></span></div>` : ''}
     <div class="sec"><h2>${t('later')}</h2></div>
     <div class="grid2">${later.map((x) => `<a class="tile big" href="#szerv-${slug(x.c)}"><div class="k">${String(x.s).padStart(2, '0')}:00 · ${elT(x.el).n}</div><div class="v">${orgN(x.c)}</div></a>`).join('')}</div>
-    <div class="card quiet"><div class="s">${C('org', o.c)[2]}</div></div>
+    <div class="card quiet"><div class="s">${C('org', o.c)[2]}</div>${vidClock(o)}</div>
+    ${vidDaypart(d)}
     ${disclaimer()}
   </section></div>`;
 };
@@ -223,6 +250,7 @@ V.szerv = (code) => {
   const cards = [];
   cards.push(`<a class="card livecard" href="#test-ch-${slug(o.c)}">${miniFigure(o.c)}<span class="grow"><span class="tag">${t('tag_meridian')}</span><span class="t">${chName(o.c)}</span><span class="s">${t('live_flow', { f: chT(o.c)[2] })}</span></span>${ic('chev', 18)}</a>`);
   if (L.mozgas) cards.push(row('move', t('heal_sound', { s: snd[1] }), t('min5', { o: snd[0] }), '#gyakorlat', t('tag_qigong')) + vidSound(SOUND_OF[o.c]));
+  cards.push(vidClock(o));
   if (L.taplalkozas) cards.push(nightOrg(o) ? `<div class="card quiet"><span class="tag">${t('tag_food')}</span><div style="display:flex;gap:10px;margin-top:4px"><span style="color:var(--mut)">${ic('nofood', 20)}</span><div class="s">${t('night_food', { t: fmtH(sched().eat0) })} <b>${e.foods}</b></div></div></div>` : row('food', t('taste_color', { t: e.taste, c: e.color.toLowerCase() }), e.foods, `#elem-${o.el}`, t('tag_food')));
   pts.forEach((p) => cards.push(row('hand', C('area', p.id), `${pc(p)} · ${ptT(p.id)[3]}`, `#pont-${p.s}`, t('tag_press'))));
   if (L.erzelmek) cards.push(`<div class="card"><span class="tag">${t('tag_emo')}</span><div class="t">${e.emo}</div><div class="s"><b>${t('in_balance')}</b> ${e.bal}</div><div class="s">${e.dis}</div></div>`);
@@ -331,6 +359,7 @@ V.pont = (s) => {
     ${tx[5] ? `<div class="warnbox">${ic('warn', 18)}<span>${tx[5]}</span></div>` : ''}
     <div class="seg" role="group" aria-label="${t('technique')}">${['ton', 'sed'].map((k) => `<button type="button" data-act="tech" data-k="${k}" aria-pressed="${k === tech}">${t(k === 'ton' ? 'tonify' : 'sedate')}</button>`).join('')}</div>
     <div class="card" id="techcard">${techCard()}</div>
+    ${vidPoint(p)}
     <div class="card" style="text-align:center">
       <svg class="ring" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52" fill="none" style="stroke:var(--surf2)" stroke-width="10"/><circle id="ringp" cx="60" cy="60" r="52" fill="none" style="stroke:var(--acc)" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="0" transform="rotate(-90 60 60)"/><text id="ringt" x="60" y="69" text-anchor="middle" font-size="26" font-weight="700" style="fill:var(--on);font-family:'Inter Tight',Inter,sans-serif">1:00</text></svg>
       <div class="seg" style="margin-top:8px" role="group" aria-label="${t('duration')}">${[30, 60, 120].map((x) => `<button type="button" data-act="tdur" data-k="${x}" aria-pressed="${x === 60}">${x < 60 ? t('sec_n', { n: x }) : t('min_n', { n: x / 60 })}</button>`).join('')}</div>
@@ -365,6 +394,7 @@ V.gyakorlat = (arg) => {
       <div class="btnrow" style="justify-content:center"><button type="button" class="btn" data-act="brgo" id="brgo">${ic('play', 16, 2)}${t('start')}</button><button type="button" class="btn tonal" data-act="brstop">${t('finish')}</button><button type="button" class="btn tonal" data-act="brcyc" aria-label="${t('cycle_toggle')}"><span id="brcycl">${brCycles}×</span></button></div>
     </div>` : ''}
     ${L.mozgas ? `<div class="card"><span class="tag">${t('qigong_tag')}</span><div class="t" style="font-size:18px">${snd[0]}: ${qt(snd[1])}</div><p class="s" style="font-size:15px;line-height:22px;color:var(--on)">${snd[2]}</p><p class="s">${t('qigong_rep')}</p>${vidSound(SOUND_OF[o.c])}</div>` : ''}
+    ${L.videok ? `<div class="sec"><h2>${t('vid_trad_h')}</h2></div>${vidList('bdj', t('vid_bdj'))}${vidList('yjj', t('vid_yjj'))}` : ''}
     ${row('hand', t('hand_foot'), t('hf_row_s'), '#tudas-kezlab')}
     ${row('hand', t('tech_title'), t('tech_sub'), '#technikak')}
     ${disclaimer()}
@@ -392,7 +422,7 @@ V.rutin = (id) => {
       <div id="pdots" class="pdots" aria-hidden="true"></div>
       <div class="ptoggles ph">${sw('sound', 'sound_t', true)}${sw('vibrate', 'vibrate_t', true)}${sw('voice', 'voice', false)}</div>
       <div id="pdone" class="pdone" hidden><div class="ptime">✓</div><p>${t('routine_done')}</p><div class="btnrow" style="justify-content:center"><button type="button" class="btn" data-act="pagain">${t('again')}</button><a class="btn tonal" href="#naplo">${t('tab_log')}</a></div></div>
-      <details class="pover ph"><summary>${t('how_h')} · ${t('routine_steps')}</summary><p class="s">${C('how', r.id)}</p>${warns.map((w) => `<div class="warnbox" style="margin-top:8px">${ic('warn', 18)}<span>${w}</span></div>`).join('')}<ol class="psteps">${r.steps.map(([pid, sec, bi]) => `<li><b>${C('area', pid)}</b><span class="sub"> · ${mmss(sec)}${bi ? ' · ' + t('side_left') + ' / ' + t('side_right') : ''}</span></li>`).join('')}</ol></details>
+      <details class="pover ph"><summary>${t('how_h')} · ${t('routine_steps')}</summary><p class="s">${C('how', r.id)}</p>${warns.map((w) => `<div class="warnbox" style="margin-top:8px">${ic('warn', 18)}<span>${w}</span></div>`).join('')}<ol class="psteps">${r.steps.map(([pid, sec, bi]) => `<li><b>${C('area', pid)}</b><span class="sub"> · ${mmss(sec)}${bi ? ' · ' + t('side_left') + ' / ' + t('side_right') : ''}</span></li>`).join('')}</ol></details>${r.id === 'kepernyo' ? vidList('eyes', t('vid_eyes')) : ''}
     </section>
   </div>`;
 };
@@ -454,7 +484,7 @@ function hfCard(id) {
   <div class="kv"><div class="k">${t('k_use')}</div><div class="v">${tx[3]}</div></div>
   <div class="kv"><div class="k">${t('what_do')}</div><div class="v">${tx[4]}</div></div>
   ${tx[5] ? `<div class="warnbox" style="margin-top:8px">${ic('warn', 18)}<span>${tx[5]}</span></div>` : ''}
-  ${inApp ? `<a class="btn tonal" style="margin-top:10px" href="#pont-${p.s}">${t('hf_point_page')}</a>` : ''}`;
+  ${inApp ? `<a class="btn tonal" style="margin-top:10px" href="#pont-${p.s}">${t('hf_point_page')}</a>` : ''}${vidPoint(p)}`;
 }
 const toeReading = () => !L.labujj ? '' : `<details class="card othertime" id="toeread"><summary><span class="t">${ic('book', 18)} ${t('tr_h')}</span></summary><div class="stack" style="padding:0 4px 4px">
   <p class="s" style="color:var(--on)">${t('tr_what')}</p><p class="s">${t('tr_src')}</p>
@@ -472,6 +502,7 @@ function kezlabView(arg) {
   <section class="pad stack sside"><div class="card" id="hfcard" aria-live="polite">${hfCard(sel)}</div>
     <div class="sec"><h2>${t(mode === 'hand' ? 'hf_fingers_h' : 'hf_toes_h')}</h2></div><div class="list">${list.map(row).join('')}</div>
     <div class="sec"><h2>${t('hf_routines_h')}</h2></div>${rts}
+    ${vidList(mode === 'hand' ? 'hand' : 'foot', t(mode === 'hand' ? 'vid_hand' : 'vid_foot'))}
     ${mode === 'foot' ? toeReading() : ''}
     <p class="note">${t('hf_note')}</p></section></div>`;
 }

@@ -252,6 +252,50 @@ test('külső videók: csak link (új lapon, noopener), semleges cím, kikapcsol
   await off.ctx.close();
 });
 
+test('videók: szervóra, hagyományos sorok, pontok, kéz és láb, napszak, képernyőszünet – minden lista teljes', async () => {
+  const { page, ctx, errors, requests, at } = await open({ sched: { bed: '22:30', wake: '07:00' }, hash: 'szerv-sz' });
+  await at(12);
+  assert.ok(await page.locator('a.vid[href$="ImRLxLjPA-g"]').count(), 'Szív oldalán a 11–13 órás szervóra-videó');
+  await page.goto(`${URL_}#szerv-m`); await page.waitForSelector('#view .top');
+  assert.ok(await page.locator('a.vid[href$="qFOtJM_sid0"]').count(), 'Máj oldalán az éjszakai videó');
+  await page.goto(`${URL_}#gyakorlat`); await page.waitForSelector('[data-vset=bdj]');
+  assert.equal(await page.locator('[data-vset=bdj] a').count(), 8, 'Baduanjin 1–8');
+  assert.equal(await page.locator('[data-vset=yjj] a').count(), 6);
+  await page.goto(`${URL_}#pont-m-3`); await page.waitForSelector('#view .top');
+  assert.ok(await page.locator('a.vid').count(), 'M-3 ponthoz videó');
+  await page.goto(`${URL_}#tudas-kezlab-lab`); await page.waitForSelector('[data-vset=foot]');
+  assert.equal(await page.locator('[data-vset=foot] a').count(), 12);
+  await page.goto(`${URL_}#rutin-kepernyo`); await page.waitForSelector('#player');
+  assert.equal(await page.locator('[data-vset=eyes] a').count(), 5);
+  const ma = await open({ sched: { bed: '22:30', wake: '07:00' }, hash: 'ma' });
+  await ma.at(7.5); assert.ok(await ma.page.locator('[data-vset=morning]').count(), 'reggel: kilenc légzés');
+  await ma.at(22.25); assert.ok(await ma.page.locator('[data-vset=evening]').count(), 'este: alvógyakorlatok');
+  await ma.at(12); assert.equal(await ma.page.locator('[data-vset=morning], [data-vset=evening]').count(), 0, 'délben nincs napszakos videólista');
+  assert.ok(await ma.page.locator('a.vid[href$="ImRLxLjPA-g"]').count(), 'Ma délben: a Szív szervóra-videója');
+  await ma.ctx.close();
+  // minden link YouTube-watch, új lapon, noopener
+  const bad = await page.$$eval('a[data-vid]', (as) => as.filter((a) => !/^https:\/\/www\.youtube\.com\/watch\?v=[\w-]{11}$/.test(a.href) || a.target !== '_blank' || !/noopener/.test(a.rel)).length);
+  assert.equal(bad, 0);
+  assert.deepEqual(requests, []);
+  assert.deepEqual(errors, []);
+  await ctx.close();
+});
+
+test('a videónevek listái hossza egyezik a videókkal, és minden videó az adatbázisban van, állítás nélkül', () => {
+  const window = {};
+  for (const l of ['hu', 'en']) new Function('window', readFileSync(`${ROOT}lang/${l}.js`, 'utf8'))(window);
+  const src = readFileSync(`${ROOT}src/views2.js`, 'utf8');
+  const sets = JSON.parse(src.match(/const VID_SETS = (\{[\s\S]*?\n\});/)[1].replace(/(\w+):/g, '"$1":').replace(/'/g, '"'));
+  const trad = JSON.parse(src.match(/const VID_TRAD_NAME = (\[[^\]]*\]);/)[1].replace(/'/g, '"'));
+  const db = Object.fromEntries(JSON.parse(readFileSync(`${ROOT}research/taichi-zidong/taichi_zidong_videok.json`, 'utf8')).map((r) => [r.id, r]));
+  for (const [k, ids] of Object.entries(sets)) {
+    for (const l of ['hu', 'en']) assert.equal(window.SZ_LANG[l].c.vidnames[k].length, ids.length, `${l} ${k}`);
+    for (const id of ids) { assert.ok(db[id], `${k}: ${id} az adatbázisban`); if (!trad.includes(id)) assert.notEqual(db[id].egeszsegugyi_allitas, 'igen', `${k}: ${id} állítás nélkül`); }
+  }
+  const all = [...src.matchAll(/'([\w-]{11})'/g)].map((m) => m[1]).filter((id) => db[id]);
+  for (const id of all) if (!trad.includes(id)) assert.notEqual(db[id].egeszsegugyi_allitas, 'igen', `${id} állítás nélkül`);
+});
+
 test('a lecsendesedés az első, bármilyen check-in mellett', async () => {
   const exp = expected(22, 7);
   for (const x of [20.5, 22, 23.5, 0, 2.5, 4.5]) {

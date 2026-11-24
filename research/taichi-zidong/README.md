@@ -59,8 +59,8 @@ Alapelvek (a CLAUDE.md szabályai szerint):
 
 ### Állapot
 
-- **Beépítve (2026. november):** 2. Hat gyógyító hang (Gyakorlat chi kung kártya, szervek oldala, elemek oldala) és 3. Wudang öt elem qigong (elemek oldala, a tűz és a víz formánál a lépésenkénti részekkel). Kód: `src/views2.js` → `VID_SOUND`, `VID_ELEM`, `vidRow`; Beállítások → „Külső videók (YouTube)” réteg.
-- **Még nincs beépítve:** 1, 4, 5, 6, 7, 8, 9.
+- **Mind a 9 pont beépítve (2026. november):** szervóra-sorozat (szervek oldala, Ma), hat gyógyító hang, Wudang öt elem qigong, Baduanjin és Yi Jin Jing (Gyakorlat → Hagyományos sorok), pontvideók (37 pont, 109 link), kéz- és lábvideók (Kéz és láb lap), napszakos listák (Ma: reggel kilenc légzés, este alvógyakorlatok), szemápolás (Képernyőszünet rutin). Kód: `src/views2.js` → `VID_SOUND`, `VID_ELEM`, `VID_CLOCK`, `VID_PT`, `VID_SETS`, `vidRow`, `vidList`; Beállítások → „Külső videók (YouTube)” réteg.
+- **Kivétel:** a Baduanjin 4. és 8. mozdulatának videócíme a mozdulat hagyományos kínai nevét viseli, ezért az adatbázis állításként jelöli (`VID_TRAD_NAME`); az app ezeknél is a saját semleges nevét mutatja. Minden más beépített videó állítás nélküli – ezt teszt ellenőrzi.
 - A beépített videók tartalmát a lektornak meg kell néznie (a válogatás csak a címek alapján készült).
 
 ### Javasolt sorrend

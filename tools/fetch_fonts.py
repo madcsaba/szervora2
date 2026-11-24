@@ -18,7 +18,7 @@ OUT = ROOT / 'fonts'
 UA = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36'
 # A felületen használt kínai írásjegyek: elemek és szervek, valamint az asztrológia
 # égi törzsei és földi ágai.
-HAN = '心木火土金水胆肝肺大肠胃脾小膀胱肾包三焦' + '甲乙丙丁戊己庚辛壬癸' + '子丑寅卯辰巳午未申酉戌亥'
+HAN = '心木火土金水胆肝肺大肠胃脾小膀胱肾包三焦' + '甲乙丙丁戊己庚辛壬癸' + '子丑寅卯辰巳午未申酉戌亥' + '米'
 CHARS = (''.join(chr(c) for c in range(0x20, 0x7f)) + ''.join(chr(c) for c in range(0xa0, 0x100))
          + 'ŐőŰűĀāĒēĪīŌōŪūǍǎĚěǏǐǑǒǓǔǕǖǗǘǙǚǛǜ‐–—‘’‚“”„•…′″‹›€←↑→↓−✓')
 SOURCES = [
