@@ -357,6 +357,15 @@ nav.tabs a[aria-current=page] .ind{background:var(--cont);color:var(--acc)}
 .othertime .rcard{opacity:.8}
 .othertime .when{font-weight:700}
 
+/* Kéz és láb térkép */
+.hfmaps{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hfmaps figure{margin:0;background:var(--map);border-radius:var(--r-l);padding:8px;text-align:center}
+.hfsvg{width:100%;height:auto;max-height:62vh;display:block;overflow:visible}
+.hfshape path,.hfshape circle{fill:var(--bone,var(--surf));stroke:var(--mut);stroke-width:1.6;stroke-opacity:.55}
+.hfshape{opacity:.9}
+.hfpt{cursor:pointer;outline:none}.hfpt text{font:700 10px Inter,sans-serif;fill:var(--on);paint-order:stroke;stroke:var(--map);stroke-width:3px;stroke-linejoin:round}
+.hfpt[aria-pressed=true] text{fill:var(--on)}.hfpt:focus-visible circle:nth-child(2){stroke:var(--on);stroke-width:3}
+
 </style>
 </head>
 <body>
@@ -477,7 +486,7 @@ ROUT.forEach((r) => { r.sec = r.steps.reduce((s, x) => s + x[1], 0); });
 const RBY = Object.fromEntries(ROUT.map((r) => [r.id, r]));
 const CYCST = { tap: { pairs: Object.entries(GEN), curve: true, c: 'var(--jade-t)', w: 2.5 }, szab: { pairs: Object.entries(CTRL), c: 'var(--ink)', w: 2.5 }, vissza: { pairs: Object.entries(CTRL).map(([a, b]) => [b, a]), c: 'var(--tuz)', w: 2.5, dash: '7 5' }, legy: { pairs: Object.entries(CTRL), c: 'var(--tuz)', w: 4.5 } };
 const LAYERS = [['', [['base', 'clock']]], ['g_know', [['elemek', 'elements'], ['kapcsolatok', 'book'], ['meridianok', 'body'], ['atlasz', 'point'], ['csontok', 'bone'], ['technikak', 'hand']]], ['g_prac', [['rutinok', 'hand'], ['mozgas', 'move'], ['legzes', 'breath'], ['taplalkozas', 'food']]], ['g_extra', [['erzelmek', 'emotion'], ['gyogynovenyek', 'herb'], ['evszak', 'season'], ['alvas', 'sleep']]]];
-const DEFAULT_LAYERS = { elemek: true, kapcsolatok: true, meridianok: true, atlasz: true, csontok: true, technikak: true, rutinok: true, mozgas: true, legzes: true, taplalkozas: true, erzelmek: false, gyogynovenyek: false, evszak: false, alvas: false };
+const DEFAULT_LAYERS = { elemek: true, kapcsolatok: true, meridianok: true, atlasz: true, csontok: true, technikak: true, rutinok: true, mozgas: true, legzes: true, taplalkozas: true, erzelmek: false, gyogynovenyek: false, evszak: false, alvas: false, labujj: true };
 let L = Object.assign({}, DEFAULT_LAYERS, store.get('layers', {}));
 let MODEL = store.get('model', 'f');
 const ec = (el) => ({ c: `var(--${el})`, l: `var(--${el}-l)`, t: `var(--${el}-t)` });
@@ -552,8 +561,8 @@ function daypart(d = now()) {
 const PAT_FIT = { calm: ['morning', 'day', 'evening', 'night'], even: ['morning', 'day', 'evening'], sleep: ['night'] };
 const PAT_DEF = { morning: 'even', day: 'even', evening: 'calm', night: 'sleep' };
 // Rutinok: mely napszakban illenek (ami nincs itt, az mindig); az emésztési rutin evési szünetben nem.
-const ROUT_FIT = { esti: ['evening', 'night'], reggel: ['morning'], kepernyo: ['morning', 'day', 'evening'] };
-const ROUT_WHEN = { esti: 'fit_night', reggel: 'fit_morning', kepernyo: 'fit_day', emesztes: 'fit_meal' };
+const ROUT_FIT = { esti: ['evening', 'night'], reggel: ['morning'], kepernyo: ['morning', 'day', 'evening'], kez_reggel: ['morning', 'day'], kez_este: ['evening', 'night'], lab_este: ['evening', 'night'] };
+const ROUT_WHEN = { esti: 'fit_night', reggel: 'fit_morning', kepernyo: 'fit_day', emesztes: 'fit_meal', kez_reggel: 'fit_morning', kez_este: 'fit_night', lab_este: 'fit_night' };
 const routFits = (id, d = now()) => (id !== 'emesztes' || EAT(d)) && (!ROUT_FIT[id] || ROUT_FIT[id].includes(daypart(d)));
 const mmss = (s) => { s = Math.max(0, Math.round(s)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
 const qt = (s) => lang === 'hu' ? `„${s}”` : `“${s}”`;
@@ -844,6 +853,30 @@ Object.assign(IC, {
   screen: '<rect x="2.5" y="5" width="19" height="12" rx="2.5"/><path d="M8 20.5h8M12 17v3.5"/>', expand: '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>', moon: '<path d="M20 14A8 8 0 1 1 10 4a6.5 6.5 0 0 0 10 10z"/>', plus: '<path d="M12 5v14M5 12h14"/>', speaker: '<path d="M4 9v6h4l5 4V5L8 9zM16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/>'
 });
 ROUT.push({ id: 'fesz', icon: 'wave', steps: [['Bef-17', 45, 0], ['Szb-6', 60, 1], ['Sz-7', 60, 1], ['M-3', 60, 1]] });
+
+/* ================= KÉZ ÉS LÁB: pontok, ujj/lábujj–csatorna térkép ================= */
+// A pontok helye a WHO Standard Acupuncture Point Locations (2008) szerint, átfogalmazva (lang: pts, area).
+// m: melyik rajzon (hp = tenyér, hb = kézhát, ft = lábfej teteje, fs = talp), x/y: helye a rajzon.
+const HF = [
+  ['T-11', 'LU11', 'Shaoshang', 'hb', 24, 150], ['Vab-1', 'LI1', 'Shangyang', 'hb', 92, 52], ['Szb-9', 'PC9', 'Zhongchong', 'hp', 126, 30],
+  ['Hm-1', 'TE1', 'Guanchong', 'hb', 176, 52], ['Sz-9', 'HT9', 'Shaochong', 'hb', 180, 84, 'l'], ['Véb-1', 'SI1', 'Shaoze', 'hb', 203, 84, 'r'],
+  ['T-10', 'LU10', 'Yuji', 'hp', 176, 212], ['Sz-8', 'HT8', 'Shaofu', 'hp', 84, 184], ['Hm-3', 'TE3', 'Zhongzhu', 'hb', 182, 166, 'l'],
+  ['Lh-1', 'SP1', 'Yinbai', 'ft', 42, 66, 'l'], ['M-1', 'LR1', 'Dadun', 'ft', 80, 58], ['M-2', 'LR2', 'Xingjian', 'ft', 86, 94],
+  ['Gy-44', 'ST44', 'Neiting', 'ft', 114, 90], ['Gy-45', 'ST45', 'Lidui', 'ft', 112, 42], ['Eh-44', 'GB44', 'Zuqiaoyin', 'ft', 162, 60],
+  ['H-67', 'BL67', 'Zhiyin', 'ft', 182, 80, 'r'], ['V-1', 'KI1', 'Yongquan', 'fs', 110, 122]
+].map(([id, who, py, m, x, y, la]) => { const ch = id.split('-')[0]; return { id, who, py, m, x, y, la, v: 'h', ch, el: CHEL[ch], s: slug(id), hf: true }; });
+// a térképen a meglévő pontok közül is mutatjuk, ami a kézen / lábfejen van
+const HF_EXTRA = [['Szb-8', 'hp', 122, 182], ['Vab-4', 'hb', 86, 190], ['Véb-3', 'hb', 206, 166, 'r'], ['M-3', 'ft', 92, 132]];
+HF.forEach((p) => { PBY[p.id] = p; });
+const HFM = [...HF, ...HF_EXTRA.map(([id, m, x, y, la]) => ({ ...PBY[id], m, x, y, la }))];
+// ujjak / lábujjak → csatorna (kezdő- vagy végpont)
+const FINGERS = [['f_thumb', [['T', 'end', 'T-11']]], ['f_index', [['Vab', 'start', 'Vab-1']]], ['f_middle', [['Szb', 'end', 'Szb-9']]], ['f_ring', [['Hm', 'start', 'Hm-1']]], ['f_little', [['Sz', 'end', 'Sz-9'], ['Véb', 'start', 'Véb-1']]]];
+const TOES = [['t_big', [['Lh', 'start', 'Lh-1'], ['M', 'start', 'M-1']]], ['t_2', [['Gy', 'end', 'Gy-45']]], ['t_3', []], ['t_4', [['Eh', 'end', 'Eh-44']]], ['t_5', [['H', 'end', 'H-67']]], ['t_sole', [['V', 'start', 'V-1']]]];
+// rutinok a kéz- és lábpontokkal (a napszakhoz igazodnak: ROUT_FIT)
+ROUT.push({ id: 'kez_reggel', icon: 'hand', steps: [['T-10', 40, 1], ['T-11', 20, 1], ['Vab-1', 20, 1], ['Szb-9', 20, 1], ['Hm-1', 20, 1], ['Véb-1', 20, 1], ['Hm-3', 40, 1]] });
+ROUT.push({ id: 'kez_este', icon: 'hand', steps: [['Szb-8', 60, 1], ['Sz-8', 50, 1], ['T-10', 40, 1], ['Sz-9', 20, 1], ['Szb-9', 20, 1]] });
+ROUT.push({ id: 'lab_este', icon: 'sleep', steps: [['V-1', 90, 1], ['M-3', 60, 1], ['M-2', 40, 1], ['Gy-44', 40, 1], ['Lh-1', 20, 1], ['Eh-44', 20, 1]] });
+ROUT.forEach((r) => { r.sec = r.steps.reduce((s, x) => s + x[1], 0); RBY[r.id] = r; });
 ROUT.forEach((r) => { r.sec = r.steps.reduce((s, x) => s + x[1], 0); RBY[r.id] = r; });
 
 const PALS = {
@@ -1158,6 +1191,7 @@ V.gyakorlat = (arg) => {
       <div class="btnrow" style="justify-content:center"><button type="button" class="btn" data-act="brgo" id="brgo">${ic('play', 16, 2)}${t('start')}</button><button type="button" class="btn tonal" data-act="brstop">${t('finish')}</button><button type="button" class="btn tonal" data-act="brcyc" aria-label="${t('cycle_toggle')}"><span id="brcycl">${brCycles}×</span></button></div>
     </div>` : ''}
     ${L.mozgas ? `<div class="card"><span class="tag">${t('qigong_tag')}</span><div class="t" style="font-size:18px">${snd[0]}: ${qt(snd[1])}</div><p class="s" style="font-size:15px;line-height:22px;color:var(--on)">${snd[2]}</p><p class="s">${t('qigong_rep')}</p></div>` : ''}
+    ${row('hand', t('hand_foot'), t('hf_row_s'), '#tudas-kezlab')}
     ${row('hand', t('tech_title'), t('tech_sub'), '#technikak')}
     ${disclaimer()}
   </section>`;
@@ -1166,6 +1200,7 @@ V.gyakorlat = (arg) => {
 /* ================= LEJÁTSZÓ (csukott szemmel is) ================= */
 const speak = (txt) => { if (!store.get('voice', false)) return; try { const u = new SpeechSynthesisUtterance(txt); u.lang = loc(); u.rate = 0.95; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (e) {} };
 function pCrop(pid) {
+  if (PBY[pid].hf) return hfMap(PBY[pid].m, pid, true);
   const p = PBY[pid], v = p.v.includes('f') ? 'f' : 'b';
   return `<svg viewBox="${p.x - 44} ${p.y - 38} 88 76" role="img" aria-label="${esc(C('area', pid))}" class="pcrop">${bodyInner(v)}${CHP[p.ch] && CHP[p.ch][0] === v ? flowPath(p.ch, true) : ''}${PSPEC[pid].k === 'seg' ? measureSvg(p, SK(), 4) : ''}<circle cx="${p.x}" cy="${p.y}" r="7" style="fill:var(--${p.el})" opacity=".3"/><circle cx="${p.x}" cy="${p.y}" r="3.2" style="fill:var(--${p.el});stroke:#fff" stroke-width="1.2"/></svg>`;
 }
@@ -1218,6 +1253,65 @@ function initPlayer(signal, id) {
   show(true);
 }
 
+/* ================= KÉZ ÉS LÁB nézet (Tudás → Kéz és láb) ================= */
+// Sematikus, saját rajzok: bal kéz tenyér és kézhát felől, jobb lábfej felülről és talp felől.
+const HF_SHAPE = {
+  hp: '<path d="M58 140 Q56 120 60 82 Q62 70 69 70 Q78 70 80 84 L82 132 L86 52 Q88 40 97 40 Q107 40 108 52 L112 126 L115 38 Q117 26 126 26 Q136 26 137 38 L140 126 L144 54 Q146 42 155 42 Q165 42 166 54 L168 150 Q178 132 196 120 Q214 110 228 128 Q234 138 224 150 L196 196 Q188 238 170 256 Q150 276 112 274 Q72 272 60 236 Q52 200 58 140 Z"/>',
+  hb: '<path d="M202 140 Q204 120 200 82 Q198 70 191 70 Q182 70 180 84 L178 132 L174 52 Q172 40 163 40 Q153 40 152 52 L148 126 L145 38 Q143 26 134 26 Q124 26 123 38 L120 126 L116 54 Q114 42 105 42 Q95 42 94 54 L92 150 Q82 132 64 120 Q46 110 32 128 Q26 138 36 150 L64 196 Q72 238 90 256 Q110 276 148 274 Q188 272 200 236 Q208 200 202 140 Z"/>',
+  ft: '<path d="M30 110 Q24 70 42 46 Q60 34 80 52 Q92 30 112 34 Q128 32 140 46 Q156 40 168 56 Q186 64 190 86 Q196 140 180 200 Q168 260 150 290 Q130 312 104 306 Q70 300 60 250 Q48 190 30 110 Z"/><circle cx="62" cy="60" r="20"/><circle cx="100" cy="48" r="13"/><circle cx="128" cy="52" r="12"/><circle cx="152" cy="62" r="11"/><circle cx="172" cy="78" r="10"/>',
+  fs: '<path d="M190 110 Q196 70 178 46 Q160 34 140 52 Q128 30 108 34 Q92 32 80 46 Q64 40 52 56 Q34 64 30 86 Q24 140 40 200 Q52 260 70 290 Q90 312 116 306 Q150 300 160 250 Q172 190 190 110 Z"/><circle cx="158" cy="60" r="20"/><circle cx="120" cy="48" r="13"/><circle cx="92" cy="52" r="12"/><circle cx="68" cy="62" r="11"/><circle cx="48" cy="78" r="10"/>'
+};
+function hfMap(m, sel, mini) {
+  const pts = HFM.filter((p) => p.m === m), P = mini ? pts.find((p) => p.id === sel) : null;
+  const vb = P ? `${P.x - 44} ${P.y - 38} 88 76` : `0 0 ${m[0] === 'h' ? 260 : 220} ${m[0] === 'h' ? 290 : 318}`;
+  return `<svg viewBox="${vb}" class="${mini ? 'pcrop' : 'hfsvg'}" role="${mini ? 'img' : 'group'}" aria-label="${esc(t('hf_' + m))}"><g class="hfshape">${HF_SHAPE[m]}</g>${pts.map((p) => {
+    const on = p.id === sel, dot = `<circle cx="${p.x}" cy="${p.y}" r="${on ? 9 : 6.5}" style="fill:var(--${p.el})" stroke="#fff" stroke-width="2"/>${on ? `<circle cx="${p.x}" cy="${p.y}" r="15" style="fill:var(--${p.el})" opacity=".25"/>` : ''}`;
+    return mini ? (on ? dot : '') : `<g class="hfpt" data-hf="${p.id}" tabindex="0" role="button" aria-pressed="${on}" aria-label="${esc(pc(p) + ' ' + p.py + ', ' + C('area', p.id))}"><circle cx="${p.x}" cy="${p.y}" r="15" fill="transparent"/>${dot}<text x="${p.la ? p.x + (p.la === 'l' ? -11 : 11) : p.x}" y="${p.la ? p.y + 4 : p.y - 12}" text-anchor="${p.la === 'l' ? 'end' : p.la === 'r' ? 'start' : 'middle'}">${pc(p)}</text></g>`;
+  }).join('')}</svg>`;
+}
+function hfCard(id) {
+  const p = PBY[id], tx = ptT(id), o = OBY[p.ch], inApp = !p.hf;
+  const role = [...FINGERS, ...TOES].flatMap(([k, l]) => l.filter((x) => x[2] === id).map((x) => `${t(k)} · ${t('hf_' + x[1], { c: chT(p.ch)[0] })}`))[0];
+  return `<div style="display:flex;align-items:center;gap:8px"><span class="dot" style="background:var(--${p.el})"></span><span class="sub grow">${chName(p.ch)} · ${pc(p)} · ${p.py}</span></div>
+  <h2 class="display" style="font-size:24px;margin-top:4px">${C('area', id)}</h2>
+  ${role ? `<div class="s">${role}</div>` : ''}
+  ${o ? `<a class="row flat" href="#szerv-${slug(o.c)}" style="margin-top:8px"><span class="ic" style="color:var(--${o.el})">${ic('clock')}</span><span class="grow"><span class="t">${orgN(o.c)}</span><span class="s">${t('hours', { w: win(o) })}${orgAt(now()) === o ? ' · ' + t('hf_now') : ''}</span></span>${ic('chev', 18)}</a>` : ''}
+  <div class="kv"><div class="k">${t('where_exact')}</div><div class="v">${tx[2]}</div></div>
+  <div class="kv"><div class="k">${t('k_use')}</div><div class="v">${tx[3]}</div></div>
+  <div class="kv"><div class="k">${t('what_do')}</div><div class="v">${tx[4]}</div></div>
+  ${tx[5] ? `<div class="warnbox" style="margin-top:8px">${ic('warn', 18)}<span>${tx[5]}</span></div>` : ''}
+  ${inApp ? `<a class="btn tonal" style="margin-top:10px" href="#pont-${p.s}">${t('hf_point_page')}</a>` : ''}`;
+}
+const toeReading = () => !L.labujj ? '' : `<details class="card othertime" id="toeread"><summary><span class="t">${ic('book', 18)} ${t('tr_h')}</span></summary><div class="stack" style="padding:0 4px 4px">
+  <p class="s" style="color:var(--on)">${t('tr_what')}</p><p class="s">${t('tr_src')}</p>
+  <div class="t" style="font-size:16px">${t('tr_obs_h')}</div><ol class="s" style="margin:0;padding-left:20px">${t('tr_obs').split('|').map((x) => `<li>${x}</li>`).join('')}</ol>
+  <p class="note">${ic('shield', 14)} ${t('tr_note')}</p></div></details>`;
+let HFSEL = { hand: 'Szb-8', foot: 'V-1' };
+function kezlabView(arg) {
+  const mode = arg === 'lab' || HF.some((p) => p.s === arg && p.m[0] === 'f') ? 'foot' : 'hand';
+  const fromArg = HF.find((p) => p.s === arg); if (fromArg) HFSEL[mode] = fromArg.id;
+  const sel = HFSEL[mode], d = now(), list = mode === 'hand' ? FINGERS : TOES;
+  const row = ([k, l]) => `<div class="li"><span class="grow"><span class="t">${t(k)}</span><span class="s">${l.length ? l.map(([c, se, pid]) => `<a href="#tudas-kezlab-${PBY[pid].s}" data-hf="${pid}" style="color:var(--${CHEL[c]}-t)">${orgN(c)}</a> · ${t('hf_' + se, { c: chT(c)[0] })} (${pc(PBY[pid])}) · ${t('hours', { w: win(OBY[c]) })}${orgAt(d).c === c ? ' · <b>' + t('hf_now') + '</b>' : ''}`).join('<br>') : t('hf_none3')}</span></span></div>`;
+  const rts = (mode === 'hand' ? ['kez_reggel', 'kez_este'] : ['lab_este']).map((id) => { const r = RBY[id], rt = C('routines', id), fit = routFits(id, d); return `<a class="rcard${fit ? ' hl' : ''}" href="#rutin-${id}"><span class="ic">${ic(r.icon)}</span><span class="grow"><span class="t">${rt[0]}</span><span class="s">${rt[1]}</span><span class="meta">${fit ? '' : `<span class="when">${t(ROUT_WHEN[id])}</span> · `}${t('routine_meta', { m: Math.max(1, Math.round(r.sec / 60)), n: r.steps.length })}</span></span><span class="go">${ic('play', 18, 2.2)}</span></a>`; }).join('');
+  return `<div class="pad"><div class="seg" role="group" aria-label="${t('view')}">${[['hand', 'hf_hand', 'kez'], ['foot', 'hf_foot', 'lab']].map(([k, n, h]) => `<a href="#tudas-kezlab-${h}" role="button" aria-pressed="${mode === k}">${t(n)}</a>`).join('')}</div></div>
+  <div class="split"><div class="pad smain"><div class="hfmaps">${(mode === 'hand' ? ['hp', 'hb'] : ['ft', 'fs']).map((m) => `<figure><figcaption class="sub">${t('hf_' + m)}</figcaption>${hfMap(m, sel)}</figure>`).join('')}</div><p class="sub">${t('hf_pick')}</p></div>
+  <section class="pad stack sside"><div class="card" id="hfcard" aria-live="polite">${hfCard(sel)}</div>
+    <div class="sec"><h2>${t(mode === 'hand' ? 'hf_fingers_h' : 'hf_toes_h')}</h2></div><div class="list">${list.map(row).join('')}</div>
+    <div class="sec"><h2>${t('hf_routines_h')}</h2></div>${rts}
+    ${mode === 'foot' ? toeReading() : ''}
+    <p class="note">${t('hf_note')}</p></section></div>`;
+}
+// pontválasztás a térképen / a listában, újrarajzolás nélkül
+document.addEventListener('click', (e) => {
+  const g = e.target.closest && e.target.closest('[data-hf]'); if (!g || !$('#hfcard')) return;
+  e.preventDefault();
+  const id = g.dataset.hf, mode = HFM.find((p) => p.id === id).m[0] === 'f' ? 'foot' : 'hand';
+  HFSEL[mode] = id; $('#hfcard').innerHTML = hfCard(id);
+  $$('.hfmaps svg').forEach((s, i) => { s.outerHTML = hfMap((mode === 'hand' ? ['hp', 'hb'] : ['ft', 'fs'])[i], id); });
+  const ng = $(`.hfpt[data-hf="${id}"]`); if (ng && g.classList.contains('hfpt')) ng.focus();
+});
+document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.closest && e.target.closest('.hfpt')) { e.preventDefault(); e.target.closest('.hfpt').dispatchEvent(new MouseEvent('click', { bubbles: true })); } });
+
 /* ================= TUDÁS ================= */
 let KPATH = [];
 function graphSvg(el) {
@@ -1248,10 +1342,10 @@ function graphSvg(el) {
 }
 V.tudas = (arg) => {
   let tab = 'graf', el = KPATH.length ? KPATH[KPATH.length - 1] : orgAt(now()).el;
-  if (arg.startsWith('graf-') && ELK.includes(arg.slice(5))) el = arg.slice(5); else if (arg === 'lexikon' || arg === 'ciklusok' || arg === 'asztro') tab = arg;
+  if (arg.startsWith('graf-') && ELK.includes(arg.slice(5))) el = arg.slice(5); else if (arg === 'lexikon' || arg === 'ciklusok' || arg === 'asztro') tab = arg; else if (arg === 'kezlab' || arg.startsWith('kezlab-')) tab = 'kezlab';
   if (tab === 'graf' && KPATH[KPATH.length - 1] !== el) KPATH = [...KPATH, el].slice(-6);
   const e = elT(el), mother = Object.keys(GEN).find((x) => GEN[x] === el), ctrlBy = Object.keys(CTRL).find((x) => CTRL[x] === el);
-  const tabs = `<div class="seg tabs" role="tablist" aria-label="${t('view')}">${[['graf', 'graph', `#tudas-graf-${el}`], ['lexikon', 'lexicon', '#tudas-lexikon'], ['ciklusok', 'cycles', '#tudas-ciklusok'], ...(L.asztro ? [['asztro', 'astro', '#tudas-asztro']] : [])].map(([k, n, h]) => `<a role="tab" aria-selected="${k === tab}" href="${h}">${t(n)}</a>`).join('')}</div>`;
+  const tabs = `<div class="seg tabs" role="tablist" aria-label="${t('view')}">${[['graf', 'graph', `#tudas-graf-${el}`], ['lexikon', 'lexicon', '#tudas-lexikon'], ['ciklusok', 'cycles', '#tudas-ciklusok'], ['kezlab', 'hand_foot', '#tudas-kezlab'], ...(L.asztro ? [['asztro', 'astro', '#tudas-asztro']] : [])].map(([k, n, h]) => `<a role="tab" aria-selected="${k === tab}" href="${h}">${t(n)}</a>`).join('')}</div>`;
   let body = '';
   if (tab === 'graf') body = `<div class="split"><div class="pad smain">${graphSvg(el)}</div><section class="pad stack sside">
     <div class="sub">${t('graph_hint')}</div>
@@ -1264,6 +1358,7 @@ V.tudas = (arg) => {
   if (tab === 'ciklusok') body = `<div class="pills" role="group" aria-label="${t('cycle')}">${Object.keys(CYCST).map((k) => `<button type="button" class="pill" data-act="cyc" data-k="${k}" aria-pressed="${k === elemCyc}">${C('cyc', k)[0]}</button>`).join('')}</div>
   <div class="split"><div class="pad smain" id="cycfig">${cycleSvg(elemCyc)}</div><section class="pad stack sside"><div class="card" id="cyctext">${cycText()}</div></section></div>`;
   if (tab === 'asztro') body = astroView();
+  if (tab === 'kezlab') body = kezlabView(arg.slice(7));
   return `${top(t('tab_know'), t('know_sub'), '', settingsBtn())}<div class="pad">${tabs}</div>${body}<div class="pad">${disclaimer()}</div>`;
 };
 let elemCyc = 'tap';
@@ -1326,7 +1421,7 @@ V.beallitasok = () => {
       <div><div class="flabel">${ic('body', 16)} ${t('model')}</div>${seg('model', [['f', t('female')], ['m', t('male')]], MODEL)}</div></div>
     ${schedCard()}
     <div class="sec"><h2>${t('guidance_h')}</h2></div><div class="list">${sw('sound', 'sound_t', true)}${sw('vibrate', 'vibrate_t', true)}${sw('voice', 'voice', false)}</div>
-    <div class="sec"><h2>${t('content_h')}</h2></div><div class="list">${['mozgas', 'legzes', 'taplalkozas', 'csontok', 'erzelmek', 'gyogynovenyek', 'asztro'].map(ly).join('')}</div>
+    <div class="sec"><h2>${t('content_h')}</h2></div><div class="list">${['mozgas', 'legzes', 'taplalkozas', 'csontok', 'erzelmek', 'gyogynovenyek', 'asztro', 'labujj'].map(ly).join('')}</div>
     ${row('screen', t('kij_open'), t('kij_sub'), '#kijelzo')}
     ${row('hand', t('tech_title'), t('tech_sub'), '#technikak')}
     <button type="button" class="btn tonal" data-act="lyreset">${t('reset_layers')}</button>
@@ -1379,6 +1474,7 @@ function initKijelzo(signal) {
 
 /* ================= KÍNAI ASZTROLÓGIA (réteg) ================= */
 if (L.asztro === undefined) L.asztro = true;
+if (L.labujj === undefined) L.labujj = true;
 const STEM = '甲乙丙丁戊己庚辛壬癸', BRANCH = '子丑寅卯辰巳午未申酉戌亥';
 const BEL = ['viz', 'fold', 'fa', 'fa', 'fold', 'tuz', 'tuz', 'fold', 'fem', 'fem', 'fold', 'viz'];
 const HIDS = [[9], [5, 9, 7], [0, 2, 4], [1], [4, 1, 9], [2, 4, 6], [3, 5], [5, 3, 1], [6, 8, 4], [7], [4, 7, 3], [8, 0]];

@@ -322,3 +322,12 @@ nav.tabs a[aria-current=page] .ind{background:var(--cont);color:var(--acc)}
 .othertime>.stack{padding:0 12px 12px}
 .othertime .rcard{opacity:.8}
 .othertime .when{font-weight:700}
+
+/* Kéz és láb térkép */
+.hfmaps{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hfmaps figure{margin:0;background:var(--map);border-radius:var(--r-l);padding:8px;text-align:center}
+.hfsvg{width:100%;height:auto;max-height:62vh;display:block;overflow:visible}
+.hfshape path,.hfshape circle{fill:var(--bone,var(--surf));stroke:var(--mut);stroke-width:1.6;stroke-opacity:.55}
+.hfshape{opacity:.9}
+.hfpt{cursor:pointer;outline:none}.hfpt text{font:700 10px Inter,sans-serif;fill:var(--on);paint-order:stroke;stroke:var(--map);stroke-width:3px;stroke-linejoin:round}
+.hfpt[aria-pressed=true] text{fill:var(--on)}.hfpt:focus-visible circle:nth-child(2){stroke:var(--on);stroke-width:3}

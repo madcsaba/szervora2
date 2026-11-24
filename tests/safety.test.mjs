@@ -30,13 +30,13 @@ before(async () => { browser = await chromium.launch(); });
 after(async () => { await browser?.close(); });
 
 /** Megnyitja az appot rögzített helyi idővel (Budapest) és előre beállított tárolóval. */
-async function open({ day = '2026-03-11', tz = 'Europe/Budapest', sched = null, birth = null, checkin = null, hash = 'ma' } = {}) {
+async function open({ day = '2026-03-11', tz = 'Europe/Budapest', sched = null, birth = null, checkin = null, hash = 'ma', layers = null } = {}) {
   const ctx = await browser.newContext({ timezoneId: tz, locale: 'hu-HU' });
   const page = await ctx.newPage();
   const errors = [], requests = [];
   page.on('pageerror', (e) => errors.push(e.message));
   page.on('request', (r) => { if (!/^(file|data|blob):/.test(r.url())) requests.push(r.url()); });
-  const seed = { lang: 'hu', birth, ...(sched ? { sched } : {}) };
+  const seed = { lang: 'hu', birth, ...(sched ? { sched } : {}), ...(layers ? { layers } : {}) };
   // A check-in a (rögzített) oldalidőhöz képest 10 perce történt; minden betöltéskor beírjuk.
   await page.addInitScript(([s, c]) => { if (location.protocol !== 'file:') return; for (const [k, v] of Object.entries(s)) localStorage.setItem('szervora.' + k, JSON.stringify(v)); localStorage.setItem('szervora.log', JSON.stringify(c ? [{ type: 'ci', t: Date.now() - 10 * 60e3, s: 1, ...c }] : [])); }, [seed, checkin]);
   /** Az óra beállítása és az oldal újratöltése (a check-in ehhez az időhöz képest 10 perce történt). */
@@ -198,6 +198,37 @@ test('gyakorlatok a napszakhoz igazodnak (napirend 22:30–7:00)', async () => {
   await low.at(10); assert.equal(await recId(low.page), 'reggel', '10:00, alacsony energia – élénkítő sor');
   await low.at(19.75); assert.notEqual(await recId(low.page), 'reggel', '19:45, alacsony energia – este nem élénkítő sor');
   await low.ctx.close();
+});
+
+test('kéz és láb: térkép, ujj–csatorna párosítás, rutinok napszak szerint, lábujjolvasás kikapcsolható', async () => {
+  const { page, ctx, errors, at } = await open({ sched: { bed: '22:30', wake: '07:00' }, hash: 'tudas-kezlab' });
+  await at(20.5);
+  assert.equal(await page.locator('.hfpt').count(), 12, 'kézpontok: 9 új + 3 meglévő (Szb-8, Vab-4, Véb-3)');
+  await page.click('.hfpt[data-hf="Hm-1"]');
+  assert.match(await page.textContent('#hfcard'), /Gyűrűsujj/);
+  assert.ok(await page.locator('#hfcard a[href="#szerv-hm"]').count(), 'a szerv oldalára mutat');
+  const ring = await page.locator('.list .li', { hasText: 'Gyűrűsujj' }).textContent();
+  assert.match(ring, /Hármasmelegítő/);
+  // a reggeli kézrutin este nem kiemelt, az esti igen
+  assert.equal(await page.locator('a.rcard.hl[href="#rutin-kez_este"]').count(), 1, '20:30 – az esti kézrutin kiemelt');
+  assert.equal(await page.locator('a.rcard.hl[href="#rutin-kez_reggel"]').count(), 0, '20:30 – a reggeli kézrutin nem kiemelt');
+  await page.goto(`${URL_}#tudas-kezlab-lab`); await page.waitForSelector('#hfcard');
+  assert.match(await page.textContent('#hfcard'), /Yongquan/);
+  assert.match(await page.textContent('#toeread'), /nem diagnózis/);
+  // Gyakorlat reggel: az esti lábmasszázs a „Más napszakra” részben
+  await at(7.5); await page.goto(`${URL_}#gyakorlat`); await page.waitForSelector('.othertime');
+  const other = await page.$$eval('.othertime .rcard', (as) => as.map((x) => x.getAttribute('href')));
+  assert.ok(other.includes('#rutin-lab_este') && other.includes('#rutin-kez_este'));
+  // a lábujjolvasás réteg kikapcsolható (a beállítás az oldal betöltésekor kerül a tárolóba)
+  const off = await open({ hash: 'tudas-kezlab-lab', layers: { labujj: false } });
+  await off.at(20.5); await off.page.waitForSelector('#hfcard');
+  assert.equal(await off.page.locator('#toeread').count(), 0, 'kikapcsolt réteg mellett nincs lábujjolvasás');
+  await off.ctx.close();
+  // a lejátszó kéz/láb ponttal is működik
+  await page.goto(`${URL_}#rutin-lab_este`); await page.waitForSelector('#player');
+  assert.match(await page.textContent('#parea'), /Talp/);
+  assert.deepEqual(errors, []);
+  await ctx.close();
 });
 
 test('a lecsendesedés az első, bármilyen check-in mellett', async () => {

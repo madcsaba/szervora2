@@ -363,6 +363,15 @@ nav.tabs a[aria-current=page] .ind{background:var(--cont);color:var(--acc)}
 .othertime .rcard{opacity:.8}
 .othertime .when{font-weight:700}
 
+/* Kéz és láb térkép */
+.hfmaps{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hfmaps figure{margin:0;background:var(--map);border-radius:var(--r-l);padding:8px;text-align:center}
+.hfsvg{width:100%;height:auto;max-height:62vh;display:block;overflow:visible}
+.hfshape path,.hfshape circle{fill:var(--bone,var(--surf));stroke:var(--mut);stroke-width:1.6;stroke-opacity:.55}
+.hfshape{opacity:.9}
+.hfpt{cursor:pointer;outline:none}.hfpt text{font:700 10px Inter,sans-serif;fill:var(--on);paint-order:stroke;stroke:var(--map);stroke-width:3px;stroke-linejoin:round}
+.hfpt[aria-pressed=true] text{fill:var(--on)}.hfpt:focus-visible circle:nth-child(2){stroke:var(--on);stroke-width:3}
+
 </style>
 </head>
 <body>
@@ -483,6 +492,23 @@ nav.tabs a[aria-current=page] .ind{background:var(--cont);color:var(--acc)}
       Hm: ['Hármasmelegítő', 'hiii', 'Emeld a karjaidat a fejed fölé, majd kilégzéskor lassan, halk „hiii” hanggal simítsd le a tenyereidet a test előtt, a fejtől a hasig.']
     },
     pts: {
+      'T-11': ["Kis Shang (a fém hangja)", "Fa-pont, a Tüdő-csatorna végpontja", "A hüvelykujj külső (orsócsont felőli) oldalán, a körömszöglettől kb. 0,1 cunnal a csukló felé.", "Ujjbegy-ébresztés, frissítés.", "Csippentsd meg a köröm melletti pontot a másik kéz hüvelyk- és mutatóujjával, 5–10-szer.", ""],
+      'Vab-1': ["A fém yangja", "Fém-pont, a Vastagbél-csatorna kezdőpontja", "A mutatóujj hüvelykujj felőli oldalán, a körömszöglettől kb. 0,1 cunnal a csukló felé.", "Ujjbegy-ébresztés, éberség.", "Csippentsd meg 5–10-szer, majd húzd végig az ujjat a tövéig.", ""],
+      'Szb-9': ["Középső roham", "Fa-pont, a Szívburok-csatorna végpontja", "A középső ujj hegyének közepén.", "Éberség, összeszedettség.", "Nyomd meg a hüvelykujjad körmével finoman, 5–10-szer.", ""],
+      'Hm-1': ["Kapuroham", "Fém-pont, a Hármasmelegítő-csatorna kezdőpontja", "A gyűrűsujj kisujj felőli oldalán, a körömszöglettől kb. 0,1 cunnal a csukló felé.", "Ujjbegy-ébresztés.", "Csippentsd meg 5–10-szer.", ""],
+      'Sz-9': ["Kis roham", "Fa-pont, a Szív-csatorna végpontja", "A kisujj gyűrűsujj felőli oldalán, a körömszöglettől kb. 0,1 cunnal a csukló felé.", "Megnyugvás, összeszedettség.", "Csippentsd meg finoman 5–10-szer.", ""],
+      'Véb-1': ["Kis tó", "Fém-pont, a Vékonybél-csatorna kezdőpontja", "A kisujj külső (singcsont felőli) oldalán, a körömszöglettől kb. 0,1 cunnal a csukló felé.", "Ujjbegy-ébresztés.", "Csippentsd meg 5–10-szer.", ""],
+      'T-10': ["Halhas", "Tűz-pont (antik Shu)", "A hüvelykujjpárnán, az első kézközépcsont közepénél, a tenyér és a kézhát bőrének határán.", "A hüvelykujjpárna átmelegítése, ellazítás.", "Dörzsöld vagy gyúrd körkörösen a másik kéz hüvelykujjával.", ""],
+      'Sz-8': ["Kis palota", "Tűz-pont (antik Shu)", "A tenyéren, a 4. és 5. kézközépcsont között, ahol ökölbe szorításkor a kisujj hegye ér.", "Lecsendesedés, esti levezetés.", "Nyomd lassan, körkörösen a másik kéz hüvelykujjával.", ""],
+      'Hm-3': ["Középső sziget", "Fa-pont (antik Shu)", "A kézháton, a 4. és 5. kézközépcsont között, az ujjtőízület mögötti mélyedésben.", "A kézhát átmozgatása, frissítés.", "Gyúrd a mélyedést a másik kéz hüvelykujjával.", ""],
+      'Lh-1': ["Rejtett fehér", "Fa-pont, a Lép-csatorna kezdőpontja", "A nagylábujj belső oldalán, a körömszöglettől kb. 0,1 cunnal a sarok felé.", "A lábujjak átmozgatása.", "Csippentsd meg 5–10-szer.", ""],
+      'M-1': ["Nagy halom", "Fa-pont, a Máj-csatorna kezdőpontja", "A nagylábujj külső oldalán, a körömszöglettől kb. 0,1 cunnal a sarok felé.", "A lábujjak átmozgatása.", "Csippentsd meg 5–10-szer.", ""],
+      'M-2': ["Közbenső járás", "Tűz-pont (antik Shu)", "Az 1. és 2. lábujj között, az ujjhártya széle mögött, a talp és a lábhát bőrének határán.", "Esti levezetés, a lábfej ellazítása.", "Nyomd lassan, körkörösen a hüvelykujjaddal.", ""],
+      'Gy-44': ["Belső udvar", "Víz-pont (antik Shu)", "A 2. és 3. lábujj között, az ujjhártya széle mögött, a talp és a lábhát bőrének határán.", "A lábfej átmozgatása.", "Nyomd lassan, körkörösen a hüvelykujjaddal.", ""],
+      'Gy-45': ["Szigorú váltás", "Fém-pont, a Gyomor-csatorna végpontja", "A 2. lábujj külső oldalán, a körömszöglettől kb. 0,1 cunnal a sarok felé.", "A lábujjak átmozgatása.", "Csippentsd meg 5–10-szer.", ""],
+      'Eh-44': ["A láb yin-nyílása", "Fém-pont, az Epehólyag-csatorna végpontja", "A 4. lábujj külső oldalán, a körömszöglettől kb. 0,1 cunnal a sarok felé.", "A lábujjak átmozgatása.", "Csippentsd meg 5–10-szer.", ""],
+      'H-67': ["A yin elérése", "Fém-pont, a Hólyag-csatorna végpontja", "A kislábujj külső oldalán, a körömszöglettől kb. 0,1 cunnal a sarok felé.", "A lábujjak átmozgatása.", "Csippentsd meg finoman 5–10-szer.", "Várandósság alatt ne nyomd és ne masszírozd."],
+      'V-1': ["Bugyogó forrás", "Fa-pont, a Vese-csatorna kezdőpontja", "A talpon, behajlított lábujjaknál a legmélyebb mélyedésben, kb. a 2–3. lábujj tövét és a sarkat összekötő vonal elülső harmadánál.", "Esti lábmasszázs, lecsendesedés, „földelés”.", "Dörzsöld vagy nyomd körkörösen a hüvelykujjaddal, vagy a tenyered közepével (Szb-8) dörzsöld.", ""],
       'Kor-20': ['Száz találkozás', 'A yang csatornák találkozása', 'A fejtetőn, ahol a két fülcsúcsot összekötő vonal metszi a középvonalat.', 'Hagyományosan a fej kitisztítására, koncentrációra, lecsendesedésre.', 'Gyengéd, körkörös nyomás ujjbeggyel, 1 percig.', ''],
       'H-1': ['Fényes szem', 'Kezdőpont', 'A belső szemzug mellett, az orrnyereg felé eső kis mélyedésben.', 'Fáradt szem pihentetésére, például képernyős munka után.', 'Csukott szemmel, nagyon finoman, ujjbeggyel, 30 másodpercig.', 'A szemgolyót ne nyomd!'],
       'Kor-26': ['Az ember közepe', 'Elsősegély-pont', 'Az orr alatti barázda felső harmadában.', 'Hagyományosan ájulásnál élesztésre használják.', 'Erős, ritmikus nyomás körömmel.', 'Ájulásnál mindig hívj segítséget (112).'],
@@ -544,6 +570,7 @@ nav.tabs a[aria-current=page] .ind{background:var(--cont);color:var(--acc)}
       contra: 'Ellenjavallatok', contra_list: ['Láz, fertőző betegség', 'Vérzékenység, gyomorvérzés', 'Várandósság: a hasat kihagyjuk, és vannak tiltott pontok (pl. Vab-4, Lh-6)', 'Trombózis: semmilyen masszázs nem végezhető', 'Visszér, vénagyulladás helyén nem masszírozunk', 'Friss törés, rándulás, ficam, műtéti heg, seb, bőrgomba', 'Menstruáció alatt csak óvatosan', 'Zavart tudatállapot, ittasság'], contra_note: 'Kétség esetén kérd ki orvos véleményét.'
     },
     routines: {
+      kez_reggel: ['Kézébresztő', 'Hüvelykujjpárna és ujjbegyek, frissítő kezdés'], kez_este: ['Kézlecsendesítő', 'Tenyérközép és kisujj, esti levezetés'], lab_este: ['Esti lábmasszázs', 'Talp, lábfej és lábujjak lefekvés előtt'],
       esti: ['Esti lecsendesedés', 'Lefekvés előtt, a nyugodt alvásért'], reggel: ['Reggeli ébresztő', 'Frissítő kezdés, mély légzés'],
       kepernyo: ['Képernyőszünet', 'Szem, tarkó, nyak, váll'], utazas: ['Utazás, hányinger', 'Autóban, hajón, repülőn'],
       emesztes: ['Emésztés', 'Étkezés után legalább egy órával'], lampalaz: ['Lámpaláz előtt', 'Vizsga, szereplés, fontos beszélgetés előtt']
@@ -551,8 +578,8 @@ nav.tabs a[aria-current=page] .ind{background:var(--cont);color:var(--acc)}
     lm: { vertex: 'fejtető', canthus: 'belső szemzug', philtrum: 'orr alatti barázda', nostril: 'orrszárny', occiput: 'nyakszirtcsont alja', c7: '7. nyakcsigolya (C7)', acromion: 'vállcsúcs', shoulder_mid: 'nyak alja és vállcsúcs között', jugulum: 'szegycsont felső széle', xiphoid: 'kardnyúlvány (szegycsont alsó vége)', navel: 'köldök', pubis: 'szeméremcsont felső széle', pubis_side: 'szeméremcsont felső széle', axfold: 'elülső hónaljredő', elbow: 'könyökhajlat', wrist: 'csuklóránc', fingertip: 'középső ujj hegye', patella_med: 'térdkalács belső-felső széle', tibia_cond: 'sípcsont belső bütyke', mal_med: 'belső bokacsúcs', popliteal_l: 'térdhajlat külső vége', popliteal_c: 'térdhajlat közepe', mal_lat: 'külső bokacsúcs', mt12: '1–2. lábközépcsont találkozása' },
     bones: { skull: 'koponya', orbit: 'szemüreg', maxilla: 'felső állcsont', clavicle: 'kulcscsont', sternum: 'szegycsont', ribs: 'bordák', pelvis: 'medence', humerus: 'felkarcsont', radius: 'orsócsont (radius)', ulna: 'singcsont (ulna)', forearm: 'orsó- és singcsont', metacarpals: 'kézközépcsontok', femur: 'combcsont', knee: 'térdízület', tibia: 'sípcsont (tibia)', fibula: 'szárkapocscsont (fibula)', metatarsals: 'lábközépcsontok', spine: 'gerinc (csigolyák)', scapula: 'lapocka' },
     cun_extra: [['két mellbimbó között', 8], ['elülső és hátsó hajvonal között', 12], ['gerinc – lapocka belső széle', 3], ['nagy tompor – térdhajlat', 19]],
-    area: { 'Kor-20': 'Fejtető', 'H-1': 'Belső szemzug', 'Kor-26': 'Orr alatti barázda', 'Vab-20': 'Orrszárny mellett', 'T-1': 'Mellkas felső-külső része', 'Bef-17': 'Mellkas közepe', 'Bef-12': 'Gyomortáj', 'Bef-6': 'Köldök alatt', 'Bef-4': 'Alhas', 'T-5': 'Könyökhajlat, hüvelykujj felől', 'Vab-11': 'Könyökránc külső vége', 'T-7': 'Csukló fölött, hüvelykujj felől', 'T-9': 'Csuklóránc, hüvelykujj felől', 'Szb-6': 'Alkar belső oldala', 'Szb-8': 'Tenyér közepe', 'Sz-3': 'Könyökránc belső vége', 'Sz-7': 'Csukló belső oldala, kisujj felől', 'Lh-10': 'Comb belső oldala, térd fölött', 'Lh-9': 'Térd alatt, belül', 'Gy-36': 'Térd alatt, kívül', 'Eh-34': 'Lábszár külső oldala, térd alatt', 'Gy-40': 'Lábszár közepe, kívül', 'Lh-6': 'Belső boka fölött', 'V-3': 'Belső boka mögött', 'M-3': 'Lábhát', 'Eh-20': 'Tarkó, koponyaalap alatt', 'Kor-14': 'Nyak alja, hátul', 'Eh-21': 'Váll teteje', 'H-23': 'Derék, gerinc mellett', 'Kor-4': 'Derék közepe', 'H-40': 'Térdhajlat', 'H-60': 'Külső boka mögött', 'Hm-5': 'Alkar külső oldala', 'Vab-4': 'Kézhát, hüvelyk- és mutatóujj között', 'Véb-3': 'Kéz kisujj felőli éle' },
-    how: { esti: 'Fentről lefelé haladsz: fejtető, mellkas, alkar, csukló, tenyér, boka. Lassú, egyenletes nyomás, a kilégzés legyen hosszabb a belégzésnél.', reggel: 'Élénkebb, ritmikus nyomás és ütögetés: fejtető, mellkas, csukló, lábszár, végül a derék bedörzsölése. Mély belégzés, lendületes kilégzés.', kepernyo: 'Csukd be a szemed, ereszd le a vállad. A szemtől a tarkón és a nyakon át a kézig haladsz.', utazas: 'Ülve is végezhető: az alkar belső oldalát hosszan, folyamatosan nyomod, majd a térd alatti pontot.', emesztes: 'Legalább egy órával étkezés után kezdd, meleg tenyérrel a gyomortájon; utána a lábszár és az alkar pontjai következnek.', lampalaz: 'Tenyér, csukló, mellkas: kevés idő alatt, akár észrevétlenül is elvégezhető. Kilégzéskor nyomj.' },
+    area: { 'T-11': "Hüvelykujj, köröm mellett", 'Vab-1': "Mutatóujj, köröm mellett", 'Szb-9': "Középső ujj hegye", 'Hm-1': "Gyűrűsujj, köröm mellett", 'Sz-9': "Kisujj, belső oldal", 'Véb-1': "Kisujj, külső oldal", 'T-10': "Hüvelykujjpárna", 'Sz-8': "Tenyér, kisujj alatt", 'Hm-3': "Kézhát, gyűrűs- és kisujj között", 'Lh-1': "Nagylábujj, belső oldal", 'M-1': "Nagylábujj, külső oldal", 'M-2': "Nagy- és 2. lábujj között", 'Gy-44': "2. és 3. lábujj között", 'Gy-45': "2. lábujj, külső oldal", 'Eh-44': "4. lábujj, külső oldal", 'H-67': "Kislábujj, külső oldal", 'V-1': "Talp, elülső harmad", 'Kor-20': 'Fejtető', 'H-1': 'Belső szemzug', 'Kor-26': 'Orr alatti barázda', 'Vab-20': 'Orrszárny mellett', 'T-1': 'Mellkas felső-külső része', 'Bef-17': 'Mellkas közepe', 'Bef-12': 'Gyomortáj', 'Bef-6': 'Köldök alatt', 'Bef-4': 'Alhas', 'T-5': 'Könyökhajlat, hüvelykujj felől', 'Vab-11': 'Könyökránc külső vége', 'T-7': 'Csukló fölött, hüvelykujj felől', 'T-9': 'Csuklóránc, hüvelykujj felől', 'Szb-6': 'Alkar belső oldala', 'Szb-8': 'Tenyér közepe', 'Sz-3': 'Könyökránc belső vége', 'Sz-7': 'Csukló belső oldala, kisujj felől', 'Lh-10': 'Comb belső oldala, térd fölött', 'Lh-9': 'Térd alatt, belül', 'Gy-36': 'Térd alatt, kívül', 'Eh-34': 'Lábszár külső oldala, térd alatt', 'Gy-40': 'Lábszár közepe, kívül', 'Lh-6': 'Belső boka fölött', 'V-3': 'Belső boka mögött', 'M-3': 'Lábhát', 'Eh-20': 'Tarkó, koponyaalap alatt', 'Kor-14': 'Nyak alja, hátul', 'Eh-21': 'Váll teteje', 'H-23': 'Derék, gerinc mellett', 'Kor-4': 'Derék közepe', 'H-40': 'Térdhajlat', 'H-60': 'Külső boka mögött', 'Hm-5': 'Alkar külső oldala', 'Vab-4': 'Kézhát, hüvelyk- és mutatóujj között', 'Véb-3': 'Kéz kisujj felőli éle' },
+    how: { kez_reggel: 'A hüvelykujjpárnától indulsz, majd ujjanként csippented a köröm melletti pontokat, végül a kézhátat gyúrod. Élénk, de fájdalommentes nyomás.', kez_este: 'A tenyér közepétől haladsz a kisujj felé: lassú, körkörös nyomás, hosszú kilégzés. Utána már ne nézz képernyőt.', lab_este: 'Ülve, mindkét lábon: a talp közepétől a lábfejen át a lábujjakig. Lassan, melegen; lábáztatás után a legjobb.', esti: 'Fentről lefelé haladsz: fejtető, mellkas, alkar, csukló, tenyér, boka. Lassú, egyenletes nyomás, a kilégzés legyen hosszabb a belégzésnél.', reggel: 'Élénkebb, ritmikus nyomás és ütögetés: fejtető, mellkas, csukló, lábszár, végül a derék bedörzsölése. Mély belégzés, lendületes kilégzés.', kepernyo: 'Csukd be a szemed, ereszd le a vállad. A szemtől a tarkón és a nyakon át a kézig haladsz.', utazas: 'Ülve is végezhető: az alkar belső oldalát hosszan, folyamatosan nyomod, majd a térd alatti pontot.', emesztes: 'Legalább egy órával étkezés után kezdd, meleg tenyérrel a gyomortájon; utána a lábszár és az alkar pontjai következnek.', lampalaz: 'Tenyér, csukló, mellkas: kevés idő alatt, akár észrevétlenül is elvégezhető. Kilégzéskor nyomj.' },
     lex: [
       ['aggódás', 'kevés Föld-energia jele', 'fold'], ['agyvelő', 'a Vese felügyeli', 'viz'], ['akaraterő', 'a Vese felel érte', 'viz'],
       ['aktivitás', 'jó Tűz-energia jele', 'tuz'], ['alvás', 'a Tűz, a Szív szabályozza', 'tuz'], ['anyatej-termelés', 'a Lép feladata', 'fold'],
@@ -615,6 +642,7 @@ Object.assign(window.SZ_LANG.hu.ui, {
   nav_sub: 'Kínai szervóra', fs_on: 'Teljes képernyő', fs_off: 'Kilépés a teljes képernyőből',
   pv_crop: 'Közeli', pv_focus: 'Vissza a ponthoz',
   other_time: 'Más napszakra', fit_night: 'este, lefekvés előtt', fit_morning: 'reggel', fit_day: 'napközben', fit_meal: 'étkezés után, nem evési szünetben', fit_any: 'bármikor',
+  hand_foot: 'Kéz és láb', hf_row_s: 'Ujjak, lábujjak és csatornák, kéz- és lábmasszázs', hf_hand: 'Kéz', hf_foot: 'Láb', hf_hp: 'Bal tenyér', hf_hb: 'Bal kézhát', hf_ft: 'Jobb lábfej felülről', hf_fs: 'Jobb talp', hf_pick: 'Koppints egy pontra a részletekért.', hf_fingers_h: 'Ujjak és csatornák', hf_toes_h: 'Lábujjak és csatornák', f_thumb: 'Hüvelykujj', f_index: 'Mutatóujj', f_middle: 'Középső ujj', f_ring: 'Gyűrűsujj', f_little: 'Kisujj', t_big: 'Nagylábujj', t_2: '2. lábujj', t_3: '3. lábujj', t_4: '4. lábujj', t_5: 'Kislábujj', t_sole: 'Talp', hf_start: 'a(z) {c} csatorna kezdőpontja', hf_end: 'a(z) {c} csatorna végpontja', hf_none3: 'Nincs saját csatorna-végpontja; a Gyomor-csatorna egyik ága fut ide.', hf_now: 'most aktív', hf_point_page: 'A pont oldala', hf_routines_h: 'Vezetett masszázs', hf_note: 'A pontok helye a WHO nemzetközi szabványa (2008) szerint, átfogalmazva; a rajzok sematikusak. Gyengéd nyomás, fájdalom nélkül; sérült, gyulladt bőrön ne masszírozz.', k_use: 'MIRE', tr_h: 'Lábujjolvasás – kulturális kitekintés', tr_what: 'A lábujjolvasás azt állítja, hogy a lábujjak alakjából és állásából a személyiségre és az érzelmekre lehet következtetni. Nem a kínai orvoslás része, és tudományos vizsgálat nem igazolja; a jóslás jellegű hagyományokhoz áll közel.', tr_src: 'A módszert Somogyi Imre holland–magyar szerző tette ismertté: Reading Toes – Your Feet as Reflections of Your Personality (C. W. Daniel, 1997; németül: Die Sprache der Zehen). Az app a könyv értelmezéseit nem veszi át.', tr_obs_h: 'Megfigyelő gyakorlat, értelmezés nélkül', tr_obs: 'Ülj le, vedd le a zoknidat, és nézd meg mindkét lábfejedet nappali fényben.|Mozgasd meg egyenként a lábujjaidat: melyik mozdul könnyen, melyik nehezen?|Tapogasd végig a lábujjakat és a talpat: hol feszes, hol meleg vagy hideg, hol érzékeny?|Írd le egy mondatban, mit vettél észre – ítélet és magyarázat nélkül. Ha valami fáj vagy megváltozott, fordulj orvoshoz.', tr_note: 'Kulturális réteg: nem diagnózis és nem jellemrajz. A Beállításokban kikapcsolható.', ly_labujj: 'Lábujjolvasás', lyd_labujj: 'Kulturális kitekintés, tudományos alátámasztás nélkül',
   theme: 'Téma', th_auto: 'Napszak szerint', th_light: 'Világos', th_dark: 'Sötét', guidance_h: 'Vezetés', in_m: '{m} perc múlva', kij_open: 'Kijelző mód', kij_sub: 'Képernyőkímélő töltés közben: óra, szerv, élő meridián', kij_full: 'Teljes képernyő', kij_full_no: 'A teljes képernyőt itt nem engedi a böngésző.', kij_next: 'Utána: {o} · {h}:00', kij_tap: 'Koppints a vezérlőkhöz', kij_wake_ok: 'A képernyő ébren marad, amíg ez a lap nyitva van.', kij_wake_no: 'A böngésző itt nem tartja ébren a képernyőt. Nyisd meg a lapot külön fülön, vagy állítsd hosszabbra a képernyő kikapcsolását.', voice: 'Hangos vezetés (felolvasás)', content_h: 'Tartalmi rétegek',
   sched_h: 'Napirend', sched_s: 'Ebből számoljuk az esti evési szünetet (lefekvés előtt 3 órától ébredésig) és a lecsendesedést (lefekvés előtt másfél órától).', sched_bed: 'Szokásos lefekvés', sched_wake: 'Szokásos ébredés', sched_save: 'Mentés', sched_clear: 'Alapérték', sched_sum: 'Evési szünet: {e}–{w} · Lecsendesedés: {c}-tól', sched_def: 'Még nem adtad meg. Ma {s}-kor van naplemente ({p}, a készülék órája szerint), ebből az alap lefekvés {b}, ébredés {w}.', sched_tz: 'a készülék időzónája', sched_own: 'A saját napirended alapján.', sched_err: 'Adj meg lefekvést és ébredést; az alvásidő 4 és 14 óra között legyen.', sched_local: 'A napirendet csak ezen az eszközön tároljuk.', sched_saved: 'Elmentve.',
 });
@@ -786,6 +814,23 @@ Object.assign(window.SZ_LANG.hu.ui, {
       Hm: ['Triple Burner', 'heee', 'Raise your arms above your head, then, breathing out with a soft “heee”, slowly stroke your palms down in front of your body from head to belly.']
     },
     pts: {
+      'T-11': ["Lesser Shang (note of metal)", "Wood point, end of the Lung channel", "On the outer (radial) side of the thumb, about 0.1 cun from the corner of the nail towards the wrist.", "Waking up the fingertips, refreshing.", "Pinch beside the nail with the thumb and index finger of the other hand, 5–10 times.", ""],
+      'Vab-1': ["Metal yang", "Metal point, start of the Large Intestine channel", "On the thumb side of the index finger, about 0.1 cun from the corner of the nail towards the wrist.", "Waking up the fingertips, alertness.", "Pinch 5–10 times, then stroke along the finger to its base.", ""],
+      'Szb-9': ["Middle rush", "Wood point, end of the Pericardium channel", "At the centre of the tip of the middle finger.", "Alertness, gathering yourself.", "Press gently with your thumbnail, 5–10 times.", ""],
+      'Hm-1': ["Passage rush", "Metal point, start of the Triple Burner channel", "On the little-finger side of the ring finger, about 0.1 cun from the corner of the nail towards the wrist.", "Waking up the fingertips.", "Pinch 5–10 times.", ""],
+      'Sz-9': ["Lesser rush", "Wood point, end of the Heart channel", "On the ring-finger side of the little finger, about 0.1 cun from the corner of the nail towards the wrist.", "Settling down, gathering yourself.", "Pinch gently 5–10 times.", ""],
+      'Véb-1': ["Lesser marsh", "Metal point, start of the Small Intestine channel", "On the outer (ulnar) side of the little finger, about 0.1 cun from the corner of the nail towards the wrist.", "Waking up the fingertips.", "Pinch 5–10 times.", ""],
+      'T-10': ["Fish border", "Fire point (antique Shu)", "On the ball of the thumb, at the midpoint of the first metacarpal, where palm and back-of-hand skin meet.", "Warming and relaxing the ball of the thumb.", "Rub or knead in circles with the other thumb.", ""],
+      'Sz-8': ["Lesser mansion", "Fire point (antique Shu)", "On the palm, between the 4th and 5th metacarpals, where the tip of the little finger touches when you make a fist.", "Calming down, winding down in the evening.", "Press slowly in circles with the other thumb.", ""],
+      'Hm-3': ["Central islet", "Wood point (antique Shu)", "On the back of the hand, between the 4th and 5th metacarpals, in the hollow behind the knuckle.", "Loosening the back of the hand, refreshing.", "Knead the hollow with the other thumb.", ""],
+      'Lh-1': ["Hidden white", "Wood point, start of the Spleen channel", "On the inner side of the big toe, about 0.1 cun from the corner of the nail towards the heel.", "Loosening the toes.", "Pinch 5–10 times.", ""],
+      'M-1': ["Great pile", "Wood point, start of the Liver channel", "On the outer side of the big toe, about 0.1 cun from the corner of the nail towards the heel.", "Loosening the toes.", "Pinch 5–10 times.", ""],
+      'M-2': ["Moving between", "Fire point (antique Shu)", "Between the 1st and 2nd toes, just behind the web, where sole and top-of-foot skin meet.", "Winding down in the evening, relaxing the foot.", "Press slowly in circles with your thumb.", ""],
+      'Gy-44': ["Inner courtyard", "Water point (antique Shu)", "Between the 2nd and 3rd toes, just behind the web, where sole and top-of-foot skin meet.", "Loosening the foot.", "Press slowly in circles with your thumb.", ""],
+      'Gy-45': ["Strict exchange", "Metal point, end of the Stomach channel", "On the outer side of the 2nd toe, about 0.1 cun from the corner of the nail towards the heel.", "Loosening the toes.", "Pinch 5–10 times.", ""],
+      'Eh-44': ["Foot yin portal", "Metal point, end of the Gallbladder channel", "On the outer side of the 4th toe, about 0.1 cun from the corner of the nail towards the heel.", "Loosening the toes.", "Pinch 5–10 times.", ""],
+      'H-67': ["Reaching yin", "Metal point, end of the Bladder channel", "On the outer side of the little toe, about 0.1 cun from the corner of the nail towards the heel.", "Loosening the toes.", "Pinch gently 5–10 times.", "Do not press or massage during pregnancy."],
+      'V-1': ["Bubbling spring", "Wood point, start of the Kidney channel", "On the sole, in the deepest hollow when the toes are curled, about one third of the way from the base of the 2nd–3rd toes to the heel.", "Evening foot massage, calming down, “grounding”.", "Rub or press in circles with your thumb, or rub with the centre of your palm (PC8).", ""],
       'Kor-20': ['Hundred Meetings', 'Meeting point of the yang channels', 'On the top of the head, where the line joining the ear tips crosses the midline.', 'Traditionally used to clear the head, focus and calm down.', 'Gentle circular pressure with a fingertip for 1 minute.', ''],
       'H-1': ['Bright Eyes', 'Starting point', 'Beside the inner corner of the eye, in the small hollow towards the bridge of the nose.', 'Resting tired eyes, e.g. after screen work.', 'With eyes closed, very gently with a fingertip for 30 seconds.', 'Do not press on the eyeball!'],
       'Kor-26': ['Middle of the Person', 'First-aid point', 'In the upper third of the groove below the nose.', 'Traditionally used to revive someone who has fainted.', 'Firm, rhythmic pressure with the fingernail.', 'If someone faints, always call for help (112).'],
@@ -847,6 +892,7 @@ Object.assign(window.SZ_LANG.hu.ui, {
       contra: 'Contraindications', contra_list: ['Fever, infectious illness', 'Bleeding disorders, stomach bleeding', 'Pregnancy: skip the abdomen; some points are forbidden (e.g. LI4, SP6)', 'Thrombosis: no massage of any kind', 'Do not massage over varicose or inflamed veins', 'Fresh fractures, sprains, dislocations, surgical scars, wounds, fungal skin infections', 'During menstruation, only gently', 'Confused state of mind, intoxication'], contra_note: 'If in doubt, ask a doctor.'
     },
     routines: {
+      kez_reggel: ['Hand wake-up', 'Ball of the thumb and fingertips, a fresh start'], kez_este: ['Hand wind-down', 'Centre of the palm and little finger, evening calm'], lab_este: ['Evening foot massage', 'Sole, top of the foot and toes before bed'],
       esti: ['Evening wind-down', 'Before bed, for restful sleep'], reggel: ['Morning wake-up', 'A fresh start and deep breathing'],
       kepernyo: ['Screen break', 'Eyes, nape, neck, shoulders'], utazas: ['Travel nausea', 'In the car, on a boat or a plane'],
       emesztes: ['Digestion', 'At least an hour after eating'], lampalaz: ['Stage fright', 'Before an exam, a performance or an important talk']
@@ -854,8 +900,8 @@ Object.assign(window.SZ_LANG.hu.ui, {
     lm: { vertex: 'crown of the head', canthus: 'inner corner of the eye', philtrum: 'groove below the nose', nostril: 'nostril', occiput: 'base of the skull', c7: '7th cervical vertebra (C7)', acromion: 'tip of the shoulder', shoulder_mid: 'between base of neck and shoulder tip', jugulum: 'top of the breastbone', xiphoid: 'xiphoid (lower end of the breastbone)', navel: 'navel', pubis: 'upper edge of the pubic bone', pubis_side: 'upper edge of the pubic bone', axfold: 'front armpit fold', elbow: 'elbow crease', wrist: 'wrist crease', fingertip: 'tip of the middle finger', patella_med: 'upper inner edge of the kneecap', tibia_cond: 'medial condyle of the tibia', mal_med: 'inner ankle bone', popliteal_l: 'outer end of the knee crease', popliteal_c: 'centre of the knee crease', mal_lat: 'outer ankle bone', mt12: 'junction of the 1st–2nd metatarsals' },
     bones: { skull: 'skull', orbit: 'eye socket', maxilla: 'upper jaw (maxilla)', clavicle: 'collarbone', sternum: 'breastbone', ribs: 'ribs', pelvis: 'pelvis', humerus: 'humerus', radius: 'radius', ulna: 'ulna', forearm: 'radius and ulna', metacarpals: 'metacarpals', femur: 'femur', knee: 'knee joint', tibia: 'tibia (shinbone)', fibula: 'fibula', metatarsals: 'metatarsals', spine: 'spine (vertebrae)', scapula: 'shoulder blade' },
     cun_extra: [['between the nipples', 8], ['front to back hairline', 12], ['spine to inner edge of shoulder blade', 3], ['greater trochanter to knee crease', 19]],
-    area: { 'Kor-20': 'Crown of the head', 'H-1': 'Inner corner of the eye', 'Kor-26': 'Groove below the nose', 'Vab-20': 'Beside the nostril', 'T-1': 'Upper outer chest', 'Bef-17': 'Centre of the chest', 'Bef-12': 'Upper belly', 'Bef-6': 'Below the navel', 'Bef-4': 'Lower belly', 'T-5': 'Elbow crease, thumb side', 'Vab-11': 'Outer end of the elbow crease', 'T-7': 'Above the wrist, thumb side', 'T-9': 'Wrist crease, thumb side', 'Szb-6': 'Inner forearm', 'Szb-8': 'Centre of the palm', 'Sz-3': 'Inner end of the elbow crease', 'Sz-7': 'Inner wrist, little-finger side', 'Lh-10': 'Inner thigh above the knee', 'Lh-9': 'Below the knee, inside', 'Gy-36': 'Below the knee, outside', 'Eh-34': 'Outer leg below the knee', 'Gy-40': 'Middle of the outer leg', 'Lh-6': 'Above the inner ankle', 'V-3': 'Behind the inner ankle', 'M-3': 'Top of the foot', 'Eh-20': 'Nape, below the skull', 'Kor-14': 'Base of the neck, back', 'Eh-21': 'Top of the shoulder', 'H-23': 'Lower back, beside the spine', 'Kor-4': 'Middle of the lower back', 'H-40': 'Back of the knee', 'H-60': 'Behind the outer ankle', 'Hm-5': 'Outer forearm', 'Vab-4': 'Back of the hand, between thumb and index', 'Véb-3': 'Little-finger edge of the hand' },
-    how: { esti: 'You move from top to bottom: crown, chest, forearm, wrist, palm, ankle. Slow, even pressure; let each out-breath be longer than the in-breath.', reggel: 'Brisker, rhythmic pressing and tapping: crown, chest, wrist, lower leg, then rubbing the lower back. Deep in-breaths, lively out-breaths.', kepernyo: 'Close your eyes and drop your shoulders. You move from the eyes over the nape and neck to the hands.', utazas: 'Can be done seated: steady, long pressure on the inner forearm, then the point below the knee.', emesztes: 'Start at least an hour after eating, with a warm palm on the upper belly; then the points on the leg and forearm.', lampalaz: 'Palm, wrist, chest: quick to do, even unnoticed. Press as you breathe out.' },
+    area: { 'T-11': "Thumb, beside the nail", 'Vab-1': "Index finger, beside the nail", 'Szb-9': "Tip of the middle finger", 'Hm-1': "Ring finger, beside the nail", 'Sz-9': "Little finger, inner side", 'Véb-1': "Little finger, outer side", 'T-10': "Ball of the thumb", 'Sz-8': "Palm, below the little finger", 'Hm-3': "Back of hand, between ring and little finger", 'Lh-1': "Big toe, inner side", 'M-1': "Big toe, outer side", 'M-2': "Between big and 2nd toe", 'Gy-44': "Between 2nd and 3rd toe", 'Gy-45': "2nd toe, outer side", 'Eh-44': "4th toe, outer side", 'H-67': "Little toe, outer side", 'V-1': "Sole, front third", 'Kor-20': 'Crown of the head', 'H-1': 'Inner corner of the eye', 'Kor-26': 'Groove below the nose', 'Vab-20': 'Beside the nostril', 'T-1': 'Upper outer chest', 'Bef-17': 'Centre of the chest', 'Bef-12': 'Upper belly', 'Bef-6': 'Below the navel', 'Bef-4': 'Lower belly', 'T-5': 'Elbow crease, thumb side', 'Vab-11': 'Outer end of the elbow crease', 'T-7': 'Above the wrist, thumb side', 'T-9': 'Wrist crease, thumb side', 'Szb-6': 'Inner forearm', 'Szb-8': 'Centre of the palm', 'Sz-3': 'Inner end of the elbow crease', 'Sz-7': 'Inner wrist, little-finger side', 'Lh-10': 'Inner thigh above the knee', 'Lh-9': 'Below the knee, inside', 'Gy-36': 'Below the knee, outside', 'Eh-34': 'Outer leg below the knee', 'Gy-40': 'Middle of the outer leg', 'Lh-6': 'Above the inner ankle', 'V-3': 'Behind the inner ankle', 'M-3': 'Top of the foot', 'Eh-20': 'Nape, below the skull', 'Kor-14': 'Base of the neck, back', 'Eh-21': 'Top of the shoulder', 'H-23': 'Lower back, beside the spine', 'Kor-4': 'Middle of the lower back', 'H-40': 'Back of the knee', 'H-60': 'Behind the outer ankle', 'Hm-5': 'Outer forearm', 'Vab-4': 'Back of the hand, between thumb and index', 'Véb-3': 'Little-finger edge of the hand' },
+    how: { kez_reggel: 'Start at the ball of the thumb, then pinch the points beside each nail, finish by kneading the back of the hand. Brisk but painless pressure.', kez_este: 'Move from the centre of the palm towards the little finger: slow circular pressure, long exhalations. No screens afterwards.', lab_este: 'Seated, on both feet: from the centre of the sole over the top of the foot to the toes. Slow and warm; best after a foot bath.', esti: 'You move from top to bottom: crown, chest, forearm, wrist, palm, ankle. Slow, even pressure; let each out-breath be longer than the in-breath.', reggel: 'Brisker, rhythmic pressing and tapping: crown, chest, wrist, lower leg, then rubbing the lower back. Deep in-breaths, lively out-breaths.', kepernyo: 'Close your eyes and drop your shoulders. You move from the eyes over the nape and neck to the hands.', utazas: 'Can be done seated: steady, long pressure on the inner forearm, then the point below the knee.', emesztes: 'Start at least an hour after eating, with a warm palm on the upper belly; then the points on the leg and forearm.', lampalaz: 'Palm, wrist, chest: quick to do, even unnoticed. Press as you breathe out.' },
     lex: [
       ['worry', 'a sign of weak Earth energy', 'fold'], ['brain', 'overseen by the Kidney', 'viz'], ['willpower', 'governed by the Kidney', 'viz'],
       ['activity', 'a sign of good Fire energy', 'tuz'], ['sleep', 'regulated by Fire, the Heart', 'tuz'], ['milk production', 'a task of the Spleen', 'fold'],
@@ -918,6 +964,7 @@ Object.assign(window.SZ_LANG.en.ui, {
   nav_sub: 'Chinese organ clock', fs_on: 'Full screen', fs_off: 'Exit full screen',
   pv_crop: 'Close-up', pv_focus: 'Back to the point',
   other_time: 'For other times of day', fit_night: 'in the evening, before bed', fit_morning: 'in the morning', fit_day: 'during the day', fit_meal: 'after a meal, not in the eating pause', fit_any: 'any time',
+  hand_foot: 'Hands & feet', hf_row_s: 'Fingers, toes and channels, hand and foot massage', hf_hand: 'Hand', hf_foot: 'Foot', hf_hp: 'Left palm', hf_hb: 'Back of left hand', hf_ft: 'Top of right foot', hf_fs: 'Right sole', hf_pick: 'Tap a point for details.', hf_fingers_h: 'Fingers and channels', hf_toes_h: 'Toes and channels', f_thumb: 'Thumb', f_index: 'Index finger', f_middle: 'Middle finger', f_ring: 'Ring finger', f_little: 'Little finger', t_big: 'Big toe', t_2: '2nd toe', t_3: '3rd toe', t_4: '4th toe', t_5: 'Little toe', t_sole: 'Sole', hf_start: 'start point of the {c} channel', hf_end: 'end point of the {c} channel', hf_none3: 'No channel ends here; a branch of the Stomach channel runs to this toe.', hf_now: 'active now', hf_point_page: 'Point page', hf_routines_h: 'Guided massage', hf_note: 'Point locations follow the WHO international standard (2008), paraphrased; drawings are schematic. Press gently, without pain; do not massage injured or inflamed skin.', k_use: 'USE', tr_h: 'Toe reading – a cultural note', tr_what: 'Toe reading claims that the shape and position of the toes reveal personality and emotions. It is not part of Chinese medicine and is not supported by scientific studies; it is closer to divination traditions.', tr_src: 'The method was popularised by the Dutch-Hungarian author Imre Somogyi: Reading Toes – Your Feet as Reflections of Your Personality (C. W. Daniel, 1997; German: Die Sprache der Zehen). The app does not reproduce the book’s interpretations.', tr_obs_h: 'An observation exercise, without interpretation', tr_obs: 'Sit down, take off your socks and look at both feet in daylight.|Move your toes one by one: which move easily, which do not?|Feel along your toes and soles: where is it tight, warm or cold, sensitive?|Write one sentence about what you noticed – without judging or explaining. If something hurts or has changed, see a doctor.', tr_note: 'Cultural layer: not a diagnosis and not a personality profile. It can be turned off in Settings.', ly_labujj: 'Toe reading', lyd_labujj: 'A cultural note, without scientific support',
   theme: 'Theme', th_auto: 'By time of day', th_light: 'Light', th_dark: 'Dark', guidance_h: 'Guidance', in_m: 'in {m} min', kij_open: 'Display mode', kij_sub: 'A screensaver while charging: clock, organ, live meridian', kij_full: 'Full screen', kij_full_no: 'The browser does not allow full screen here.', kij_next: 'Next: {o} · {h}:00', kij_tap: 'Tap for controls', kij_wake_ok: 'The screen stays on while this page is open.', kij_wake_no: 'The browser cannot keep the screen on here. Open the page in its own tab, or set a longer screen timeout.', voice: 'Spoken guidance (read aloud)', content_h: 'Content layers',
   sched_h: 'Daily rhythm', sched_s: 'Used to set the evening eating pause (from 3 hours before bed until waking) and the wind-down (from 1.5 hours before bed).', sched_bed: 'Usual bedtime', sched_wake: 'Usual wake-up', sched_save: 'Save', sched_clear: 'Default', sched_sum: 'Eating pause: {e}–{w} · Wind-down from {c}', sched_def: 'Not set yet. Sunset today is at {s} ({p}, from your device clock), so the default bedtime is {b}, wake-up {w}.', sched_tz: 'your device time zone', sched_own: 'Based on your own rhythm.', sched_err: 'Enter a bedtime and wake-up; sleep should be between 4 and 14 hours.', sched_local: 'Your rhythm is stored on this device only.', sched_saved: 'Saved.',
 });
@@ -1087,7 +1134,7 @@ ROUT.forEach((r) => { r.sec = r.steps.reduce((s, x) => s + x[1], 0); });
 const RBY = Object.fromEntries(ROUT.map((r) => [r.id, r]));
 const CYCST = { tap: { pairs: Object.entries(GEN), curve: true, c: 'var(--jade-t)', w: 2.5 }, szab: { pairs: Object.entries(CTRL), c: 'var(--ink)', w: 2.5 }, vissza: { pairs: Object.entries(CTRL).map(([a, b]) => [b, a]), c: 'var(--tuz)', w: 2.5, dash: '7 5' }, legy: { pairs: Object.entries(CTRL), c: 'var(--tuz)', w: 4.5 } };
 const LAYERS = [['', [['base', 'clock']]], ['g_know', [['elemek', 'elements'], ['kapcsolatok', 'book'], ['meridianok', 'body'], ['atlasz', 'point'], ['csontok', 'bone'], ['technikak', 'hand']]], ['g_prac', [['rutinok', 'hand'], ['mozgas', 'move'], ['legzes', 'breath'], ['taplalkozas', 'food']]], ['g_extra', [['erzelmek', 'emotion'], ['gyogynovenyek', 'herb'], ['evszak', 'season'], ['alvas', 'sleep']]]];
-const DEFAULT_LAYERS = { elemek: true, kapcsolatok: true, meridianok: true, atlasz: true, csontok: true, technikak: true, rutinok: true, mozgas: true, legzes: true, taplalkozas: true, erzelmek: false, gyogynovenyek: false, evszak: false, alvas: false };
+const DEFAULT_LAYERS = { elemek: true, kapcsolatok: true, meridianok: true, atlasz: true, csontok: true, technikak: true, rutinok: true, mozgas: true, legzes: true, taplalkozas: true, erzelmek: false, gyogynovenyek: false, evszak: false, alvas: false, labujj: true };
 let L = Object.assign({}, DEFAULT_LAYERS, store.get('layers', {}));
 let MODEL = store.get('model', 'f');
 const ec = (el) => ({ c: `var(--${el})`, l: `var(--${el}-l)`, t: `var(--${el}-t)` });
@@ -1162,8 +1209,8 @@ function daypart(d = now()) {
 const PAT_FIT = { calm: ['morning', 'day', 'evening', 'night'], even: ['morning', 'day', 'evening'], sleep: ['night'] };
 const PAT_DEF = { morning: 'even', day: 'even', evening: 'calm', night: 'sleep' };
 // Rutinok: mely napszakban illenek (ami nincs itt, az mindig); az emésztési rutin evési szünetben nem.
-const ROUT_FIT = { esti: ['evening', 'night'], reggel: ['morning'], kepernyo: ['morning', 'day', 'evening'] };
-const ROUT_WHEN = { esti: 'fit_night', reggel: 'fit_morning', kepernyo: 'fit_day', emesztes: 'fit_meal' };
+const ROUT_FIT = { esti: ['evening', 'night'], reggel: ['morning'], kepernyo: ['morning', 'day', 'evening'], kez_reggel: ['morning', 'day'], kez_este: ['evening', 'night'], lab_este: ['evening', 'night'] };
+const ROUT_WHEN = { esti: 'fit_night', reggel: 'fit_morning', kepernyo: 'fit_day', emesztes: 'fit_meal', kez_reggel: 'fit_morning', kez_este: 'fit_night', lab_este: 'fit_night' };
 const routFits = (id, d = now()) => (id !== 'emesztes' || EAT(d)) && (!ROUT_FIT[id] || ROUT_FIT[id].includes(daypart(d)));
 const mmss = (s) => { s = Math.max(0, Math.round(s)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
 const qt = (s) => lang === 'hu' ? `„${s}”` : `“${s}”`;
@@ -1454,6 +1501,30 @@ Object.assign(IC, {
   screen: '<rect x="2.5" y="5" width="19" height="12" rx="2.5"/><path d="M8 20.5h8M12 17v3.5"/>', expand: '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>', moon: '<path d="M20 14A8 8 0 1 1 10 4a6.5 6.5 0 0 0 10 10z"/>', plus: '<path d="M12 5v14M5 12h14"/>', speaker: '<path d="M4 9v6h4l5 4V5L8 9zM16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/>'
 });
 ROUT.push({ id: 'fesz', icon: 'wave', steps: [['Bef-17', 45, 0], ['Szb-6', 60, 1], ['Sz-7', 60, 1], ['M-3', 60, 1]] });
+
+/* ================= KÉZ ÉS LÁB: pontok, ujj/lábujj–csatorna térkép ================= */
+// A pontok helye a WHO Standard Acupuncture Point Locations (2008) szerint, átfogalmazva (lang: pts, area).
+// m: melyik rajzon (hp = tenyér, hb = kézhát, ft = lábfej teteje, fs = talp), x/y: helye a rajzon.
+const HF = [
+  ['T-11', 'LU11', 'Shaoshang', 'hb', 24, 150], ['Vab-1', 'LI1', 'Shangyang', 'hb', 92, 52], ['Szb-9', 'PC9', 'Zhongchong', 'hp', 126, 30],
+  ['Hm-1', 'TE1', 'Guanchong', 'hb', 176, 52], ['Sz-9', 'HT9', 'Shaochong', 'hb', 180, 84, 'l'], ['Véb-1', 'SI1', 'Shaoze', 'hb', 203, 84, 'r'],
+  ['T-10', 'LU10', 'Yuji', 'hp', 176, 212], ['Sz-8', 'HT8', 'Shaofu', 'hp', 84, 184], ['Hm-3', 'TE3', 'Zhongzhu', 'hb', 182, 166, 'l'],
+  ['Lh-1', 'SP1', 'Yinbai', 'ft', 42, 66, 'l'], ['M-1', 'LR1', 'Dadun', 'ft', 80, 58], ['M-2', 'LR2', 'Xingjian', 'ft', 86, 94],
+  ['Gy-44', 'ST44', 'Neiting', 'ft', 114, 90], ['Gy-45', 'ST45', 'Lidui', 'ft', 112, 42], ['Eh-44', 'GB44', 'Zuqiaoyin', 'ft', 162, 60],
+  ['H-67', 'BL67', 'Zhiyin', 'ft', 182, 80, 'r'], ['V-1', 'KI1', 'Yongquan', 'fs', 110, 122]
+].map(([id, who, py, m, x, y, la]) => { const ch = id.split('-')[0]; return { id, who, py, m, x, y, la, v: 'h', ch, el: CHEL[ch], s: slug(id), hf: true }; });
+// a térképen a meglévő pontok közül is mutatjuk, ami a kézen / lábfejen van
+const HF_EXTRA = [['Szb-8', 'hp', 122, 182], ['Vab-4', 'hb', 86, 190], ['Véb-3', 'hb', 206, 166, 'r'], ['M-3', 'ft', 92, 132]];
+HF.forEach((p) => { PBY[p.id] = p; });
+const HFM = [...HF, ...HF_EXTRA.map(([id, m, x, y, la]) => ({ ...PBY[id], m, x, y, la }))];
+// ujjak / lábujjak → csatorna (kezdő- vagy végpont)
+const FINGERS = [['f_thumb', [['T', 'end', 'T-11']]], ['f_index', [['Vab', 'start', 'Vab-1']]], ['f_middle', [['Szb', 'end', 'Szb-9']]], ['f_ring', [['Hm', 'start', 'Hm-1']]], ['f_little', [['Sz', 'end', 'Sz-9'], ['Véb', 'start', 'Véb-1']]]];
+const TOES = [['t_big', [['Lh', 'start', 'Lh-1'], ['M', 'start', 'M-1']]], ['t_2', [['Gy', 'end', 'Gy-45']]], ['t_3', []], ['t_4', [['Eh', 'end', 'Eh-44']]], ['t_5', [['H', 'end', 'H-67']]], ['t_sole', [['V', 'start', 'V-1']]]];
+// rutinok a kéz- és lábpontokkal (a napszakhoz igazodnak: ROUT_FIT)
+ROUT.push({ id: 'kez_reggel', icon: 'hand', steps: [['T-10', 40, 1], ['T-11', 20, 1], ['Vab-1', 20, 1], ['Szb-9', 20, 1], ['Hm-1', 20, 1], ['Véb-1', 20, 1], ['Hm-3', 40, 1]] });
+ROUT.push({ id: 'kez_este', icon: 'hand', steps: [['Szb-8', 60, 1], ['Sz-8', 50, 1], ['T-10', 40, 1], ['Sz-9', 20, 1], ['Szb-9', 20, 1]] });
+ROUT.push({ id: 'lab_este', icon: 'sleep', steps: [['V-1', 90, 1], ['M-3', 60, 1], ['M-2', 40, 1], ['Gy-44', 40, 1], ['Lh-1', 20, 1], ['Eh-44', 20, 1]] });
+ROUT.forEach((r) => { r.sec = r.steps.reduce((s, x) => s + x[1], 0); RBY[r.id] = r; });
 ROUT.forEach((r) => { r.sec = r.steps.reduce((s, x) => s + x[1], 0); RBY[r.id] = r; });
 
 const PALS = {
@@ -1768,6 +1839,7 @@ V.gyakorlat = (arg) => {
       <div class="btnrow" style="justify-content:center"><button type="button" class="btn" data-act="brgo" id="brgo">${ic('play', 16, 2)}${t('start')}</button><button type="button" class="btn tonal" data-act="brstop">${t('finish')}</button><button type="button" class="btn tonal" data-act="brcyc" aria-label="${t('cycle_toggle')}"><span id="brcycl">${brCycles}×</span></button></div>
     </div>` : ''}
     ${L.mozgas ? `<div class="card"><span class="tag">${t('qigong_tag')}</span><div class="t" style="font-size:18px">${snd[0]}: ${qt(snd[1])}</div><p class="s" style="font-size:15px;line-height:22px;color:var(--on)">${snd[2]}</p><p class="s">${t('qigong_rep')}</p></div>` : ''}
+    ${row('hand', t('hand_foot'), t('hf_row_s'), '#tudas-kezlab')}
     ${row('hand', t('tech_title'), t('tech_sub'), '#technikak')}
     ${disclaimer()}
   </section>`;
@@ -1776,6 +1848,7 @@ V.gyakorlat = (arg) => {
 /* ================= LEJÁTSZÓ (csukott szemmel is) ================= */
 const speak = (txt) => { if (!store.get('voice', false)) return; try { const u = new SpeechSynthesisUtterance(txt); u.lang = loc(); u.rate = 0.95; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (e) {} };
 function pCrop(pid) {
+  if (PBY[pid].hf) return hfMap(PBY[pid].m, pid, true);
   const p = PBY[pid], v = p.v.includes('f') ? 'f' : 'b';
   return `<svg viewBox="${p.x - 44} ${p.y - 38} 88 76" role="img" aria-label="${esc(C('area', pid))}" class="pcrop">${bodyInner(v)}${CHP[p.ch] && CHP[p.ch][0] === v ? flowPath(p.ch, true) : ''}${PSPEC[pid].k === 'seg' ? measureSvg(p, SK(), 4) : ''}<circle cx="${p.x}" cy="${p.y}" r="7" style="fill:var(--${p.el})" opacity=".3"/><circle cx="${p.x}" cy="${p.y}" r="3.2" style="fill:var(--${p.el});stroke:#fff" stroke-width="1.2"/></svg>`;
 }
@@ -1828,6 +1901,65 @@ function initPlayer(signal, id) {
   show(true);
 }
 
+/* ================= KÉZ ÉS LÁB nézet (Tudás → Kéz és láb) ================= */
+// Sematikus, saját rajzok: bal kéz tenyér és kézhát felől, jobb lábfej felülről és talp felől.
+const HF_SHAPE = {
+  hp: '<path d="M58 140 Q56 120 60 82 Q62 70 69 70 Q78 70 80 84 L82 132 L86 52 Q88 40 97 40 Q107 40 108 52 L112 126 L115 38 Q117 26 126 26 Q136 26 137 38 L140 126 L144 54 Q146 42 155 42 Q165 42 166 54 L168 150 Q178 132 196 120 Q214 110 228 128 Q234 138 224 150 L196 196 Q188 238 170 256 Q150 276 112 274 Q72 272 60 236 Q52 200 58 140 Z"/>',
+  hb: '<path d="M202 140 Q204 120 200 82 Q198 70 191 70 Q182 70 180 84 L178 132 L174 52 Q172 40 163 40 Q153 40 152 52 L148 126 L145 38 Q143 26 134 26 Q124 26 123 38 L120 126 L116 54 Q114 42 105 42 Q95 42 94 54 L92 150 Q82 132 64 120 Q46 110 32 128 Q26 138 36 150 L64 196 Q72 238 90 256 Q110 276 148 274 Q188 272 200 236 Q208 200 202 140 Z"/>',
+  ft: '<path d="M30 110 Q24 70 42 46 Q60 34 80 52 Q92 30 112 34 Q128 32 140 46 Q156 40 168 56 Q186 64 190 86 Q196 140 180 200 Q168 260 150 290 Q130 312 104 306 Q70 300 60 250 Q48 190 30 110 Z"/><circle cx="62" cy="60" r="20"/><circle cx="100" cy="48" r="13"/><circle cx="128" cy="52" r="12"/><circle cx="152" cy="62" r="11"/><circle cx="172" cy="78" r="10"/>',
+  fs: '<path d="M190 110 Q196 70 178 46 Q160 34 140 52 Q128 30 108 34 Q92 32 80 46 Q64 40 52 56 Q34 64 30 86 Q24 140 40 200 Q52 260 70 290 Q90 312 116 306 Q150 300 160 250 Q172 190 190 110 Z"/><circle cx="158" cy="60" r="20"/><circle cx="120" cy="48" r="13"/><circle cx="92" cy="52" r="12"/><circle cx="68" cy="62" r="11"/><circle cx="48" cy="78" r="10"/>'
+};
+function hfMap(m, sel, mini) {
+  const pts = HFM.filter((p) => p.m === m), P = mini ? pts.find((p) => p.id === sel) : null;
+  const vb = P ? `${P.x - 44} ${P.y - 38} 88 76` : `0 0 ${m[0] === 'h' ? 260 : 220} ${m[0] === 'h' ? 290 : 318}`;
+  return `<svg viewBox="${vb}" class="${mini ? 'pcrop' : 'hfsvg'}" role="${mini ? 'img' : 'group'}" aria-label="${esc(t('hf_' + m))}"><g class="hfshape">${HF_SHAPE[m]}</g>${pts.map((p) => {
+    const on = p.id === sel, dot = `<circle cx="${p.x}" cy="${p.y}" r="${on ? 9 : 6.5}" style="fill:var(--${p.el})" stroke="#fff" stroke-width="2"/>${on ? `<circle cx="${p.x}" cy="${p.y}" r="15" style="fill:var(--${p.el})" opacity=".25"/>` : ''}`;
+    return mini ? (on ? dot : '') : `<g class="hfpt" data-hf="${p.id}" tabindex="0" role="button" aria-pressed="${on}" aria-label="${esc(pc(p) + ' ' + p.py + ', ' + C('area', p.id))}"><circle cx="${p.x}" cy="${p.y}" r="15" fill="transparent"/>${dot}<text x="${p.la ? p.x + (p.la === 'l' ? -11 : 11) : p.x}" y="${p.la ? p.y + 4 : p.y - 12}" text-anchor="${p.la === 'l' ? 'end' : p.la === 'r' ? 'start' : 'middle'}">${pc(p)}</text></g>`;
+  }).join('')}</svg>`;
+}
+function hfCard(id) {
+  const p = PBY[id], tx = ptT(id), o = OBY[p.ch], inApp = !p.hf;
+  const role = [...FINGERS, ...TOES].flatMap(([k, l]) => l.filter((x) => x[2] === id).map((x) => `${t(k)} · ${t('hf_' + x[1], { c: chT(p.ch)[0] })}`))[0];
+  return `<div style="display:flex;align-items:center;gap:8px"><span class="dot" style="background:var(--${p.el})"></span><span class="sub grow">${chName(p.ch)} · ${pc(p)} · ${p.py}</span></div>
+  <h2 class="display" style="font-size:24px;margin-top:4px">${C('area', id)}</h2>
+  ${role ? `<div class="s">${role}</div>` : ''}
+  ${o ? `<a class="row flat" href="#szerv-${slug(o.c)}" style="margin-top:8px"><span class="ic" style="color:var(--${o.el})">${ic('clock')}</span><span class="grow"><span class="t">${orgN(o.c)}</span><span class="s">${t('hours', { w: win(o) })}${orgAt(now()) === o ? ' · ' + t('hf_now') : ''}</span></span>${ic('chev', 18)}</a>` : ''}
+  <div class="kv"><div class="k">${t('where_exact')}</div><div class="v">${tx[2]}</div></div>
+  <div class="kv"><div class="k">${t('k_use')}</div><div class="v">${tx[3]}</div></div>
+  <div class="kv"><div class="k">${t('what_do')}</div><div class="v">${tx[4]}</div></div>
+  ${tx[5] ? `<div class="warnbox" style="margin-top:8px">${ic('warn', 18)}<span>${tx[5]}</span></div>` : ''}
+  ${inApp ? `<a class="btn tonal" style="margin-top:10px" href="#pont-${p.s}">${t('hf_point_page')}</a>` : ''}`;
+}
+const toeReading = () => !L.labujj ? '' : `<details class="card othertime" id="toeread"><summary><span class="t">${ic('book', 18)} ${t('tr_h')}</span></summary><div class="stack" style="padding:0 4px 4px">
+  <p class="s" style="color:var(--on)">${t('tr_what')}</p><p class="s">${t('tr_src')}</p>
+  <div class="t" style="font-size:16px">${t('tr_obs_h')}</div><ol class="s" style="margin:0;padding-left:20px">${t('tr_obs').split('|').map((x) => `<li>${x}</li>`).join('')}</ol>
+  <p class="note">${ic('shield', 14)} ${t('tr_note')}</p></div></details>`;
+let HFSEL = { hand: 'Szb-8', foot: 'V-1' };
+function kezlabView(arg) {
+  const mode = arg === 'lab' || HF.some((p) => p.s === arg && p.m[0] === 'f') ? 'foot' : 'hand';
+  const fromArg = HF.find((p) => p.s === arg); if (fromArg) HFSEL[mode] = fromArg.id;
+  const sel = HFSEL[mode], d = now(), list = mode === 'hand' ? FINGERS : TOES;
+  const row = ([k, l]) => `<div class="li"><span class="grow"><span class="t">${t(k)}</span><span class="s">${l.length ? l.map(([c, se, pid]) => `<a href="#tudas-kezlab-${PBY[pid].s}" data-hf="${pid}" style="color:var(--${CHEL[c]}-t)">${orgN(c)}</a> · ${t('hf_' + se, { c: chT(c)[0] })} (${pc(PBY[pid])}) · ${t('hours', { w: win(OBY[c]) })}${orgAt(d).c === c ? ' · <b>' + t('hf_now') + '</b>' : ''}`).join('<br>') : t('hf_none3')}</span></span></div>`;
+  const rts = (mode === 'hand' ? ['kez_reggel', 'kez_este'] : ['lab_este']).map((id) => { const r = RBY[id], rt = C('routines', id), fit = routFits(id, d); return `<a class="rcard${fit ? ' hl' : ''}" href="#rutin-${id}"><span class="ic">${ic(r.icon)}</span><span class="grow"><span class="t">${rt[0]}</span><span class="s">${rt[1]}</span><span class="meta">${fit ? '' : `<span class="when">${t(ROUT_WHEN[id])}</span> · `}${t('routine_meta', { m: Math.max(1, Math.round(r.sec / 60)), n: r.steps.length })}</span></span><span class="go">${ic('play', 18, 2.2)}</span></a>`; }).join('');
+  return `<div class="pad"><div class="seg" role="group" aria-label="${t('view')}">${[['hand', 'hf_hand', 'kez'], ['foot', 'hf_foot', 'lab']].map(([k, n, h]) => `<a href="#tudas-kezlab-${h}" role="button" aria-pressed="${mode === k}">${t(n)}</a>`).join('')}</div></div>
+  <div class="split"><div class="pad smain"><div class="hfmaps">${(mode === 'hand' ? ['hp', 'hb'] : ['ft', 'fs']).map((m) => `<figure><figcaption class="sub">${t('hf_' + m)}</figcaption>${hfMap(m, sel)}</figure>`).join('')}</div><p class="sub">${t('hf_pick')}</p></div>
+  <section class="pad stack sside"><div class="card" id="hfcard" aria-live="polite">${hfCard(sel)}</div>
+    <div class="sec"><h2>${t(mode === 'hand' ? 'hf_fingers_h' : 'hf_toes_h')}</h2></div><div class="list">${list.map(row).join('')}</div>
+    <div class="sec"><h2>${t('hf_routines_h')}</h2></div>${rts}
+    ${mode === 'foot' ? toeReading() : ''}
+    <p class="note">${t('hf_note')}</p></section></div>`;
+}
+// pontválasztás a térképen / a listában, újrarajzolás nélkül
+document.addEventListener('click', (e) => {
+  const g = e.target.closest && e.target.closest('[data-hf]'); if (!g || !$('#hfcard')) return;
+  e.preventDefault();
+  const id = g.dataset.hf, mode = HFM.find((p) => p.id === id).m[0] === 'f' ? 'foot' : 'hand';
+  HFSEL[mode] = id; $('#hfcard').innerHTML = hfCard(id);
+  $$('.hfmaps svg').forEach((s, i) => { s.outerHTML = hfMap((mode === 'hand' ? ['hp', 'hb'] : ['ft', 'fs'])[i], id); });
+  const ng = $(`.hfpt[data-hf="${id}"]`); if (ng && g.classList.contains('hfpt')) ng.focus();
+});
+document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target.closest && e.target.closest('.hfpt')) { e.preventDefault(); e.target.closest('.hfpt').dispatchEvent(new MouseEvent('click', { bubbles: true })); } });
+
 /* ================= TUDÁS ================= */
 let KPATH = [];
 function graphSvg(el) {
@@ -1858,10 +1990,10 @@ function graphSvg(el) {
 }
 V.tudas = (arg) => {
   let tab = 'graf', el = KPATH.length ? KPATH[KPATH.length - 1] : orgAt(now()).el;
-  if (arg.startsWith('graf-') && ELK.includes(arg.slice(5))) el = arg.slice(5); else if (arg === 'lexikon' || arg === 'ciklusok' || arg === 'asztro') tab = arg;
+  if (arg.startsWith('graf-') && ELK.includes(arg.slice(5))) el = arg.slice(5); else if (arg === 'lexikon' || arg === 'ciklusok' || arg === 'asztro') tab = arg; else if (arg === 'kezlab' || arg.startsWith('kezlab-')) tab = 'kezlab';
   if (tab === 'graf' && KPATH[KPATH.length - 1] !== el) KPATH = [...KPATH, el].slice(-6);
   const e = elT(el), mother = Object.keys(GEN).find((x) => GEN[x] === el), ctrlBy = Object.keys(CTRL).find((x) => CTRL[x] === el);
-  const tabs = `<div class="seg tabs" role="tablist" aria-label="${t('view')}">${[['graf', 'graph', `#tudas-graf-${el}`], ['lexikon', 'lexicon', '#tudas-lexikon'], ['ciklusok', 'cycles', '#tudas-ciklusok'], ...(L.asztro ? [['asztro', 'astro', '#tudas-asztro']] : [])].map(([k, n, h]) => `<a role="tab" aria-selected="${k === tab}" href="${h}">${t(n)}</a>`).join('')}</div>`;
+  const tabs = `<div class="seg tabs" role="tablist" aria-label="${t('view')}">${[['graf', 'graph', `#tudas-graf-${el}`], ['lexikon', 'lexicon', '#tudas-lexikon'], ['ciklusok', 'cycles', '#tudas-ciklusok'], ['kezlab', 'hand_foot', '#tudas-kezlab'], ...(L.asztro ? [['asztro', 'astro', '#tudas-asztro']] : [])].map(([k, n, h]) => `<a role="tab" aria-selected="${k === tab}" href="${h}">${t(n)}</a>`).join('')}</div>`;
   let body = '';
   if (tab === 'graf') body = `<div class="split"><div class="pad smain">${graphSvg(el)}</div><section class="pad stack sside">
     <div class="sub">${t('graph_hint')}</div>
@@ -1874,6 +2006,7 @@ V.tudas = (arg) => {
   if (tab === 'ciklusok') body = `<div class="pills" role="group" aria-label="${t('cycle')}">${Object.keys(CYCST).map((k) => `<button type="button" class="pill" data-act="cyc" data-k="${k}" aria-pressed="${k === elemCyc}">${C('cyc', k)[0]}</button>`).join('')}</div>
   <div class="split"><div class="pad smain" id="cycfig">${cycleSvg(elemCyc)}</div><section class="pad stack sside"><div class="card" id="cyctext">${cycText()}</div></section></div>`;
   if (tab === 'asztro') body = astroView();
+  if (tab === 'kezlab') body = kezlabView(arg.slice(7));
   return `${top(t('tab_know'), t('know_sub'), '', settingsBtn())}<div class="pad">${tabs}</div>${body}<div class="pad">${disclaimer()}</div>`;
 };
 let elemCyc = 'tap';
@@ -1936,7 +2069,7 @@ V.beallitasok = () => {
       <div><div class="flabel">${ic('body', 16)} ${t('model')}</div>${seg('model', [['f', t('female')], ['m', t('male')]], MODEL)}</div></div>
     ${schedCard()}
     <div class="sec"><h2>${t('guidance_h')}</h2></div><div class="list">${sw('sound', 'sound_t', true)}${sw('vibrate', 'vibrate_t', true)}${sw('voice', 'voice', false)}</div>
-    <div class="sec"><h2>${t('content_h')}</h2></div><div class="list">${['mozgas', 'legzes', 'taplalkozas', 'csontok', 'erzelmek', 'gyogynovenyek', 'asztro'].map(ly).join('')}</div>
+    <div class="sec"><h2>${t('content_h')}</h2></div><div class="list">${['mozgas', 'legzes', 'taplalkozas', 'csontok', 'erzelmek', 'gyogynovenyek', 'asztro', 'labujj'].map(ly).join('')}</div>
     ${row('screen', t('kij_open'), t('kij_sub'), '#kijelzo')}
     ${row('hand', t('tech_title'), t('tech_sub'), '#technikak')}
     <button type="button" class="btn tonal" data-act="lyreset">${t('reset_layers')}</button>
@@ -1989,6 +2122,7 @@ function initKijelzo(signal) {
 
 /* ================= KÍNAI ASZTROLÓGIA (réteg) ================= */
 if (L.asztro === undefined) L.asztro = true;
+if (L.labujj === undefined) L.labujj = true;
 const STEM = '甲乙丙丁戊己庚辛壬癸', BRANCH = '子丑寅卯辰巳午未申酉戌亥';
 const BEL = ['viz', 'fold', 'fa', 'fa', 'fold', 'tuz', 'tuz', 'fold', 'fem', 'fem', 'fold', 'viz'];
 const HIDS = [[9], [5, 9, 7], [0, 2, 4], [1], [4, 1, 9], [2, 4, 6], [3, 5], [5, 3, 1], [6, 8, 4], [7], [4, 7, 3], [8, 0]];
