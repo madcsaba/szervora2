@@ -85,17 +85,17 @@ const vidDaypart = (d) => { const dp = daypart(d); return dp === 'morning' ? vid
 
 /* ================= KÉZ ÉS LÁB: pontok, ujj/lábujj–csatorna térkép ================= */
 // A pontok helye a WHO Standard Acupuncture Point Locations (2008) szerint, átfogalmazva (lang: pts, area).
-// m: melyik rajzon (hp = tenyér, hb = kézhát, ft = lábfej teteje, fs = talp), x/y: helye a rajzon.
+// m: melyik rajzon (hp = tenyér, hb = kézhát, ft = lábfej teteje, fs = talp), x/y: helye a rajz (ANAT_VB) koordinátáiban.
 const HF = [
-  ['T-11', 'LU11', 'Shaoshang', 'hb', 24, 150], ['Vab-1', 'LI1', 'Shangyang', 'hb', 92, 52], ['Szb-9', 'PC9', 'Zhongchong', 'hp', 126, 30],
-  ['Hm-1', 'TE1', 'Guanchong', 'hb', 176, 52], ['Sz-9', 'HT9', 'Shaochong', 'hb', 180, 84, 'l'], ['Véb-1', 'SI1', 'Shaoze', 'hb', 203, 84, 'r'],
-  ['T-10', 'LU10', 'Yuji', 'hp', 176, 212], ['Sz-8', 'HT8', 'Shaofu', 'hp', 84, 184], ['Hm-3', 'TE3', 'Zhongzhu', 'hb', 182, 166, 'l'],
-  ['Lh-1', 'SP1', 'Yinbai', 'ft', 42, 66, 'l'], ['M-1', 'LR1', 'Dadun', 'ft', 80, 58], ['M-2', 'LR2', 'Xingjian', 'ft', 86, 94],
-  ['Gy-44', 'ST44', 'Neiting', 'ft', 114, 90], ['Gy-45', 'ST45', 'Lidui', 'ft', 112, 42], ['Eh-44', 'GB44', 'Zuqiaoyin', 'ft', 162, 60],
-  ['H-67', 'BL67', 'Zhiyin', 'ft', 182, 80, 'r'], ['V-1', 'KI1', 'Yongquan', 'fs', 110, 122]
+  ['T-11', 'LU11', 'Shaoshang', 'hb', 289, 182, 'r'], ['Vab-1', 'LI1', 'Shangyang', 'hb', 226, 55, 'r'], ['Szb-9', 'PC9', 'Zhongchong', 'hp', 180, 13, 'r'],
+  ['Hm-1', 'TE1', 'Guanchong', 'hb', 90, 60, 'l'], ['Sz-9', 'HT9', 'Shaochong', 'hb', 64, 137, 'r'], ['Véb-1', 'SI1', 'Shaoze', 'hb', 47, 137, 'l'],
+  ['T-10', 'LU10', 'Yuji', 'hp', 96, 297, 'l'], ['Sz-8', 'HT8', 'Shaofu', 'hp', 228, 256, 'r'], ['Hm-3', 'TE3', 'Zhongzhu', 'hb', 112, 240, 'r'],
+  ['Lh-1', 'SP1', 'Yinbai', 'ft', 140, 42, 'l'], ['M-1', 'LR1', 'Dadun', 'ft', 162, 44, 'r'], ['M-2', 'LR2', 'Xingjian', 'ft', 174, 88, 'l'],
+  ['Gy-44', 'ST44', 'Neiting', 'ft', 194, 92, 'r'], ['Gy-45', 'ST45', 'Lidui', 'ft', 197, 28, 'r'], ['Eh-44', 'GB44', 'Zuqiaoyin', 'ft', 239, 57],
+  ['H-67', 'BL67', 'Zhiyin', 'ft', 262, 73, 'r'], ['V-1', 'KI1', 'Yongquan', 'fs', 207, 140, 'r']
 ].map(([id, who, py, m, x, y, la]) => { const ch = id.split('-')[0]; return { id, who, py, m, x, y, la, v: 'h', ch, el: CHEL[ch], s: slug(id), hf: true }; });
 // a térképen a meglévő pontok közül is mutatjuk, ami a kézen / lábfejen van
-const HF_EXTRA = [['Szb-8', 'hp', 122, 182], ['Vab-4', 'hb', 86, 190], ['Véb-3', 'hb', 206, 166, 'r'], ['M-3', 'ft', 92, 132]];
+const HF_EXTRA = [['Szb-8', 'hp', 158, 242], ['Vab-4', 'hb', 226, 268, 'r'], ['Véb-3', 'hb', 82, 250, 'l'], ['M-3', 'ft', 172, 168, 'r']];
 HF.forEach((p) => { PBY[p.id] = p; });
 const HFM = [...HF, ...HF_EXTRA.map(([id, m, x, y, la]) => ({ ...PBY[id], m, x, y, la }))];
 // ujjak / lábujjak → csatorna (kezdő- vagy végpont)
@@ -331,8 +331,9 @@ function initPont3D(signal, s) {
   const root = $('#pmap'); if (!root) return;
   const p = PBS[s] || PBY['Sz-7'], yaw0 = p.v.includes('f') ? 0 : Math.PI;
   const m3 = SK3D(root, { sel: p.id, yaw: yaw0, signal, channelOfSel: true, dim: (q) => q.ch !== p.ch, onPick: (id) => { if (id !== p.id) location.hash = 'pont-' + PBY[id].s; } });
-  const sp = PSPEC[p.id], small = sp && sp.k === 'seg' && /hand|foot/.test(sp.seg);
-  const focus = () => { m3.z = small ? 3.6 : 2.6; m3.pitch = 0.06; m3.redraw(); };
+  // kéz és lábfej pontjainál erősebb nagyítás, a fejen közepes – így a csontok részletei is látszanak
+  const sp = PSPEC[p.id], small = sp && ((sp.k === 'seg' && /hand|foot/.test(sp.seg)) || /metatarsals|metacarpals/.test(sp.b)), head = sp && /skull|orbit|maxilla/.test(sp.b);
+  const focus = () => { m3.z = small ? 6 : head ? 4.5 : 2.6; m3.pitch = small ? 0.35 : 0.06; m3.redraw(); };
   focus();
   root.addEventListener('click', (e) => {
     const b = e.target.closest('[data-m3]'); if (!b) return;
@@ -375,13 +376,13 @@ function initTest(signal) {
 /* ================= PONT ================= */
 V.pont = (s) => {
   const p = PBS[s] || PBY['Sz-7'], c = ec(p.el), tx = ptT(p.id), v = p.v.includes('f') ? 'f' : 'b';
-  const crop = `<svg viewBox="${p.x - 46} ${p.y - 40} 92 80" role="img" aria-label="${esc(t('crop_label', { p: C('area', p.id) }))}" class="crop"><g opacity="${L.csontok ? .42 : 1}">${bodyInner(v)}</g>${L.csontok ? skelSvg(v, SK()) : ''}${CHP[p.ch] && CHP[p.ch][0] === v ? flowPath(p.ch, true) : ''}<circle cx="${p.x}" cy="${p.y}" r="6" style="fill:${c.c}" opacity=".25"/><circle cx="${p.x}" cy="${p.y}" r="2.6" style="fill:${c.c};stroke:#fff" stroke-width="1"/>${L.csontok ? measureSvg(p, SK(), 3.4) : ''}</svg>`;
+  const crop = figPt(p.id) ? figPoint(p.id) : `<svg viewBox="${p.x - 46} ${p.y - 40} 92 80" role="img" aria-label="${esc(t('crop_label', { p: C('area', p.id) }))}" class="crop"><g opacity="${L.csontok ? .42 : 1}">${bodyInner(v)}</g>${L.csontok ? skelSvg(v, SK()) : ''}${CHP[p.ch] && CHP[p.ch][0] === v ? flowPath(p.ch, true) : ''}<circle cx="${p.x}" cy="${p.y}" r="6" style="fill:${c.c}" opacity=".25"/><circle cx="${p.x}" cy="${p.y}" r="2.6" style="fill:${c.c};stroke:#fff" stroke-width="1"/>${L.csontok ? measureSvg(p, SK(), 3.4) : ''}</svg>`;
   // Nézet: forgatható 3D csontváz a ponthoz nagyítva, vagy a 2D közeli rajz (a választást megjegyezzük).
   const pm = store.get('pmode', '3d') === '2d' ? '2d' : '3d';
   const stage = pm === '3d' ? `<div class="map map3 pmap" id="pmap" tabindex="0" aria-label="${t('map3_label')}"><canvas></canvas>
     <div class="mapview" role="group" aria-label="${t('view')}">${[['front', 'front'], ['side', 'side_v'], ['back', 'back']].map(([k, n]) => `<button type="button" class="pill" data-m3="${k}" aria-pressed="${k === (v === 'b' ? 'back' : 'front')}">${t(n)}</button>`).join('')}</div>
     <div class="mapctl"><button type="button" data-m3="zin" aria-label="${t('zoom_in')}">+</button><span data-zl>1×</span><button type="button" data-m3="zout" aria-label="${t('zoom_out')}">−</button><button type="button" data-m3="pfocus" aria-label="${t('pv_focus')}">${ic('point', 18)}</button></div>
-    <div class="hint3">${t('drag_rotate')}</div></div>` : `<div class="pad">${crop}</div>`;
+    <div class="hint3">${t('drag_rotate')}</div></div>` : `<div class="pad">${crop}${figPt(p.id) ? `<p class="note credit">${figCredit([figPt(p.id).m])}</p>` : ''}</div>`;
   return `${top(C('area', p.id), `${chName(p.ch)} · ${pc(p)} · ${p.py}`, `test-p-${p.s}`)}
   <div class="split"><div class="smain stack"><div class="pad"><div class="seg" role="group" aria-label="${t('view')}">${[['3d', 'mode_3d'], ['2d', 'pv_crop']].map(([k, n]) => `<button type="button" data-act="pmode" data-k="${k}" aria-pressed="${pm === k}">${t(n)}</button>`).join('')}</div></div>${stage}</div><section class="pad stack sside">
     <div class="card"><span class="tag">${t('what_do')}</span><div class="t" style="font-size:17px">${tx[4]}</div><div class="kv" style="margin-top:8px"><div class="k">${t('where_exact')}</div><div class="v">${tx[2]}</div></div><div class="kv"><div class="k">${t('k_use')}</div><div class="v">${tx[3]}</div></div>${boneRows(p)}</div>
@@ -433,7 +434,7 @@ V.gyakorlat = (arg) => {
 /* ================= LEJÁTSZÓ (csukott szemmel is) ================= */
 const speak = (txt) => { if (!store.get('voice', false)) return; try { const u = new SpeechSynthesisUtterance(txt); u.lang = loc(); u.rate = 0.95; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (e) {} };
 function pCrop(pid) {
-  if (PBY[pid].hf) return hfMap(PBY[pid].m, pid, true);
+  if (figPt(pid)) return figPoint(pid, true);
   const p = PBY[pid], v = p.v.includes('f') ? 'f' : 'b';
   return `<svg viewBox="${p.x - 44} ${p.y - 38} 88 76" role="img" aria-label="${esc(C('area', pid))}" class="pcrop">${bodyInner(v)}${CHP[p.ch] && CHP[p.ch][0] === v ? flowPath(p.ch, true) : ''}${PSPEC[pid].k === 'seg' ? measureSvg(p, SK(), 4) : ''}<circle cx="${p.x}" cy="${p.y}" r="7" style="fill:var(--${p.el})" opacity=".3"/><circle cx="${p.x}" cy="${p.y}" r="3.2" style="fill:var(--${p.el});stroke:#fff" stroke-width="1.2"/></svg>`;
 }
@@ -486,20 +487,43 @@ function initPlayer(signal, id) {
   show(true);
 }
 
+/* ================= ANATÓMIAI RAJZOK (kéz, lábfej, koponya) ================= */
+// Valódi csontrajzok a Wikimedia Commonsról (assets/anatomy, licenc és forrás: assets/anatomy/README.md),
+// a build data URI-ként ágyazza be (ANAT_IMG). A pontok koordinátái a rajz saját koordinátarendszerében vannak.
+const ANAT_VB = { hand: [42.6, 3.8, 251.2, 436.3], foot_top: [127.5, 8.9, 144.9, 382.1], foot_sole: [127.5, 8.9, 144.9, 382.1], skull_front: [70.3, 18.4, 253.2, 372.5], skull_side: [-92.3, 53, 502.6, 505.7] };
+// rajz: [kép, tükrözve]; hp = bal tenyér, hb = bal kézhát (a tenyér tükörképe), ft = jobb lábfej felülről, fs = jobb talp,
+// sf = koponya elölről, ss = koponya oldalról
+const FIG = { hp: ['hand', 0], hb: ['hand', 1], ft: ['foot_top', 0], fs: [ANAT_IMG.foot_sole ? 'foot_sole' : 'foot_top', ANAT_IMG.foot_sole ? 0 : 1], sf: ['skull_front', 0], ss: ['skull_side', 0] };
+const figVB = (m) => ANAT_VB[FIG[m][0]];
+// a pontjelölők mérete a rajz méretéhez igazodik (a kéz szélessége az 1)
+const figK = (m) => Math.max(figVB(m)[2], figVB(m)[3] * 0.62) / 270;
+function figImg(m) {
+  const [k, mir] = FIG[m], [x, y, w, h] = ANAT_VB[k];
+  return `<image class="anat" href="${ANAT_IMG[k]}" x="${x}" y="${y}" width="${w}" height="${h}"${mir ? ` transform="translate(${2 * x + w} 0) scale(-1 1)"` : ''}/>`;
+}
+// forrásmegjelölés rajzonként (a DBCLS-rajz CC BY 4.0: a szerző, a forrás és a licenc kötelező)
+const figCredit = (ms) => [...new Set(ms.map((m) => FIG[m][0].startsWith('foot') ? 'anat_cr_dbcls' : 'anat_cr_lady'))].map((k) => t(k)).join(' · ') + (ms.includes('fs') && !ANAT_IMG.foot_sole ? ' ' + t('anat_cr_mirror') : '');
+// a koponyán lévő pontok (a kéz és a láb pontjai a HF / HF_EXTRA listában vannak)
+const HEAD_PTS = [['H-1', 'sf', 175, 194, 'l'], ['Vab-20', 'sf', 166, 254, 'l'], ['Kor-26', 'sf', 196, 284, 'r'], ['Kor-20', 'ss', 180, 60], ['Eh-20', 'ss', 245, 428, 'r']];
+const figPt = (id) => HFM.find((p) => p.id === id) || (() => { const h = HEAD_PTS.find((x) => x[0] === id); return h && { ...PBY[id], m: h[1], x: h[2], y: h[3], la: h[4] }; })();
+// Pont kiemelése a teljes rajzon (pont oldal, Közeli nézet) vagy kivágva (lejátszó)
+function figPoint(id, crop) {
+  const P = figPt(id), [x, y, w, h] = figVB(P.m), k = figK(P.m) * (crop ? 1.4 : 1);
+  const others = crop ? [] : [...HFM, ...HEAD_PTS.map((x) => figPt(x[0]))].filter((q) => q.m === P.m && q.id !== id);
+  const pd = 22 * k, vb = crop ? `${P.x - 62 * k} ${P.y - 54 * k} ${124 * k} ${108 * k}` : `${x - pd} ${y - pd} ${w + 2 * pd} ${h + 2 * pd}`;
+  return `<svg viewBox="${vb}" class="${crop ? 'pcrop' : 'crop anatfig'}" role="img" aria-label="${esc(t('crop_label', { p: C('area', id) }) + ' – ' + t('hf_' + P.m))}">${figImg(P.m)}
+    ${others.map((q) => `<circle cx="${q.x}" cy="${q.y}" r="${4 * k}" style="fill:var(--${q.el})" opacity=".45"/>`).join('')}
+    <circle cx="${P.x}" cy="${P.y}" r="${17 * k}" style="fill:var(--${P.el})" opacity=".28"/><circle cx="${P.x}" cy="${P.y}" r="${8 * k}" style="fill:var(--${P.el})" stroke="#fff" stroke-width="${2.2 * k}"/></svg>`;
+}
+
 /* ================= KÉZ ÉS LÁB nézet (Tudás → Kéz és láb) ================= */
-// Sematikus, saját rajzok: bal kéz tenyér és kézhát felől, jobb lábfej felülről és talp felől.
-const HF_SHAPE = {
-  hp: '<path d="M58 140 Q56 120 60 82 Q62 70 69 70 Q78 70 80 84 L82 132 L86 52 Q88 40 97 40 Q107 40 108 52 L112 126 L115 38 Q117 26 126 26 Q136 26 137 38 L140 126 L144 54 Q146 42 155 42 Q165 42 166 54 L168 150 Q178 132 196 120 Q214 110 228 128 Q234 138 224 150 L196 196 Q188 238 170 256 Q150 276 112 274 Q72 272 60 236 Q52 200 58 140 Z"/>',
-  hb: '<path d="M202 140 Q204 120 200 82 Q198 70 191 70 Q182 70 180 84 L178 132 L174 52 Q172 40 163 40 Q153 40 152 52 L148 126 L145 38 Q143 26 134 26 Q124 26 123 38 L120 126 L116 54 Q114 42 105 42 Q95 42 94 54 L92 150 Q82 132 64 120 Q46 110 32 128 Q26 138 36 150 L64 196 Q72 238 90 256 Q110 276 148 274 Q188 272 200 236 Q208 200 202 140 Z"/>',
-  ft: '<path d="M30 110 Q24 70 42 46 Q60 34 80 52 Q92 30 112 34 Q128 32 140 46 Q156 40 168 56 Q186 64 190 86 Q196 140 180 200 Q168 260 150 290 Q130 312 104 306 Q70 300 60 250 Q48 190 30 110 Z"/><circle cx="62" cy="60" r="20"/><circle cx="100" cy="48" r="13"/><circle cx="128" cy="52" r="12"/><circle cx="152" cy="62" r="11"/><circle cx="172" cy="78" r="10"/>',
-  fs: '<path d="M190 110 Q196 70 178 46 Q160 34 140 52 Q128 30 108 34 Q92 32 80 46 Q64 40 52 56 Q34 64 30 86 Q24 140 40 200 Q52 260 70 290 Q90 312 116 306 Q150 300 160 250 Q172 190 190 110 Z"/><circle cx="158" cy="60" r="20"/><circle cx="120" cy="48" r="13"/><circle cx="92" cy="52" r="12"/><circle cx="68" cy="62" r="11"/><circle cx="48" cy="78" r="10"/>'
-};
 function hfMap(m, sel, mini) {
-  const pts = HFM.filter((p) => p.m === m), P = mini ? pts.find((p) => p.id === sel) : null;
-  const vb = P ? `${P.x - 44} ${P.y - 38} 88 76` : `0 0 ${m[0] === 'h' ? 260 : 220} ${m[0] === 'h' ? 290 : 318}`;
-  return `<svg viewBox="${vb}" class="${mini ? 'pcrop' : 'hfsvg'}" role="${mini ? 'img' : 'group'}" aria-label="${esc(t('hf_' + m))}"><g class="hfshape">${HF_SHAPE[m]}</g>${pts.map((p) => {
-    const on = p.id === sel, dot = `<circle cx="${p.x}" cy="${p.y}" r="${on ? 9 : 6.5}" style="fill:var(--${p.el})" stroke="#fff" stroke-width="2"/>${on ? `<circle cx="${p.x}" cy="${p.y}" r="15" style="fill:var(--${p.el})" opacity=".25"/>` : ''}`;
-    return mini ? (on ? dot : '') : `<g class="hfpt" data-hf="${p.id}" tabindex="0" role="button" aria-pressed="${on}" aria-label="${esc(pc(p) + ' ' + p.py + ', ' + C('area', p.id))}"><circle cx="${p.x}" cy="${p.y}" r="15" fill="transparent"/>${dot}<text x="${p.la ? p.x + (p.la === 'l' ? -11 : 11) : p.x}" y="${p.la ? p.y + 4 : p.y - 12}" text-anchor="${p.la === 'l' ? 'end' : p.la === 'r' ? 'start' : 'middle'}">${pc(p)}</text></g>`;
+  if (mini) return figPoint(sel, true);
+  const pts = HFM.filter((p) => p.m === m), k = figK(m), [x, y, w, h] = figVB(m), px = 30 * k;
+  return `<svg viewBox="${x - px} ${y} ${w + 2 * px} ${h}" class="hfsvg" role="group" aria-label="${esc(t('hf_' + m))}" style="--k:${k}">${figImg(m)}${pts.map((p) => {
+    const on = p.id === sel, dot = `<circle cx="${p.x}" cy="${p.y}" r="${(on ? 9 : 6.5) * k}" style="fill:var(--${p.el})" stroke="#fff" stroke-width="${2 * k}"/>${on ? `<circle cx="${p.x}" cy="${p.y}" r="${16 * k}" style="fill:var(--${p.el})" opacity=".28"/>` : ''}`;
+    const tx = p.la ? p.x + (p.la === 'l' ? -12 : 12) * k : p.x, ty = p.la ? p.y + 4 * k : p.y - 13 * k;
+    return `<g class="hfpt" data-hf="${p.id}" tabindex="0" role="button" aria-pressed="${on}" aria-label="${esc(pc(p) + ' ' + p.py + ', ' + C('area', p.id))}"><circle cx="${p.x}" cy="${p.y}" r="${16 * k}" fill="transparent"/>${dot}<text x="${tx}" y="${ty}" text-anchor="${p.la === 'l' ? 'end' : p.la === 'r' ? 'start' : 'middle'}">${pc(p)}</text></g>`;
   }).join('')}</svg>`;
 }
 function hfCard(id) {
@@ -527,7 +551,7 @@ function kezlabView(arg) {
   const row = ([k, l]) => `<div class="li"><span class="grow"><span class="t">${t(k)}</span><span class="s">${l.length ? l.map(([c, se, pid]) => `<a href="#tudas-kezlab-${PBY[pid].s}" data-hf="${pid}" style="color:var(--${CHEL[c]}-t)">${orgN(c)}</a> · ${t('hf_' + se, { c: chT(c)[0] })} (${pc(PBY[pid])}) · ${t('hours', { w: win(OBY[c]) })}${orgAt(d).c === c ? ' · <b>' + t('hf_now') + '</b>' : ''}`).join('<br>') : t('hf_none3')}</span></span></div>`;
   const rts = (mode === 'hand' ? ['kez_reggel', 'kez_este'] : ['lab_este']).map((id) => { const r = RBY[id], rt = C('routines', id), fit = routFits(id, d); return `<a class="rcard${fit ? ' hl' : ''}" href="#rutin-${id}"><span class="ic">${ic(r.icon)}</span><span class="grow"><span class="t">${rt[0]}</span><span class="s">${rt[1]}</span><span class="meta">${fit ? '' : `<span class="when">${t(ROUT_WHEN[id])}</span> · `}${t('routine_meta', { m: Math.max(1, Math.round(r.sec / 60)), n: r.steps.length })}</span></span><span class="go">${ic('play', 18, 2.2)}</span></a>`; }).join('');
   return `<div class="pad"><div class="seg" role="group" aria-label="${t('view')}">${[['hand', 'hf_hand', 'kez'], ['foot', 'hf_foot', 'lab']].map(([k, n, h]) => `<a href="#tudas-kezlab-${h}" role="button" aria-pressed="${mode === k}">${t(n)}</a>`).join('')}</div></div>
-  <div class="split"><div class="pad smain"><div class="hfmaps">${(mode === 'hand' ? ['hp', 'hb'] : ['ft', 'fs']).map((m) => `<figure><figcaption class="sub">${t('hf_' + m)}</figcaption>${hfMap(m, sel)}</figure>`).join('')}</div><p class="sub">${t('hf_pick')}</p></div>
+  <div class="split"><div class="pad smain"><div class="hfmaps">${(mode === 'hand' ? ['hp', 'hb'] : ['ft', 'fs']).map((m) => `<figure><figcaption class="sub">${t('hf_' + m)}</figcaption>${hfMap(m, sel)}</figure>`).join('')}</div><p class="sub">${t('hf_pick')}</p><p class="note credit">${figCredit(mode === 'hand' ? ['hp', 'hb'] : ['ft', 'fs'])}</p></div>
   <section class="pad stack sside"><div class="card" id="hfcard" aria-live="polite">${hfCard(sel)}</div>
     <div class="sec"><h2>${t(mode === 'hand' ? 'hf_fingers_h' : 'hf_toes_h')}</h2></div><div class="list">${list.map(row).join('')}</div>
     <div class="sec"><h2>${t('hf_routines_h')}</h2></div>${rts}
@@ -753,8 +777,28 @@ function astroForm(b) {
     <div id="bmsg" class="sub" aria-live="polite"></div><p class="note">${ic('shield', 14)} ${t('birth_local')}</p></div>`;
 }
 let astroEdit = false;
+// Lapozható fogalomtár (14 lap): a kínai asztrológia réteg fogalmai, közepes részletességgel.
+const STEM_PY = ['Jiǎ', 'Yǐ', 'Bǐng', 'Dīng', 'Wù', 'Jǐ', 'Gēng', 'Xīn', 'Rén', 'Guǐ'], BRANCH_PY = ['Zǐ', 'Chǒu', 'Yín', 'Mǎo', 'Chén', 'Sì', 'Wǔ', 'Wèi', 'Shēn', 'Yǒu', 'Xū', 'Hài'];
+function astroGloss() {
+  const G = C('astro_gloss'), n = G.length;
+  const tbl = (head, rows) => `<table class="gtab"><thead><tr>${head.map((h) => `<th>${t(h)}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>`;
+  const extra = (i) => i === 3 ? tbl(['gl_char', 'gl_py', 'gl_el'], [...STEM].map((c, k) => `<tr><td class="han">${c}</td><td>${STEM_PY[k]}</td><td><span class="dot" style="background:var(--${sEl(k)})"></span> ${sYY(k)} ${elT(sEl(k)).n}</td></tr>`))
+    : i === 4 ? tbl(['gl_char', 'gl_animal', 'gl_hours', 'gl_organ'], [...BRANCH].map((c, k) => `<tr><td class="han">${c}</td><td>${BRANCH_PY[k]} · ${C('astro').animals[k]}</td><td>${win(ORG[k])}</td><td><a href="#szerv-${slug(ORG[k].c)}">${orgN(ORG[k].c)}</a></td></tr>`)) : '';
+  return `<section class="card gloss" aria-roledescription="carousel" aria-label="${t('gl_h')}">
+    <div style="display:flex;align-items:baseline;gap:8px"><div class="grow"><div class="t">${ic('book', 18)} ${t('gl_h')}</div><div class="sub">${t('gl_s')}</div></div><span class="sub gcount" aria-live="polite">${t('gl_of', { a: 1, b: n })}</span></div>
+    <div class="gtrack" tabindex="0">${G.map(([h, p], i) => `<article class="gslide" role="group" aria-roledescription="slide" aria-label="${t('gl_of', { a: i + 1, b: n })}"><h3>${h}</h3><p>${p}</p>${extra(i)}</article>`).join('')}</div>
+    <div class="gctl"><button type="button" class="iconbtn tonal" data-gl="-1" aria-label="${t('gl_prev')}">${ic('back', 20)}</button><div class="gdots">${G.map((_, i) => `<button type="button" data-gl-to="${i}" aria-label="${t('gl_of', { a: i + 1, b: n })}"${i ? '' : ' aria-current="true"'}></button>`).join('')}</div><button type="button" class="iconbtn tonal" data-gl="1" aria-label="${t('gl_next')}">${ic('chev', 20)}</button></div>
+  </section>`;
+}
+const glIdx = (tr) => Math.round(tr.scrollLeft / Math.max(1, tr.clientWidth));
+const glMark = (tr, i) => { const g = tr.closest('.gloss'); g.querySelector('.gcount').textContent = t('gl_of', { a: i + 1, b: tr.children.length }); g.querySelectorAll('.gdots button').forEach((d, k) => d.toggleAttribute('aria-current', k === i)); };
+const glGo = (tr, i) => { const n = tr.children.length; i = Math.max(0, Math.min(n - 1, i)); tr._gt = i; glMark(tr, i); tr.scrollTo({ left: i * tr.clientWidth, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); };
+document.addEventListener('click', (e) => { const b = e.target.closest && e.target.closest('[data-gl], [data-gl-to]'); if (!b) return; const tr = b.closest('.gloss').querySelector('.gtrack'); glGo(tr, b.dataset.glTo !== undefined ? +b.dataset.glTo : (tr._gt ?? glIdx(tr)) + +b.dataset.gl); });
+document.addEventListener('keydown', (e) => { if (!e.target.classList || !e.target.classList.contains('gtrack')) return; if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); glGo(e.target, (e.target._gt ?? glIdx(e.target)) + (e.key === 'ArrowRight' ? 1 : -1)); } });
+document.addEventListener('scroll', (e) => { const tr = e.target; if (!tr.classList || !tr.classList.contains('gtrack')) return; const i = glIdx(tr); if (tr._gt !== undefined) { if (i === tr._gt && Math.abs(tr.scrollLeft - i * tr.clientWidth) < 2) tr._gt = undefined; return; } glMark(tr, i); }, true);
+document.addEventListener('scrollend', (e) => { const tr = e.target; if (!tr.classList || !tr.classList.contains('gtrack')) return; tr._gt = undefined; glMark(tr, glIdx(tr)); }, true);
 function astroView() {
-  const b = getBirth(); if (!b || astroEdit) return `<section class="pad stack"><div class="card quiet"><div class="t">${t('astro_intro_h')}</div><div class="s">${t('astro_intro')}</div></div>${astroForm(b)}<p class="note">${t('astro_note')}</p></section>`;
+  const b = getBirth(); if (!b || astroEdit) return `<section class="pad stack"><div class="card quiet"><div class="t">${t('astro_intro_h')}</div><div class="s">${t('astro_intro')}</div></div>${astroGloss()}${astroForm(b)}<p class="note">${t('astro_note')}</p></section>`;
   const z = bazi(b), A = C('astro'), dmEl = sEl(z.dm), d = now(), a = astroToday(d);
   const score = (k) => z.cnt[k][0] + z.cnt[k][1] * 0.5, order = [...ELK].sort((x, y) => score(y) - score(x)), strong = order[0], weak = order[order.length - 1];
   const pill = (lbl, [st, br], i) => { const o = ORG[br]; return `<div class="pillar${i === 2 ? ' dm' : ''}"><div class="k">${t(lbl)}</div><div class="han pz">${STEM[st]}<br>${BRANCH[br]}</div><div class="pe"><span class="dot" style="background:var(--${sEl(st)})"></span>${sYY(st)} ${elT(sEl(st)).n}</div><div class="pe"><span class="dot" style="background:var(--${BEL[br]})"></span>${animal(br)}</div><a class="pw" href="#szerv-${slug(o.c)}">${win(o)} · ${orgN(o.c)}</a></div>`; };
@@ -782,6 +826,7 @@ function astroView() {
     <div class="card quiet"><div class="t">${t('animals_h')}</div><div class="s">${t('animals_s')}</div><div class="agrid">${ORG.map((o, i) => `<a href="#szerv-${slug(o.c)}" class="${myB.includes(i) ? 'my' : ''}"><span class="han">${BRANCH[i]}</span><b>${animal(i)}</b><span>${win(o)}</span><span>${orgN(o.c)}</span></a>`).join('')}</div></div>
     <div class="btnrow"><button type="button" class="btn tonal" data-act="bedit">${t('edit_birth')}</button><button type="button" class="btn tonal" data-act="bclear">${t('clear_birth')}</button></div>
     <p class="note">${t('astro_note')}</p>
+  ${astroGloss()}
   </section>`;
 }
 

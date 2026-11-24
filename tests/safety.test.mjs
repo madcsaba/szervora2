@@ -149,8 +149,8 @@ test('pont oldal: 3D csontváz a ponthoz nagyítva, váltható a közeli rajzra'
     const page = await ctx.newPage(); const errors = [];
     page.on('pageerror', (e) => errors.push(e.message));
     await page.goto(`${URL_}#pont-szb-8`); await page.waitForSelector('#pmap canvas');
-    // az első képkocka után frissül a felirat; ha nem nagyít 3,6×-re, itt időtúllépéssel bukik el
-    await page.waitForFunction(() => /^3[.,]6×$/.test(document.querySelector('#pmap [data-zl]').textContent), null, { timeout: 5000 })
+    // az első képkocka után frissül a felirat; ha nem nagyít 6×-re, itt időtúllépéssel bukik el
+    await page.waitForFunction(() => /^6×$/.test(document.querySelector('#pmap [data-zl]').textContent), null, { timeout: 5000 })
       .catch(async () => assert.fail(`${w}px – kézpontnál közelről indul (felirat: ${await page.textContent('#pmap [data-zl]')})`));
     assert.equal(await page.locator('#pmap .mapview [aria-pressed=true]').count(), 1, `${w}px – egy nézetgomb aktív`);
     const nonBlank = await page.evaluate(() => { const c = document.querySelector('#pmap canvas'), d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4 * 16) if (d[i] > 0) n++; return n; });
@@ -159,6 +159,10 @@ test('pont oldal: 3D csontváz a ponthoz nagyítva, váltható a közeli rajzra'
     assert.ok(seg.x >= 0 && seg.x + seg.width <= w, `${w}px – a nézetváltó a képernyőn belül`);
     await page.click('[data-act=pmode][data-k="2d"]');
     await page.waitForSelector('svg.crop');
+    // kézpont: a közeli nézet a valódi csontrajzot mutatja, forrásmegjelöléssel
+    assert.equal(await page.locator('svg.crop image.anat').count(), 1, `${w}px – csontrajz a közeli nézetben`);
+    assert.match(await page.getAttribute('svg.crop image.anat', 'href'), /^data:image\/svg\+xml;base64,/);
+    assert.match(await page.textContent('.credit'), /LadyofHats/);
     assert.equal(await page.locator('#pmap').count(), 0);
     await page.reload(); await page.waitForSelector('svg.crop');   // a választás megmarad
     await page.click('[data-act=pmode][data-k="3d"]'); await page.waitForSelector('#pmap canvas');
@@ -321,6 +325,29 @@ test('videó: kattintásra ablak, jóváhagyás nélkül nincs lejátszó, jóv�
   assert.equal(await page.isChecked('[data-pref=vidembed]'), true);
   await page.uncheck('[data-pref=vidembed]');
   assert.equal(await page.evaluate(() => localStorage.getItem('szervora.vidembed')), 'false');
+  assert.deepEqual(errors, []);
+  await ctx.close();
+});
+
+test('asztrológia: lapozható fogalomtár (gombbal, ponttal, billentyűvel), mindkét nyelven ugyanannyi lap', async () => {
+  const { page, ctx, errors } = await open({ hash: 'tudas-asztro' });
+  await page.waitForSelector('.gloss .gslide');
+  const n = await page.locator('.gloss .gslide').count();
+  assert.ok(n >= 12, `legalább 12 lap (${n})`);
+  assert.equal(await page.evaluate(() => window.SZ_LANG.hu.c.astro_gloss.length === window.SZ_LANG.en.c.astro_gloss.length), true);
+  assert.equal(await page.locator('.gloss .gtab').count(), 2, 'törzsek és ágak táblázata');
+  assert.equal(await page.locator('.gloss .gtab').nth(0).locator('tbody tr').count(), 10);
+  assert.equal(await page.locator('.gloss .gtab').nth(1).locator('tbody tr').count(), 12);
+  assert.equal(await page.textContent('.gcount'), `1 / ${n}`);
+  await page.click('.gloss [data-gl="1"]');
+  await page.waitForFunction(() => document.querySelector('.gcount').textContent.startsWith('2 '));
+  await page.focus('.gtrack'); await page.keyboard.press('ArrowRight');
+  await page.waitForFunction(() => document.querySelector('.gcount').textContent.startsWith('3 '));
+  await page.click(`.gloss [data-gl-to="${n - 1}"]`);
+  await page.waitForFunction((n) => document.querySelector('.gcount').textContent.startsWith(n + ' '), n);
+  assert.equal(await page.locator('.gdots [aria-current]').count(), 1);
+  // az utolsó lap: nem jóslás, nem egészségügyi tanács
+  assert.match(await page.locator('.gslide').last().textContent(), /egészségügyi tanács/);
   assert.deepEqual(errors, []);
   await ctx.close();
 });

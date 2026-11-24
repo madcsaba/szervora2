@@ -9,11 +9,17 @@ ROOT = Path(__file__).resolve().parent
 SRC = ROOT / 'src'
 read = lambda name: (SRC / name).read_text(encoding='utf8').rstrip('\n')
 
+# Anatómiai rajzok (assets/anatomy, Wikimedia Commons, forrás és licenc: assets/anatomy/README.md):
+# data URI-ként, <image> elemben jelennek meg, így a rajz stílusa és kódja nem érintkezik az appal.
+import base64 as _b64
+ANAT = ROOT / 'assets' / 'anatomy'
+anat_js = 'const ANAT_IMG = {' + ', '.join(f"{p.stem}: 'data:image/svg+xml;base64,{_b64.b64encode(p.read_bytes()).decode()}'" for p in sorted(ANAT.glob('*.svg'))) + '};'
+
 v2 = read('views2.js') + '\n'
 mark = '/* ================= útválasztó ================= */'
 assert v2.count(mark) == 1, 'views2.js: az útválasztó jelölő pontosan egyszer szerepeljen'
 a, b = v2.split(mark)
-js = '\n'.join([read('tzcoords.js'), read('core.js'), a, read('sk3d.js') + '\n', '/* ---- átvett nézetek és motorok (1.x) ---- */', read('legacy.js') + '\n', mark + b])
+js = '\n'.join([anat_js, read('tzcoords.js'), read('core.js'), a, read('sk3d.js') + '\n', '/* ---- átvett nézetek és motorok (1.x) ---- */', read('legacy.js') + '\n', mark + b])
 css = (SRC / 'style.css').read_text(encoding='utf8')
 
 # Betűtípusok beágyazva (fonts/, lásd tools/fetch_fonts.py): nincs külső kérés megnyitáskor.
