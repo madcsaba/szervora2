@@ -352,6 +352,30 @@ test('asztrológia: lapozható fogalomtár (gombbal, ponttal, billentyűvel), mi
   await ctx.close();
 });
 
+test('pontok: legalább 70 a testen, mindegyiknél teljes háttérinfó mindkét nyelven, tagolt pontoldal', async () => {
+  const { page, ctx, errors } = await open({ hash: 'pont-gy-36' });
+  const data = await page.evaluate(() => { const L = window.SZ_LANG; return ['hu', 'en'].map((lg) => ({ pts: L[lg].c.pts, info: L[lg].c.pinfo, area: L[lg].c.area })); });
+  const [hu, en] = data, ids = Object.keys(hu.pts);
+  assert.ok(ids.length >= 90, `legalább 90 pont összesen (test + kéz/láb): ${ids.length}`);
+  assert.deepEqual(Object.keys(en.pts).sort(), [...ids].sort(), 'ugyanazok a pontok angolul');
+  for (const lg of [hu, en]) for (const id of ids) {
+    assert.equal(lg.pts[id].length, 6, `${id}: 6 mező`);
+    assert.ok(lg.pts[id][0] && lg.pts[id][2] && lg.pts[id][3] && lg.pts[id][4], `${id}: név, hely, használat, teendő`);
+    assert.ok(lg.info[id] && lg.info[id][0] && lg.info[id][1], `${id}: tipp és háttér`);
+    assert.ok(lg.area[id], `${id}: terület`);
+  }
+  assert.equal(await page.textContent('.pnh .han'), '足三里');
+  assert.ok(await page.locator('.tipbox').count() === 1, 'megtalálási tipp');
+  assert.ok(await page.locator('.pcats dt').count() >= 1, 'hagyományos szerep magyarázattal');
+  assert.match(await page.textContent('#view'), /nem orvosi kezelés/);
+  assert.ok(await page.locator('.chips a[href^="#pont-gy-"]').count() >= 2, 'szomszédos pontok a csatornán');
+  // új pont saját oldallal
+  await page.goto(`${URL_}#pont-eh-30`); await page.waitForSelector('.pnh .han');
+  assert.equal(await page.textContent('.pnh .han'), '环跳');
+  assert.deepEqual(errors, []);
+  await ctx.close();
+});
+
 test('a lecsendesedés az első, bármilyen check-in mellett', async () => {
   const exp = expected(22, 7);
   for (const x of [20.5, 22, 23.5, 0, 2.5, 4.5]) {

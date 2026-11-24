@@ -372,3 +372,14 @@ nav.tabs a[aria-current=page] .ind{background:var(--cont);color:var(--acc)}
 .hfpt text{font-size:calc(11px * var(--k,1))}
 .hfpt text{stroke-width:calc(3px * var(--k,1))}
 .credit{font-size:11px;opacity:.75;margin-top:6px}
+
+/* pont háttérinfó */
+.pnh{display:flex;gap:14px;align-items:center}
+.pnh .han{font:600 38px/1.1 'Noto Serif SC',serif;color:var(--acc);letter-spacing:2px;flex:none}
+.pnh .t{font:700 18px 'Inter Tight',Inter,sans-serif}
+.tipbox{display:flex;gap:10px;align-items:flex-start;margin-top:10px;padding:10px 12px;border-radius:14px;background:var(--surf2);font-size:14px;line-height:20px}
+.tipbox svg{flex:none;margin-top:1px;color:var(--acc)}
+.pbg{color:var(--on);margin:6px 0 4px}
+.pcats{margin:8px 0 0}.pcats dt{font-weight:700;font-size:14px;margin-top:8px}.pcats dd{margin:2px 0 0;font-size:13px;line-height:19px;color:var(--mut)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.chips .echip{text-decoration:none;color:var(--on);background:var(--surf2);gap:5px}
+.ptrad{margin-top:10px}.ptrad summary{cursor:pointer;font-weight:700}

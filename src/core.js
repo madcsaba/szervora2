@@ -87,8 +87,13 @@ const PTS = [
   ['Eh-34', 'GB34', 'Yanglingquan', 'f', 183, 368], ['Gy-40', 'ST40', 'Fenglong', 'f', 183, 406], ['Lh-6', 'SP6', 'Sanyinjiao', 'f', 167, 435], ['V-3', 'KI3', 'Taixi', 'f', 167, 451],
   ['M-3', 'LR3', 'Taichong', 'f', 178, 463], ['Eh-20', 'GB20', 'Fengchi', 'b', 158, 63], ['Kor-14', 'GV14', 'Dazhui', 'b', 150, 86], ['Eh-21', 'GB21', 'Jianjing', 'b', 172, 92],
   ['H-23', 'BL23', 'Shenshu', 'b', 159, 205], ['Kor-4', 'GV4', 'Mingmen', 'b', 150, 205], ['H-40', 'BL40', 'Weizhong', 'b', 172, 358], ['H-60', 'BL60', 'Kunlun', 'b', 184, 451],
-  ['Hm-5', 'TE5', 'Waiguan', 'b', 246, 237.6], ['Vab-4', 'LI4', 'Hegu', 'b', 262, 266], ['Véb-3', 'SI3', 'Houxi', 'b', 251, 278]
+  ['Hm-5', 'TE5', 'Waiguan', 'b', 246, 237.6], ['Vab-4', 'LI4', 'Hegu', 'b', 262, 266], ['Véb-3', 'SI3', 'Houxi', 'b', 251, 278],
+  // bővítés (WHO 2008 helyek alapján): a helyük a PSPEC-ből számolódik
+  ['Eh-14', 'GB14', 'Yangbai', 'f', 150, 150], ['H-2', 'BL2', 'Cuanzhu', 'f', 150, 150], ['Gy-2', 'ST2', 'Sibai', 'f', 150, 150], ['Véb-19', 'SI19', 'Tinggong', 'f', 150, 150], ['Gy-6', 'ST6', 'Jiache', 'f', 150, 150], ['Kor-24', 'GV24', 'Shenting', 'f', 150, 150], ['H-10', 'BL10', 'Tianzhu', 'b', 150, 150], ['Bef-22', 'CV22', 'Tiantu', 'f', 150, 150], ['Gy-25', 'ST25', 'Tianshu', 'f', 150, 150], ['Bef-14', 'CV14', 'Juque', 'f', 150, 150], ['Bef-3', 'CV3', 'Zhongji', 'f', 150, 150], ['M-14', 'LR14', 'Qimen', 'f', 150, 150], ['M-13', 'LR13', 'Zhangmen', 'f', 150, 150], ['T-2', 'LU2', 'Yunmen', 'f', 150, 150], ['V-27', 'KI27', 'Shufu', 'f', 150, 150], ['H-13', 'BL13', 'Feishu', 'b', 150, 150], ['H-15', 'BL15', 'Xinshu', 'b', 150, 150], ['H-17', 'BL17', 'Geshu', 'b', 150, 150], ['H-18', 'BL18', 'Ganshu', 'b', 150, 150], ['H-20', 'BL20', 'Pishu', 'b', 150, 150], ['H-21', 'BL21', 'Weishu', 'b', 150, 150], ['H-25', 'BL25', 'Dachangshu', 'b', 150, 150], ['Kor-12', 'GV12', 'Shenzhu', 'b', 150, 150], ['Véb-11', 'SI11', 'Tianzong', 'b', 150, 150], ['Vab-10', 'LI10', 'Shousanli', 'f', 150, 150], ['Vab-15', 'LI15', 'Jianyu', 'f', 150, 150], ['Hm-14', 'TE14', 'Jianliao', 'b', 150, 150], ['Szb-7', 'PC7', 'Daling', 'f', 150, 150], ['Hm-4', 'TE4', 'Yangchi', 'b', 150, 150], ['T-6', 'LU6', 'Kongzui', 'f', 150, 150], ['Gy-34', 'ST34', 'Liangqiu', 'f', 150, 150], ['Gy-35', 'ST35', 'Dubi', 'f', 150, 150], ['Eh-30', 'GB30', 'Huantiao', 'b', 150, 150], ['Eh-39', 'GB39', 'Xuanzhong', 'f', 150, 150], ['Eh-40', 'GB40', 'Qiuxu', 'f', 150, 150], ['Eh-41', 'GB41', 'Zulinqi', 'f', 150, 150], ['H-57', 'BL57', 'Chengshan', 'b', 150, 150], ['H-62', 'BL62', 'Shenmai', 'b', 150, 150], ['V-6', 'KI6', 'Zhaohai', 'f', 150, 150], ['V-7', 'KI7', 'Fuliu', 'f', 150, 150], ['Lh-4', 'SP4', 'Gongsun', 'f', 150, 150], ['M-8', 'LR8', 'Ququan', 'f', 150, 150]
 ].map(([id, who, py, v, x, y]) => { const ch = id.split('-')[0]; return { id, who, py, v, x, y, ch, el: CHEL[ch], s: slug(id), goals: [] }; });
+// a pontok kínai neve (írásjegyek) és hagyományos szerepe (magyarázat: c.pcat, c.vessel, c.hui)
+const PHAN = {"Kor-20": "百会", "H-1": "睛明", "Kor-26": "人中", "Vab-20": "迎香", "T-1": "中府", "Bef-17": "膻中", "Bef-12": "中脘", "Bef-6": "气海", "Bef-4": "关元", "T-5": "尺泽", "Vab-11": "曲池", "T-7": "列缺", "T-9": "太渊", "Szb-6": "内关", "Szb-8": "劳宫", "Sz-3": "少海", "Sz-7": "神门", "Lh-10": "血海", "Lh-9": "阴陵泉", "Gy-36": "足三里", "Eh-34": "阳陵泉", "Gy-40": "丰隆", "Lh-6": "三阴交", "V-3": "太溪", "M-3": "太冲", "Eh-20": "风池", "Kor-14": "大椎", "Eh-21": "肩井", "H-23": "肾俞", "Kor-4": "命门", "H-40": "委中", "H-60": "昆仑", "Hm-5": "外关", "Vab-4": "合谷", "Véb-3": "后溪", "T-11": "少商", "Vab-1": "商阳", "Szb-9": "中冲", "Hm-1": "关冲", "Sz-9": "少冲", "Véb-1": "少泽", "T-10": "鱼际", "Sz-8": "少府", "Hm-3": "中渚", "Lh-1": "隐白", "M-1": "大敦", "M-2": "行间", "Gy-44": "内庭", "Gy-45": "厉兑", "Eh-44": "足窍阴", "H-67": "至阴", "V-1": "涌泉", "Eh-14": "阳白", "H-2": "攒竹", "Gy-2": "四白", "Véb-19": "听宫", "Gy-6": "颊车", "Kor-24": "神庭", "H-10": "天柱", "Bef-22": "天突", "Gy-25": "天枢", "Bef-14": "巨阙", "Bef-3": "中极", "M-14": "期门", "M-13": "章门", "T-2": "云门", "V-27": "俞府", "H-13": "肺俞", "H-15": "心俞", "H-17": "膈俞", "H-18": "肝俞", "H-20": "脾俞", "H-21": "胃俞", "H-25": "大肠俞", "Kor-12": "身柱", "Véb-11": "天宗", "Vab-10": "手三里", "Vab-15": "肩髃", "Hm-14": "肩髎", "Szb-7": "大陵", "Hm-4": "阳池", "T-6": "孔最", "Gy-34": "梁丘", "Gy-35": "犊鼻", "Eh-30": "环跳", "Eh-39": "悬钟", "Eh-40": "丘墟", "Eh-41": "足临泣", "H-57": "承山", "H-62": "申脉", "V-6": "照海", "V-7": "复溜", "Lh-4": "公孙", "M-8": "曲泉"};
+const PCAT = {"T-1": "start mu:T", "T-5": "five:viz", "T-6": "xi", "T-7": "lo conf:Ren", "T-9": "yuan five:fold hui:vessels", "T-10": "five:tuz", "T-11": "five:fa end", "Vab-1": "five:fem start", "Vab-4": "yuan", "Vab-11": "five:fold", "Vab-15": "meet", "Vab-20": "end meet", "Gy-25": "mu:Vab", "Gy-34": "xi", "Gy-36": "five:fold", "Gy-40": "lo", "Gy-44": "five:viz", "Gy-45": "five:fem end", "Lh-1": "five:fa start", "Lh-4": "lo conf:Chong", "Lh-6": "meet", "Lh-9": "five:viz", "Sz-3": "five:viz", "Sz-7": "yuan five:fold", "Sz-8": "five:tuz", "Sz-9": "five:fa end", "Véb-1": "five:fem start", "Véb-3": "five:fa conf:Du", "Véb-19": "end meet", "H-1": "start meet", "H-13": "bshu", "H-15": "bshu", "H-17": "bshu hui:blood", "H-18": "bshu", "H-20": "bshu", "H-21": "bshu", "H-23": "bshu", "H-25": "bshu", "H-40": "five:fold", "H-60": "five:tuz", "H-62": "conf:YangQ", "H-67": "five:fem end", "V-1": "five:fa start", "V-3": "yuan five:fold", "V-6": "conf:YinQ", "V-7": "five:fem", "V-27": "end", "Szb-6": "lo conf:YinW", "Szb-7": "yuan five:fold", "Szb-8": "five:tuz", "Szb-9": "five:fa end", "Hm-1": "five:fem start", "Hm-3": "five:fa", "Hm-4": "yuan", "Hm-5": "lo conf:YangW", "Eh-14": "meet", "Eh-20": "meet", "Eh-21": "meet", "Eh-30": "meet", "Eh-34": "five:fold hui:tendons", "Eh-39": "hui:marrow", "Eh-40": "yuan", "Eh-41": "five:fa conf:Dai", "Eh-44": "five:fem end", "M-1": "five:fa start", "M-2": "five:tuz", "M-3": "yuan five:fold", "M-8": "five:viz", "M-13": "mu:Lh hui:zang", "M-14": "mu:M end", "Kor-14": "meet", "Kor-20": "meet", "Kor-24": "meet", "Kor-26": "meet", "Bef-3": "mu:H meet", "Bef-4": "mu:Véb meet", "Bef-12": "mu:Gy hui:fu", "Bef-14": "mu:Sz", "Bef-17": "mu:Szb hui:qi", "Bef-22": "meet"};
 const PBY = Object.fromEntries(PTS.map((p) => [p.id, p]));
 const PBS = Object.fromEntries(PTS.map((p) => [p.s, p]));
 const GOALS = [['alvas', ['Sz-7', 'Szb-6', 'Lh-6', 'V-3', 'Kor-20']], ['fesz', ['M-3', 'Szb-6', 'Bef-17', 'Sz-7', 'Eh-21']], ['izgul', ['Sz-7', 'Szb-8', 'Szb-6']], ['fej', ['Vab-4', 'Eh-20', 'M-3', 'Kor-20', 'T-7']], ['nyak', ['Eh-20', 'Eh-21', 'Kor-14', 'Véb-3']], ['derek', ['H-23', 'Kor-4', 'H-40', 'H-60']], ['emeszt', ['Bef-12', 'Gy-36', 'Szb-6', 'Lh-6', 'Lh-9']], ['hany', ['Szb-6', 'Bef-12']], ['legzes', ['T-1', 'Bef-17', 'T-9', 'T-5']], ['megf', ['T-7', 'Vab-4', 'Kor-14', 'Hm-5', 'Vab-20']], ['szem', ['H-1', 'Eh-20']], ['ero', ['Gy-36', 'Bef-6', 'V-3', 'Kor-4', 'Bef-4']], ['izom', ['Eh-34', 'H-40', 'Lh-9']], ['ajul', ['Kor-26']]].map(([k, ids]) => ({ k, ids }));
@@ -214,12 +219,56 @@ const PSPEC = {
   'V-3': { k: 'seg', seg: 'leg_m', from: 'B', d: 0, o: -0.5, b: 'tibia' }, 'Gy-36': { k: 'seg', seg: 'leg_l', d: 3, o: 0, b: 'tibia' }, 'Gy-40': { k: 'seg', seg: 'leg_l', d: 8, o: 0.5, b: 'tibia' },
   'Eh-34': { k: 'seg', seg: 'leg_l', d: 1, o: 1, b: 'fibula' }, 'H-60': { k: 'seg', seg: 'leg_l', from: 'B', d: 0, o: 0, b: 'fibula' },
   'H-40': { k: 'lm', lm: 'popliteal_c', b: 'knee' }, 'M-3': { k: 'lm', lm: 'mt12', b: 'metatarsals' }, 'Eh-20': { k: 'lm', lm: 'occiput', dx: 2, b: 'skull' }, 'Eh-21': { k: 'lm', lm: 'shoulder_mid', b: 'scapula' },
-  'Kor-14': { k: 'sp', v: 0.5, o: 0, b: 'spine' }, 'Kor-4': { k: 'sp', v: 14.5, o: 0, b: 'spine' }, 'H-23': { k: 'sp', v: 14.5, o: 1.5, b: 'spine' }
+  'Kor-14': { k: 'sp', v: 0.5, o: 0, b: 'spine' }, 'Kor-4': { k: 'sp', v: 14.5, o: 0, b: 'spine' }, 'H-23': { k: 'sp', v: 14.5, o: 1.5, b: 'spine' },
+  // xy: rögzített hely a rajzon, egy tájékozódási ponthoz (lm) viszonyítva; a mérés szövege a nyelvi csomagban (c.pmeas)
+  'Eh-14': { k: 'xy', p: [156.5, 26], lm: 'brow', b: 'skull' },
+  'H-2': { k: 'xy', p: [152.5, 30.5], lm: 'brow_in', b: 'orbit' },
+  'Gy-2': { k: 'xy', p: [156.5, 41], lm: 'pupil', b: 'maxilla' },
+  'Véb-19': { k: 'xy', p: [172, 41], lm: 'tragus', b: 'mandible' },
+  'Gy-6': { k: 'xy', p: [166, 56], lm: 'jaw_angle', b: 'mandible' },
+  'Kor-24': { k: 'xy', p: [150, 22], lm: 'hairline', b: 'skull' },
+  'H-10': { k: 'xy', p: [156, 66], lm: 'occiput', b: 'spine' },
+  'Bef-22': { k: 'seg', seg: 'sternum', d: 0, o: 0, b: 'sternum' },
+  'Gy-25': { k: 'seg', seg: 'abd_lo', d: 0, o: 2, b: 'abd' },
+  'Bef-14': { k: 'seg', seg: 'abd_up', d: 2, o: 0, b: 'abd' },
+  'Bef-3': { k: 'seg', seg: 'abd_lo', d: 4, o: 0, b: 'pelvis' },
+  'M-14': { k: 'seg', seg: 'sternum', d: 8, o: 4, b: 'ribs' },
+  'M-13': { k: 'seg', seg: 'abd_up', d: 2.5, o: 6, b: 'ribs' },
+  'T-2': { k: 'seg', seg: 'sternum', d: 0.4, o: 6, b: 'clavicle' },
+  'V-27': { k: 'seg', seg: 'sternum', d: 0.4, o: 2, b: 'clavicle' },
+  'H-13': { k: 'sp', v: 3.5, o: 1.5, b: 'spine' },
+  'H-15': { k: 'sp', v: 5.5, o: 1.5, b: 'spine' },
+  'H-17': { k: 'sp', v: 7.5, o: 1.5, b: 'spine' },
+  'H-18': { k: 'sp', v: 9.5, o: 1.5, b: 'spine' },
+  'H-20': { k: 'sp', v: 11.5, o: 1.5, b: 'spine' },
+  'H-21': { k: 'sp', v: 12.5, o: 1.5, b: 'spine' },
+  'H-25': { k: 'sp', v: 16.5, o: 1.5, b: 'spine' },
+  'Kor-12': { k: 'sp', v: 3.5, o: 0, b: 'spine' },
+  'Véb-11': { k: 'xy', p: [177, 122], lm: 'scapula', b: 'scapula' },
+  'Vab-10': { k: 'seg', seg: 'farm', d: 2, o: 1.5, b: 'radius' },
+  'Vab-15': { k: 'lm', lm: 'acromion', dy: 0.5, b: 'humerus' },
+  'Hm-14': { k: 'lm', lm: 'acromion', dy: 0.5, b: 'humerus' },
+  'Szb-7': { k: 'seg', seg: 'farm', from: 'B', d: 0, o: 0, b: 'forearm' },
+  'Hm-4': { k: 'seg', seg: 'farm', from: 'B', d: 0, o: 0, b: 'forearm' },
+  'T-6': { k: 'seg', seg: 'farm', from: 'B', d: 7, o: 1, b: 'radius' },
+  'Gy-34': { k: 'xy', p: [181, 332], lm: 'patella_lat', b: 'femur' },
+  'Gy-35': { k: 'xy', p: [178, 363], lm: 'patella_low', b: 'knee' },
+  'Eh-30': { k: 'xy', p: [176, 252], lm: 'trochanter', b: 'pelvis' },
+  'Eh-39': { k: 'seg', seg: 'leg_l', from: 'B', d: 3, o: 0.4, b: 'fibula' },
+  'Eh-40': { k: 'xy', p: [187, 455], lm: 'mal_lat', b: 'tarsals' },
+  'Eh-41': { k: 'xy', p: [186, 463], lm: 'mt45', b: 'metatarsals' },
+  'H-57': { k: 'xy', p: [174, 405], lm: 'popliteal_c', b: 'tibia' },
+  'H-62': { k: 'xy', p: [185, 456], lm: 'mal_lat', b: 'tarsals' },
+  'V-6': { k: 'xy', p: [168, 456], lm: 'mal_med', b: 'tarsals' },
+  'V-7': { k: 'seg', seg: 'leg_m', from: 'B', d: 2, o: -0.5, b: 'tibia' },
+  'Lh-4': { k: 'xy', p: [166, 462], lm: 'mt1_base', b: 'metatarsals' },
+  'M-8': { k: 'xy', p: [164, 360], lm: 'tibia_cond', b: 'knee' }
 };
 const SK = () => SKEL[MODEL] || SKEL.m;
 function segGeo(S, k) { const [a, b, len] = SEG[k], A = S[a], B = S[b], dx = B[0] - A[0], dy = B[1] - A[1], Ln = Math.hypot(dx, dy); return { A, B, ux: dx / Ln, uy: dy / Ln, nx: dy / Ln, ny: -dx / Ln, s: Ln / len }; }
 function place(S, sp) {
   if (sp.k === 'seg') { const g = segGeo(S, sp.seg), fb = sp.from === 'B', O = fb ? g.B : g.A, dir = fb ? -1 : 1; return [O[0] + dir * g.ux * sp.d * g.s + g.nx * sp.o * g.s, O[1] + dir * g.uy * sp.d * g.s + g.ny * sp.o * g.s]; }
+  if (sp.k === 'xy') return sp.p;
   if (sp.k === 'lm') { const P = S[sp.lm]; return [P[0] + (sp.dx || 0) * HEADCUN, P[1] + (sp.dy || 0) * HEADCUN]; }
   return [S.c7[0] + (sp.o || 0) * BACKCUN, S.c7[1] + sp.v * VERT];
 }
@@ -230,6 +279,7 @@ const sideKey = (g, o) => g === 'a' ? (o > 0 ? 'side_rad' : 'side_uln') : g === 
 function measureText(p) {
   const sp = PSPEC[p.id], S = SK(), meas = []; let from;
   if (sp.k === 'seg') { const [a, b, , grp] = SEG[sp.seg], fb = sp.from === 'B', O = fb ? b : a, T2 = fb ? a : b; from = C('lm', O); if (sp.d) meas.push(t('m_along', { d: num(sp.d), dir: t(S[T2][1] < S[O][1] ? 'up' : 'down') })); if (sp.o) meas.push(t(sideKey(grp, sp.o), { o: num(Math.abs(sp.o)) })); }
+  else if (sp.k === 'xy') { from = C('lm', sp.lm); const m = C('pmeas', p.id); if (m) meas.push(m); }
   else if (sp.k === 'lm') { from = C('lm', sp.lm); if (sp.dx) meas.push(t('side_t', { o: num(Math.abs(sp.dx)) })); }
   else { from = C('lm', 'c7'); meas.push(t('m_below', { v: VNAME(sp.v) })); if (sp.o) meas.push(t('side_t', { o: num(sp.o) })); }
   return { bone: C('bones', sp.b), from, meas: meas.length ? meas.join(' · ') : t('here') };

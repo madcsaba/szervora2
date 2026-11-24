@@ -317,6 +317,7 @@ const hay = (p) => [C('area', p.id), ptT(p.id)[0], p.py, p.id, p.who, chT(p.ch)[
 const tMatch = (p) => (TS.ch === 'all' || p.ch === TS.ch) && (!TS.q || hay(p).includes(TS.q));
 V.test = (arg) => {
   if (arg.startsWith('ch-')) { const c = CHORDER.find((x) => slug(x) === arg.slice(3)); if (c) { TS.ch = c; TS.q = ''; const f = PTS.find((p) => p.ch === c); if (f) { TS.sel = f.id; TS.v = CHP[c] ? CHP[c][0] : f.v[0]; } } }
+  if (arg.startsWith('cel-') && GBY[arg.slice(4)]) { TS.ch = 'all'; TS.q = C('goals', arg.slice(4))[0].toLowerCase(); const f = PTS.find(tMatch); if (f) TS.sel = f.id; }
   if (arg.startsWith('p-') && PBS[arg.slice(2)]) { const p = PBS[arg.slice(2)]; TS.sel = p.id; TS.v = p.v.includes(TS.v) ? TS.v : p.v[0]; }
   const layers = [['skin', 'body', 'layer_skin'], ['chOn', 'wave', 'layer_ch'], ['pts', 'hand', 'layer_pts'], ['bones', 'bone', 'layer_bones']];
   return `${top(t('tab_test'), `${orgN(orgAt(now()).c)} · ${clockStr(now())}`, '', settingsBtn())}
@@ -390,6 +391,38 @@ function initTest(signal) {
   $('#view').addEventListener('input', (e) => { if (e.target.id !== 'tq') return; TS.q = e.target.value.trim().toLowerCase(); const before = TS.sel; ensure(); if (before !== TS.sel) map.select(TS.sel); else map.renderPts(); card(); }, { signal });
 }
 
+/* ================= pont háttérinfó (tagolt) ================= */
+// A pont neve írásjegyekkel (PHAN), a hagyományos szerepek magyarázattal (PCAT → c.pcat), tipp és háttér (c.pinfo),
+// a csatorna szomszédos pontjai, a rutinok és célok, amelyekben szerepel.
+const pInfo = (id) => C('pinfo', id) || ['', ''];
+function pCats(id) {
+  return (PCAT[id] || '').split(' ').filter(Boolean).map((c) => {
+    const [k, a] = c.split(':'), P = C('pcat')[k]; if (!P) return null;
+    const v = { e: k === 'five' ? elT(a).n : '', o: k === 'mu' ? orgN(a) : '', w: k === 'hui' ? C('hui')[a] : '', v: k === 'conf' ? C('vessel')[a] : '' };
+    const f = (x) => x.replace(/\{(\w)\}/g, (_, q) => v[q] || '');
+    return [f(P[0]), f(P[1])];
+  }).filter(Boolean);
+}
+const pNum = (q) => parseInt(q.id.split('-')[1]);
+const pHref = (q) => q.hf ? `#tudas-kezlab-${q.s}` : `#pont-${q.s}`;
+function pNeigh(p) { const L = [...PTS, ...HF].filter((q) => q.ch === p.ch).sort((a, b) => pNum(a) - pNum(b)), i = L.findIndex((q) => q.id === p.id); return [L[i - 1], L[i + 1]].filter(Boolean); }
+const pHead = (p, tx) => `<div class="pnh"><span class="han" lang="zh-Hans" aria-label="${esc(p.py)}">${PHAN[p.id] || ''}</span><div class="grow"><div class="t">${p.py} <span class="sub">· ${pc(p)}</span></div><div class="s">${t('pi_name')}: ${qt(tx[0])}</div></div></div>`;
+const pTip = (id) => pInfo(id)[0] ? `<div class="tipbox">${ic('point', 18)}<span><b>${t('pi_tip')}:</b> ${pInfo(id)[0]}</span></div>` : '';
+function pTrad(p, tx) {
+  const cats = pCats(p.id), o = OBY[p.ch];
+  return `${pInfo(p.id)[1] ? `<p class="s pbg">${pInfo(p.id)[1]}</p>` : ''}
+    ${cats.length ? `<dl class="pcats">${cats.map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join('')}</dl>` : tx[1] ? `<div class="s">${t('pi_role')}: ${tx[1]}</div>` : ''}
+    ${o ? `<a class="row flat" href="#szerv-${slug(o.c)}" style="margin-top:6px"><span class="ic" style="color:var(--${o.el})">${ic('clock')}</span><span class="grow"><span class="t">${chName(p.ch)}</span><span class="s">${t('pi_organ')}: ${orgN(o.c)} · ${t('hours', { w: win(o) })}</span></span>${ic('chev', 18)}</a>` : `<div class="s" style="margin-top:6px">${chName(p.ch)}</div>`}`;
+}
+function pRel(p) {
+  const nb = pNeigh(p), rs = ROUT.filter((r) => r.steps.some((x) => x[0] === p.id)), gs = p.goals || [];
+  if (!nb.length && !rs.length && !gs.length) return '';
+  return `<div class="card"><span class="tag">${t('pi_rel')}</span>
+    ${gs.length ? `<div class="sub" style="margin-top:6px">${t('pi_goals')}</div><div class="chips">${gs.map((g) => `<a class="echip" href="#test-cel-${g}">${C('goals', g)[0]}</a>`).join('')}</div>` : ''}
+    ${rs.length ? `<div class="sub" style="margin-top:10px">${t('pi_rout')}</div><div class="list">${rs.map((r) => `<a class="li" href="#rutin-${r.id}"><span class="ic">${ic(r.icon, 18)}</span><span class="grow t">${C('routines', r.id)[0]}</span>${ic('chev', 16)}</a>`).join('')}</div>` : ''}
+    ${nb.length ? `<div class="sub" style="margin-top:10px">${t('pi_neigh')}</div><div class="chips">${nb.map((q) => `<a class="echip" href="${pHref(q)}"><b>${pc(q)}</b> ${q.py}</a>`).join('')}</div>` : ''}</div>`;
+}
+
 /* ================= PONT ================= */
 V.pont = (s) => {
   const p = PBS[s] || PBY['Sz-7'], c = ec(p.el), tx = ptT(p.id), v = p.v.includes('f') ? 'f' : 'b';
@@ -402,17 +435,22 @@ V.pont = (s) => {
     <div class="hint3">${t('drag_rotate')}</div></div>` : `<div class="pad">${crop}${figPt(p.id) ? `<p class="note credit">${figCredit([figPt(p.id).m])}</p>` : ''}</div>`;
   return `${top(C('area', p.id), `${chName(p.ch)} · ${pc(p)} · ${p.py}`, `test-p-${p.s}`)}
   <div class="split"><div class="smain stack"><div class="pad"><div class="seg" role="group" aria-label="${t('view')}">${[['3d', 'mode_3d'], ['2d', 'pv_crop']].map(([k, n]) => `<button type="button" data-act="pmode" data-k="${k}" aria-pressed="${pm === k}">${t(n)}</button>`).join('')}</div></div>${stage}</div><section class="pad stack sside">
-    <div class="card"><span class="tag">${t('what_do')}</span><div class="t" style="font-size:17px">${tx[4]}</div><div class="kv" style="margin-top:8px"><div class="k">${t('where_exact')}</div><div class="v">${tx[2]}</div></div><div class="kv"><div class="k">${t('k_use')}</div><div class="v">${tx[3]}</div></div>${boneRows(p)}</div>
+    <div class="card pinfo">${pHead(p, tx)}</div>
+    <div class="card"><span class="tag">${t('pi_find')}</span><div class="t" style="font-size:16px;font-weight:500">${tx[2]}</div>${pTip(p.id)}${boneRows(p)}</div>
+    <div class="card"><span class="tag">${t('pi_trad')}</span>${pTrad(p, tx)}</div>
+    <div class="card"><span class="tag">${t('pi_use')}</span><div class="t" style="font-size:16px;font-weight:500">${tx[3]}</div><p class="note" style="margin-top:6px">${t('pi_use_note')}</p></div>
+    <div class="card"><span class="tag">${t('pi_do')}</span><div class="t" style="font-size:17px">${tx[4]}</div></div>
     ${tx[5] ? `<div class="warnbox">${ic('warn', 18)}<span>${tx[5]}</span></div>` : ''}
     <div class="seg" role="group" aria-label="${t('technique')}">${['ton', 'sed'].map((k) => `<button type="button" data-act="tech" data-k="${k}" aria-pressed="${k === tech}">${t(k === 'ton' ? 'tonify' : 'sedate')}</button>`).join('')}</div>
     <div class="card" id="techcard">${techCard()}</div>
-    ${vidPoint(p)}
     <div class="card" style="text-align:center">
       <svg class="ring" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52" fill="none" style="stroke:var(--surf2)" stroke-width="10"/><circle id="ringp" cx="60" cy="60" r="52" fill="none" style="stroke:var(--acc)" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="0" transform="rotate(-90 60 60)"/><text id="ringt" x="60" y="69" text-anchor="middle" font-size="26" font-weight="700" style="fill:var(--on);font-family:'Inter Tight',Inter,sans-serif">1:00</text></svg>
       <div class="seg" style="margin-top:8px" role="group" aria-label="${t('duration')}">${[30, 60, 120].map((x) => `<button type="button" data-act="tdur" data-k="${x}" aria-pressed="${x === 60}">${x < 60 ? t('sec_n', { n: x }) : t('min_n', { n: x / 60 })}</button>`).join('')}</div>
       <div class="btnrow" style="justify-content:center"><button type="button" class="btn" data-act="tgo" id="tgo">${ic('play', 16, 2)}${t('start')}</button><button type="button" class="btn tonal" data-act="treset">${t('again')}</button></div>
       <div id="tmsg" class="sub" style="margin-top:8px;min-height:18px" aria-live="polite"></div>
     </div>
+    ${pRel(p)}
+    ${vidPoint(p)}
     ${row('hand', t('grips_contra'), t('tech_title'), '#technikak')}
     ${disclaimer()}
   </section></div>`;
@@ -550,9 +588,11 @@ function hfCard(id) {
   <h2 class="display" style="font-size:24px;margin-top:4px">${C('area', id)}</h2>
   ${role ? `<div class="s">${role}</div>` : ''}
   ${o ? `<a class="row flat" href="#szerv-${slug(o.c)}" style="margin-top:8px"><span class="ic" style="color:var(--${o.el})">${ic('clock')}</span><span class="grow"><span class="t">${orgN(o.c)}</span><span class="s">${t('hours', { w: win(o) })}${orgAt(now()) === o ? ' · ' + t('hf_now') : ''}</span></span>${ic('chev', 18)}</a>` : ''}
-  <div class="kv"><div class="k">${t('where_exact')}</div><div class="v">${tx[2]}</div></div>
+  <div style="margin-top:10px">${pHead(p, tx)}</div>
+  <div class="kv"><div class="k">${t('where_exact')}</div><div class="v">${tx[2]}</div></div>${pTip(id)}
   <div class="kv"><div class="k">${t('k_use')}</div><div class="v">${tx[3]}</div></div>
   <div class="kv"><div class="k">${t('what_do')}</div><div class="v">${tx[4]}</div></div>
+  <details class="ptrad"><summary>${t('pi_trad')}</summary>${pTrad(p, tx)}</details>
   ${tx[5] ? `<div class="warnbox" style="margin-top:8px">${ic('warn', 18)}<span>${tx[5]}</span></div>` : ''}
   ${inApp ? `<a class="btn tonal" style="margin-top:10px" href="#pont-${p.s}">${t('hf_point_page')}</a>` : ''}${vidPoint(p)}`;
 }
