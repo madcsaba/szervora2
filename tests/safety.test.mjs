@@ -93,17 +93,17 @@ test('napirend nélkül a naplemente a készülék időzónájából: Budapest s
 test('ugyanaznap Madridban később van naplemente → lefekvés 22:30', () =>
   checkDay('Madrid ősz', { day: '2026-09-22', tz: 'Europe/Madrid' }, expected(22.5, 7)));
 
-test('napi kör: 12 ág, a felső háromnak egymást nem fedő felirata, rámutatásra előnézet', async () => {
+test('napi kör: 12 szelet, mindegyiken egymást nem fedő szervnév, középen yin-yang, rámutatásra előnézet', async () => {
   const { page, ctx, errors, at } = await open();
   for (const x of [8, 15, 20, 21.5]) {   // köztük a leghosszabb nevek: „H. melegítő”, „Hármasmelegítő”
     await at(x);
     assert.equal(await page.locator('.arcwrap [data-dial]').count(), 12, `${label(x)} – mind a 12 szerv látszik`);
-    const labels = page.locator('.arcwrap svg text');
-    assert.equal(await labels.count(), 3, `${label(x)} – felirat csak a felső három ágon`);
+    const labels = page.locator('.arcwrap svg text.dn');
+    assert.equal(await labels.count(), 12, `${label(x)} – mind a 12 szeleten ott a szerv neve`);
     const svg = await page.locator('.arcwrap svg').boundingBox();
-    const boxes = await Promise.all([0, 1, 2].map((i) => labels.nth(i).boundingBox()));
+    const boxes = await Promise.all([...Array(12).keys()].map((i) => labels.nth(i).boundingBox()));
     for (const bx of boxes) assert.ok(bx.x >= svg.x - 1 && bx.x + bx.width <= svg.x + svg.width + 1, `${label(x)} – a felirat a körön belül marad`);
-    for (let i = 0; i < 3; i++) for (let j = i + 1; j < 3; j++) {
+    for (let i = 0; i < 12; i++) for (let j = i + 1; j < 12; j++) {
       const p = boxes[i], q = boxes[j];
       const overlap = p.x < q.x + q.width && q.x < p.x + p.width && p.y < q.y + q.height && q.y < p.y + p.height;
       assert.ok(!overlap, `${label(x)} – a ${i}. és ${j}. felirat nem fedi egymást`);

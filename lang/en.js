@@ -72,6 +72,7 @@
     what_do: 'WHAT TO DO', where_exact: 'EXACTLY WHERE', breath_cue: 'Press as you breathe out, ease off as you breathe in.', point_ref: 'Point: {c}', how_h: 'How it flows', segment: 'Segment'
   },
   c: {
+    org_kw: { Eh: 'sleep', M: 'deep sleep', T: 'calm breathing', Vab: 'waking', Gy: 'breakfast', Lh: 'focus', Sz: 'lunch, rest', 'Véb': 'sorting', H: 'work, water', V: 'slowing down', Szb: 'connection', Hm: 'getting ready' },
     org: {
       Eh: ['Gallbladder', 'Gallbladder', 'Time for deep sleep. Traditionally, decisions mature now.'],
       M: ['Liver', 'Liver', 'The deepest regeneration: sleep, and don’t eat.'],

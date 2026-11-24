@@ -33,7 +33,7 @@ h2{margin:0;font-size:16px;font-weight:700}
 /* nap-szalag */
 .arcwrap{position:relative;padding:18px 8px 0;margin:0 auto 14px;max-width:380px}
 .arcwrap a path{transition:opacity .2s}.arcwrap a:hover path,.arcwrap a:focus-visible path{opacity:1}.arcwrap a:focus-visible{outline:none}.arcwrap a:focus-visible path{stroke:var(--on);stroke-width:2}
-.arccenter{position:absolute;left:24%;right:24%;top:calc(50% + 9px);transform:translateY(-50%);text-align:center;pointer-events:none}
+.arccenter{position:static;margin-top:10px;text-align:center;pointer-events:none}
 .arccenter.preview .eyebrow{color:var(--mut)}
 .arccenter .organ{font-family:'Inter Tight',Inter,sans-serif;font-weight:800;line-height:1.05;letter-spacing:-1px;margin:4px 0 2px;font-size:calc(var(--fs,36) * 1px)}
 .dial{max-width:360px}
@@ -282,9 +282,9 @@ nav.tabs a[aria-current=page] .ind{background:var(--cont);color:var(--acc)}
   .dash{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(380px,1fr);gap:clamp(28px,4vw,64px);align-items:start}
   .dash .arcwrap{position:sticky;top:24px;width:100%;max-width:min(640px,calc(100vh - 120px));justify-self:center;margin:0;padding:28px 0 0;container-type:inline-size}
   .dash .dial{max-width:none}
-  .dash .arccenter{left:26%;right:26%;top:calc(50% + 14px)}
+  .dash .arccenter{margin-top:14px}
   /* a kör közepe a kör méretével arányos (360px-es körnél a mobilos méret) */
-  .dash .arccenter .organ{font-size:calc(var(--fs,36) * 100cqi / 360)}
+  .dash .arccenter .organ{font-size:calc(var(--fs,36) * 1.15px)}
   .dash .arccenter .eyebrow{font-size:clamp(12px,3.4cqi,17px)}
   .dash .arccenter .sub{font-size:clamp(12px,3.6cqi,18px)}
   .dside{padding-top:28px}

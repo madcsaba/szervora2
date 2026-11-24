@@ -72,6 +72,7 @@
     what_do: 'MIT CSINÁLJ', where_exact: 'HOL PONTOSAN', breath_cue: 'Nyomj kilégzéskor, engedj belégzéskor.', point_ref: 'Pont: {c}', how_h: 'Így haladsz', segment: 'Szakasz'
   },
   c: {
+    org_kw: { Eh: 'alvás', M: 'mély alvás', T: 'nyugodt légzés', Vab: 'ébredés', Gy: 'reggeli', Lh: 'koncentráció', Sz: 'ebéd, pihenő', 'Véb': 'rendszerezés', H: 'munka, víz', V: 'lassítás', Szb: 'kapcsolatok', Hm: 'készülődés' },
     org: {
       Eh: ['Epehólyag', 'Epehólyag', 'Mély alvás ideje. A hagyomány szerint ilyenkor érlelődnek a döntések.'],
       M: ['Máj', 'Máj', 'A legmélyebb regeneráció ideje: aludj, és ne egyél.'],
