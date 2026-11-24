@@ -231,6 +231,27 @@ test('kéz és láb: térkép, ujj–csatorna párosítás, rutinok napszak szer
   await ctx.close();
 });
 
+test('külső videók: csak link (új lapon, noopener), semleges cím, kikapcsolható, nincs beágyazás', async () => {
+  const { page, ctx, errors, requests, at } = await open({ hash: 'elem-tuz' });
+  await at(12);
+  const main = page.locator('#view a.vid[href="https://www.youtube.com/watch?v=BBssxev3AI4"]');
+  assert.equal(await main.count(), 1, 'a tűz elem oldalán a daru forma');
+  assert.equal(await main.getAttribute('target'), '_blank');
+  assert.match(await main.getAttribute('rel'), /noopener/);
+  assert.match(await main.textContent(), /daru forma/);
+  assert.equal(await page.locator('.vidparts a').count(), 4, 'a daru forma 4 lépésrésze');
+  assert.equal(await page.locator('iframe, video, embed, object').count(), 0, 'nincs beágyazott lejátszó');
+  await page.goto(`${URL_}#gyakorlat`); await page.waitForSelector('#view .top');
+  assert.ok(await page.locator('#view a.vid[href*="youtube.com/watch"]').count() >= 1, '12:00 – a Szív gyógyító hangja');
+  assert.deepEqual(requests, [], 'a link nem tölt be semmit a YouTube-ról');
+  assert.deepEqual(errors, []);
+  await ctx.close();
+  const off = await open({ hash: 'elem-tuz', layers: { videok: false } });
+  await off.at(12);
+  assert.equal(await off.page.locator('a.vid').count(), 0, 'kikapcsolt réteg mellett nincs videólink');
+  await off.ctx.close();
+});
+
 test('a lecsendesedés az első, bármilyen check-in mellett', async () => {
   const exp = expected(22, 7);
   for (const x of [20.5, 22, 23.5, 0, 2.5, 4.5]) {
@@ -294,7 +315,8 @@ test('az app nem küld hálózati kérést (adat csak az eszközön)', async () 
 
 test('a kész HTML nem hivatkozik külső erőforrásra', () => {
   const html = readFileSync(APP, 'utf8');
-  const refs = html.match(/(?:src|href)\s*=\s*["']https?:|url\(\s*["']?https?:|@import/gi) || [];
+  // a YouTube-videókra mutató sima linkek (kattintásra nyílnak, nem erőforrások) kivételek
+  const refs = html.match(/src\s*=\s*["']https?:|href\s*=\s*["'](?!https:\/\/www\.youtube\.com\/watch\?v=)https?:|url\(\s*["']?https?:|@import/gi) || [];
   assert.deepEqual(refs, []);
 });
 

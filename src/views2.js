@@ -11,6 +11,23 @@ Object.assign(IC, {
 });
 ROUT.push({ id: 'fesz', icon: 'wave', steps: [['Bef-17', 45, 0], ['Szb-6', 60, 1], ['Sz-7', 60, 1], ['M-3', 60, 1]] });
 
+/* ================= KÜLSŐ VIDEÓK (Taichi Zidong, YouTube) ================= */
+// Forrás és válogatás: research/taichi-zidong (javaslat.json). Csak link, beágyazás nélkül: megnyitáskor
+// nincs külső kérés, a videó csak kattintásra, új lapon nyílik. Az app saját, semleges címet mutat.
+const YT = (id) => `https://www.youtube.com/watch?v=${id}`;
+// hat gyógyító hang: SOUND_OF kulcs → videó (a vese „chui” hangjához nincs videó)
+const VID_SOUND = { Sz: 'iUwoVHU6pOw', M: 'ZrP6UJbKsUY', Lh: 'IQkZB20Vqjs', T: 'lqNWURweY6w', Hm: 'tMR5CzItvI4' };
+// Wudang öt elem qigong: elem → [teljes forma, ...lépésenkénti részek]
+const VID_ELEM = { fa: ['95n5Kr65qns'], tuz: ['BBssxev3AI4', 'xTLVC0mRx14', 'MOvqMJe3lGg', 'EBb4pe4wxIw', 'ApWQx0O9dwE'], fold: ['EH_wUBpdsh8'], fem: ['EhmGdnZj2es'], viz: ['p_7awcJlxBg', 'vYCK4X9isio', 'NQvSewBI6E0', '6XBI9_SkLAs', 'MHve9l0wE3g', 'qisZueUZOJQ'] };
+const vidLink = (id, inner, cls = '') => `<a class="${cls}" href="${YT(id)}" target="_blank" rel="noopener noreferrer external" data-vid="${id}">${inner}</a>`;
+function vidRow(ids, title) {
+  if (!L.videok || !ids || !ids.length) return '';
+  const [main, ...parts] = Array.isArray(ids) ? ids : [ids];
+  return `<div class="vidbox">${vidLink(main, `<span class="ic">${ic('play', 20, 2)}</span><span class="grow"><span class="tag">${t('vid_tag')}</span><span class="t">${title}</span><span class="s">${t('vid_ext')}</span></span>${ic('chev', 18)}`, 'row vid')}${parts.length ? `<div class="vidparts sub">${t('vid_parts')}: ${parts.map((id, i) => vidLink(id, `${i + 1}.`, 'pill')).join(' ')}</div>` : ''}</div>`;
+}
+const vidSound = (key) => VID_SOUND[key] ? vidRow(VID_SOUND[key], t('vid_sound', { s: C('snd', key)[1], o: C('snd', key)[0] })) : '';
+const vidElem = (el) => vidRow(VID_ELEM[el], t('vid_elem', { a: t('animal_' + el), e: elT(el).n }));
+
 /* ================= KÉZ ÉS LÁB: pontok, ujj/lábujj–csatorna térkép ================= */
 // A pontok helye a WHO Standard Acupuncture Point Locations (2008) szerint, átfogalmazva (lang: pts, area).
 // m: melyik rajzon (hp = tenyér, hb = kézhát, ft = lábfej teteje, fs = talp), x/y: helye a rajzon.
@@ -205,7 +222,7 @@ V.szerv = (code) => {
   const startIn = ((o.s * 60) - (d.getHours() * 60 + d.getMinutes()) + 1440) % 1440, pts = PTS.filter((p) => p.ch === o.c);
   const cards = [];
   cards.push(`<a class="card livecard" href="#test-ch-${slug(o.c)}">${miniFigure(o.c)}<span class="grow"><span class="tag">${t('tag_meridian')}</span><span class="t">${chName(o.c)}</span><span class="s">${t('live_flow', { f: chT(o.c)[2] })}</span></span>${ic('chev', 18)}</a>`);
-  if (L.mozgas) cards.push(row('move', t('heal_sound', { s: snd[1] }), t('min5', { o: snd[0] }), '#gyakorlat', t('tag_qigong')));
+  if (L.mozgas) cards.push(row('move', t('heal_sound', { s: snd[1] }), t('min5', { o: snd[0] }), '#gyakorlat', t('tag_qigong')) + vidSound(SOUND_OF[o.c]));
   if (L.taplalkozas) cards.push(nightOrg(o) ? `<div class="card quiet"><span class="tag">${t('tag_food')}</span><div style="display:flex;gap:10px;margin-top:4px"><span style="color:var(--mut)">${ic('nofood', 20)}</span><div class="s">${t('night_food', { t: fmtH(sched().eat0) })} <b>${e.foods}</b></div></div></div>` : row('food', t('taste_color', { t: e.taste, c: e.color.toLowerCase() }), e.foods, `#elem-${o.el}`, t('tag_food')));
   pts.forEach((p) => cards.push(row('hand', C('area', p.id), `${pc(p)} · ${ptT(p.id)[3]}`, `#pont-${p.s}`, t('tag_press'))));
   if (L.erzelmek) cards.push(`<div class="card"><span class="tag">${t('tag_emo')}</span><div class="t">${e.emo}</div><div class="s"><b>${t('in_balance')}</b> ${e.bal}</div><div class="s">${e.dis}</div></div>`);
@@ -347,7 +364,7 @@ V.gyakorlat = (arg) => {
       <div style="margin-top:12px"><div style="display:flex;justify-content:space-between" class="sub"><span id="brcyc">${t('cyc_of', { a: 0, b: brCycles })}</span><span id="brleft"></span></div><div class="prog"><i id="brprog"></i></div></div>
       <div class="btnrow" style="justify-content:center"><button type="button" class="btn" data-act="brgo" id="brgo">${ic('play', 16, 2)}${t('start')}</button><button type="button" class="btn tonal" data-act="brstop">${t('finish')}</button><button type="button" class="btn tonal" data-act="brcyc" aria-label="${t('cycle_toggle')}"><span id="brcycl">${brCycles}×</span></button></div>
     </div>` : ''}
-    ${L.mozgas ? `<div class="card"><span class="tag">${t('qigong_tag')}</span><div class="t" style="font-size:18px">${snd[0]}: ${qt(snd[1])}</div><p class="s" style="font-size:15px;line-height:22px;color:var(--on)">${snd[2]}</p><p class="s">${t('qigong_rep')}</p></div>` : ''}
+    ${L.mozgas ? `<div class="card"><span class="tag">${t('qigong_tag')}</span><div class="t" style="font-size:18px">${snd[0]}: ${qt(snd[1])}</div><p class="s" style="font-size:15px;line-height:22px;color:var(--on)">${snd[2]}</p><p class="s">${t('qigong_rep')}</p>${vidSound(SOUND_OF[o.c])}</div>` : ''}
     ${row('hand', t('hand_foot'), t('hf_row_s'), '#tudas-kezlab')}
     ${row('hand', t('tech_title'), t('tech_sub'), '#technikak')}
     ${disclaimer()}
@@ -578,7 +595,7 @@ V.beallitasok = () => {
       <div><div class="flabel">${ic('body', 16)} ${t('model')}</div>${seg('model', [['f', t('female')], ['m', t('male')]], MODEL)}</div></div>
     ${schedCard()}
     <div class="sec"><h2>${t('guidance_h')}</h2></div><div class="list">${sw('sound', 'sound_t', true)}${sw('vibrate', 'vibrate_t', true)}${sw('voice', 'voice', false)}</div>
-    <div class="sec"><h2>${t('content_h')}</h2></div><div class="list">${['mozgas', 'legzes', 'taplalkozas', 'csontok', 'erzelmek', 'gyogynovenyek', 'asztro', 'labujj'].map(ly).join('')}</div>
+    <div class="sec"><h2>${t('content_h')}</h2></div><div class="list">${['mozgas', 'legzes', 'taplalkozas', 'csontok', 'erzelmek', 'gyogynovenyek', 'asztro', 'labujj', 'videok'].map(ly).join('')}</div>
     ${row('screen', t('kij_open'), t('kij_sub'), '#kijelzo')}
     ${row('hand', t('tech_title'), t('tech_sub'), '#technikak')}
     <button type="button" class="btn tonal" data-act="lyreset">${t('reset_layers')}</button>
@@ -632,6 +649,7 @@ function initKijelzo(signal) {
 /* ================= KÍNAI ASZTROLÓGIA (réteg) ================= */
 if (L.asztro === undefined) L.asztro = true;
 if (L.labujj === undefined) L.labujj = true;
+if (L.videok === undefined) L.videok = true;
 const STEM = '甲乙丙丁戊己庚辛壬癸', BRANCH = '子丑寅卯辰巳午未申酉戌亥';
 const BEL = ['viz', 'fold', 'fa', 'fa', 'fold', 'tuz', 'tuz', 'fold', 'fem', 'fem', 'fold', 'viz'];
 const HIDS = [[9], [5, 9, 7], [0, 2, 4], [1], [4, 1, 9], [2, 4, 6], [3, 5], [5, 3, 1], [6, 8, 4], [7], [4, 7, 3], [8, 0]];

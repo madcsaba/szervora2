@@ -57,6 +57,12 @@ Alapelvek (a CLAUDE.md szabályai szerint):
 | 8 | **Napszakos ajánlás** (reggel / este) | Reggel: „9 légzés ébredés után” sorozat, ébresztő gyakorlatok; este: alvógyakorlatok, „Légzés a gyorsabb elalvásért” | A `daypart` logikához: reggel élénkítő, este lecsendesítő. |
 | 9 | **Képernyőszünet rutin** | Szemápoló videók (szempaskolás, szemüreg-masszázs, „米” alakú szem- és nyakápolás) | A meglévő képernyőszünet-rutin kiegészítése. |
 
+### Állapot
+
+- **Beépítve (2026. november):** 2. Hat gyógyító hang (Gyakorlat chi kung kártya, szervek oldala, elemek oldala) és 3. Wudang öt elem qigong (elemek oldala, a tűz és a víz formánál a lépésenkénti részekkel). Kód: `src/views2.js` → `VID_SOUND`, `VID_ELEM`, `vidRow`; Beállítások → „Külső videók (YouTube)” réteg.
+- **Még nincs beépítve:** 1, 4, 5, 6, 7, 8, 9.
+- A beépített videók tartalmát a lektornak meg kell néznie (a válogatás csak a címek alapján készült).
+
 ### Javasolt sorrend
 
 1. A 2. és a 3. pont (hat gyógyító hang, öt elem qigong): kevés videó, azonnal illeszkedik a meglévő tartalomhoz.

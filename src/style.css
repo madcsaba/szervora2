@@ -331,3 +331,10 @@ nav.tabs a[aria-current=page] .ind{background:var(--cont);color:var(--acc)}
 .hfshape{opacity:.9}
 .hfpt{cursor:pointer;outline:none}.hfpt text{font:700 10px Inter,sans-serif;fill:var(--on);paint-order:stroke;stroke:var(--map);stroke-width:3px;stroke-linejoin:round}
 .hfpt[aria-pressed=true] text{fill:var(--on)}.hfpt:focus-visible circle:nth-child(2){stroke:var(--on);stroke-width:3}
+
+/* külső videó link */
+.vidbox{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.row.vid{text-decoration:none;border:1px dashed var(--line)}
+.row.vid .ic{color:#E0412E}
+.vidparts{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding-left:4px}
+.vidparts .pill{text-decoration:none;padding:3px 10px;min-height:0}
