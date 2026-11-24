@@ -19,7 +19,36 @@ const YT = (id) => `https://www.youtube.com/watch?v=${id}`;
 const VID_SOUND = { Sz: 'iUwoVHU6pOw', M: 'ZrP6UJbKsUY', Lh: 'IQkZB20Vqjs', T: 'lqNWURweY6w', Hm: 'tMR5CzItvI4' };
 // Wudang öt elem qigong: elem → [teljes forma, ...lépésenkénti részek]
 const VID_ELEM = { fa: ['95n5Kr65qns'], tuz: ['BBssxev3AI4', 'xTLVC0mRx14', 'MOvqMJe3lGg', 'EBb4pe4wxIw', 'ApWQx0O9dwE'], fold: ['EH_wUBpdsh8'], fem: ['EhmGdnZj2es'], viz: ['p_7awcJlxBg', 'vYCK4X9isio', 'NQvSewBI6E0', '6XBI9_SkLAs', 'MHve9l0wE3g', 'qisZueUZOJQ'] };
-const vidLink = (id, inner, cls = '') => `<a class="${cls}" href="${YT(id)}" target="_blank" rel="noopener noreferrer external" data-vid="${id}">${inner}</a>`;
+// Kattintásra betöltött lejátszó: megnyitáskor semmi nem töltődik a YouTube-ról (bélyegkép sem); kattintásra
+// egy ablak tájékoztat, és csak a „Lejátszás itt” után (vagy ha a felhasználó ezt az eszközön megjegyeztette)
+// töltjük be a youtube-nocookie.com lejátszót. Bezáráskor a lejátszó eltűnik. A YouTube-link mindig megmarad.
+const VID_LONG = ['-3MURmGe5u4', '9x1ayfo-sHE', 'DvuTnwVUkVY', 'HKlE7hjF7OA', 'KwW3_aTLUCk', 'SlVNvea6RVo', 'YI0T9-4lkQM', 'xitoWazP9HQ'];
+const ytEmbed = (id) => `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&playsinline=1`;
+function videoSheet(id, title, play) {
+  const tall = !VID_LONG.includes(id);
+  return `<div class="scrim" data-act="vclose"></div><section class="sheet vsheet" role="dialog" aria-modal="true" aria-labelledby="vs-t">
+    <div class="grip"></div>
+    <div style="display:flex;gap:8px;align-items:flex-start"><div class="grow"><span class="tag">${t('vid_tag')}</span><h2 id="vs-t" class="display" style="font-size:20px;margin-top:2px">${esc(title)}</h2></div><button type="button" class="iconbtn tonal" data-act="vclose" aria-label="${t('close_l')}">${ic('close')}</button></div>
+    ${play ? `<div class="vframe${tall ? ' tall' : ''}"><iframe src="${ytEmbed(id)}" title="${esc(title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" loading="eager"></iframe></div>`
+      : `<div class="card quiet vconsent"><p class="s" style="color:var(--on);margin:0">${t('vid_consent')}</p>
+        <label class="swl" style="margin-top:10px"><input type="checkbox" id="vremember"> ${t('vid_remember')}</label>
+        <div class="btnrow" style="margin-top:12px"><button type="button" class="btn" data-act="vplay" data-vid="${id}">${ic('play', 16, 2.2)}${t('vid_play_here')}</button></div></div>`}
+    <p class="sub" style="margin-top:10px">${t('vid_src')} · <a href="${YT(id)}" target="_blank" rel="noopener noreferrer external">${t('vid_open_yt')}</a></p>
+  </section>`;
+}
+function openVideo(id, title) { let el = $('#sheetbox'); if (!el) { el = document.createElement('div'); el.id = 'sheetbox'; document.body.appendChild(el); } el.dataset.vtitle = title; el.innerHTML = videoSheet(id, title, store.get('vidembed', false)); const f = $('#sheetbox [data-act=vplay], #sheetbox iframe'); if (f) f.focus(); }
+document.addEventListener('click', (e) => {
+  const a = e.target.closest && e.target.closest('a[data-vid]'); if (a && !e.ctrlKey && !e.metaKey && !e.shiftKey && e.button === 0 && !a.closest('#sheetbox')) {
+    e.preventDefault();
+    const box = a.closest('.vidbox'), main = box && box.querySelector('.t'), own = (a.querySelector('.t, span:last-child') || a).textContent.trim();
+    openVideo(a.dataset.vid, a.classList.contains('pill') && main ? `${main.textContent.trim()} – ${own}` : own); return;
+  }
+  const b = e.target.closest && e.target.closest('[data-act=vplay], [data-act=vclose]'); if (!b) return;
+  if (b.dataset.act === 'vclose') { closeSheet(); return; }
+  if ($('#vremember') && $('#vremember').checked) store.set('vidembed', true);
+  $('#sheetbox').innerHTML = videoSheet(b.dataset.vid, $('#sheetbox').dataset.vtitle || '', true);
+});
+const vidLink = (id, inner, cls = '') => `<a class="${cls}" href="${YT(id)}" target="_blank" rel="noopener noreferrer external" data-vid="${id}" aria-haspopup="dialog">${inner}</a>`;
 function vidRow(ids, title) {
   if (!L.videok || !ids || !ids.length) return '';
   const [main, ...parts] = Array.isArray(ids) ? ids : [ids];
@@ -625,7 +654,7 @@ V.beallitasok = () => {
       <div><div class="flabel">${ic('today', 16)} ${t('theme')}</div>${seg('theme', [['auto', t('th_auto')], ['light', t('th_light')], ['dark', t('th_dark')]], store.get('theme', 'auto'))}</div>
       <div><div class="flabel">${ic('body', 16)} ${t('model')}</div>${seg('model', [['f', t('female')], ['m', t('male')]], MODEL)}</div></div>
     ${schedCard()}
-    <div class="sec"><h2>${t('guidance_h')}</h2></div><div class="list">${sw('sound', 'sound_t', true)}${sw('vibrate', 'vibrate_t', true)}${sw('voice', 'voice', false)}</div>
+    <div class="sec"><h2>${t('guidance_h')}</h2></div><div class="list">${sw('sound', 'sound_t', true)}${sw('vibrate', 'vibrate_t', true)}${sw('voice', 'voice', false)}${sw('vidembed', 'vid_embed_pref', false)}</div>
     <div class="sec"><h2>${t('content_h')}</h2></div><div class="list">${['mozgas', 'legzes', 'taplalkozas', 'csontok', 'erzelmek', 'gyogynovenyek', 'asztro', 'labujj', 'videok'].map(ly).join('')}</div>
     ${row('screen', t('kij_open'), t('kij_sub'), '#kijelzo')}
     ${row('hand', t('tech_title'), t('tech_sub'), '#technikak')}

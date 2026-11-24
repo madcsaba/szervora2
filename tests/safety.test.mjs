@@ -296,6 +296,35 @@ test('a videónevek listái hossza egyezik a videókkal, és minden videó az ad
   for (const id of all) if (!trad.includes(id)) assert.notEqual(db[id].egeszsegugyi_allitas, 'igen', `${id} állítás nélkül`);
 });
 
+test('videó: kattintásra ablak, jóváhagyás nélkül nincs lejátszó, jóváhagyás után youtube-nocookie, bezárva eltűnik', async () => {
+  const { page, ctx, errors, requests, at } = await open({ hash: 'elem-tuz' });
+  await page.route(/youtube/, (r) => r.abort());       // a teszt ne töltsön le semmit
+  await at(12);
+  assert.deepEqual(requests, [], 'megnyitáskor nincs kérés');
+  await page.click('a.vid[data-vid="BBssxev3AI4"]');
+  await page.waitForSelector('.vsheet');
+  assert.equal(await page.locator('.vsheet iframe').count(), 0, 'jóváhagyás előtt nincs lejátszó');
+  assert.deepEqual(requests, [], 'az ablak megnyitása sem küld kérést');
+  assert.match(await page.textContent('.vsheet'), /youtube-nocookie/);
+  await page.check('#vremember');
+  await page.click('[data-act=vplay]');
+  const src = await page.getAttribute('.vsheet iframe', 'src');
+  assert.match(src, /^https:\/\/www\.youtube-nocookie\.com\/embed\/BBssxev3AI4\?/);
+  assert.ok(requests.every((u) => u.startsWith('https://www.youtube-nocookie.com/')), 'csak a lejátszó töltődik');
+  await page.click('.vsheet [data-act=vclose]');
+  assert.equal(await page.locator('iframe').count(), 0, 'bezárva a lejátszó eltűnik');
+  // megjegyzett döntés: a következő videó rögtön lejátszóval nyílik; a Beállításokban kikapcsolható
+  await page.click('.vidparts a >> nth=0');
+  assert.equal(await page.locator('.vsheet iframe').count(), 1);
+  await page.keyboard.press('Escape');
+  await page.goto(`${URL_}#beallitasok`); await page.waitForSelector('[data-pref=vidembed]');
+  assert.equal(await page.isChecked('[data-pref=vidembed]'), true);
+  await page.uncheck('[data-pref=vidembed]');
+  assert.equal(await page.evaluate(() => localStorage.getItem('szervora.vidembed')), 'false');
+  assert.deepEqual(errors, []);
+  await ctx.close();
+});
+
 test('a lecsendesedés az első, bármilyen check-in mellett', async () => {
   const exp = expected(22, 7);
   for (const x of [20.5, 22, 23.5, 0, 2.5, 4.5]) {
