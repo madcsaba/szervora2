@@ -418,6 +418,27 @@ test('teák: legalább 40 növény teljes adatokkal, állítás nélkül; este c
   await off.ctx.close();
 });
 
+test('szemtorna: önálló mozgásos lejátszó és kínai szemtorna rutin, figyelmeztetéssel', async () => {
+  const { page, ctx, errors, at } = await open({ hash: 'gyakorlat' });
+  await at(10);
+  assert.equal(await page.locator('#view a[href="#szemtorna"]').count(), 1, 'mozgásos szemtorna a Gyakorlatban');
+  assert.equal(await page.locator('#view a[href="#rutin-szem"]').count(), 1, 'kínai szemtorna a Gyakorlatban');
+  const keys = await page.evaluate(() => ['hu', 'en'].map((l) => Object.keys(window.SZ_LANG[l].c.eyex).join()));
+  assert.equal(keys[0], keys[1], 'a lépések mindkét nyelven');
+  await page.goto(`${URL_}#szemtorna`); await page.waitForSelector('#eyestage svg');
+  assert.equal(await page.locator('.eylist button').count(), 10);
+  assert.match(await page.textContent('.warnbox'), /szemorvos/);
+  await page.click('[data-eye=go]');
+  await page.click('[data-eye=next]');
+  assert.match(await page.textContent('#eystep'), /^2\./);
+  assert.match(await page.getAttribute('#eyestage svg', 'class'), /a-blink/);
+  await page.click('[data-eye-to="5"]');
+  assert.match(await page.getAttribute('#eyestage svg', 'class'), /a-circle/);
+  await page.goto(`${URL_}#rutin-szem`); await page.waitForSelector('#player');
+  assert.deepEqual(errors, []);
+  await ctx.close();
+});
+
 test('a lecsendesedés az első, bármilyen check-in mellett', async () => {
   const exp = expected(22, 7);
   for (const x of [20.5, 22, 23.5, 0, 2.5, 4.5]) {

@@ -467,7 +467,7 @@ V.gyakorlat = (arg) => {
     ${rcard(rec.r, true)}
     ${(() => {
       // a napszakhoz illő rutinok elöl, a többi összecsukva, jelölve, mikorra valók
-      const rest = ROUT.filter((r) => r.id !== rec.id), fit = rest.filter((r) => routFits(r.id, d)), other = rest.filter((r) => !routFits(r.id, d));
+      const rest = ROUT.filter((r) => r.id !== rec.id && r.id !== 'szem'), fit = rest.filter((r) => routFits(r.id, d)), other = rest.filter((r) => !routFits(r.id, d));
       return `<div class="sec"><h2>${t('routines_h')}</h2><span>${fit.length + 1}</span></div>${fit.map((r) => rcard(r)).join('')}`
         + (other.length ? `<details class="othertime"><summary><span class="t">${t('other_time')}</span><span class="sub">${other.length}</span></summary><div class="stack">${other.map((r) => rcard(r).replace('<span class="meta">', `<span class="meta"><span class="when">${t(ROUT_WHEN[r.id] || 'fit_any')}</span> · `)).join('')}</div></details>` : '');
     })()}
@@ -480,12 +480,66 @@ V.gyakorlat = (arg) => {
       <div class="btnrow" style="justify-content:center"><button type="button" class="btn" data-act="brgo" id="brgo">${ic('play', 16, 2)}${t('start')}</button><button type="button" class="btn tonal" data-act="brstop">${t('finish')}</button><button type="button" class="btn tonal" data-act="brcyc" aria-label="${t('cycle_toggle')}"><span id="brcycl">${brCycles}×</span></button></div>
     </div>` : ''}
     ${L.mozgas ? `<div class="card"><span class="tag">${t('qigong_tag')}</span><div class="t" style="font-size:18px">${snd[0]}: ${qt(snd[1])}</div><p class="s" style="font-size:15px;line-height:22px;color:var(--on)">${snd[2]}</p><p class="s">${t('qigong_rep')}</p>${vidSound(SOUND_OF[o.c])}</div>` : ''}
+    <div class="sec" id="szemtorna-h"><h2>${t('eye_h')}</h2></div>
+    <a class="rcard${CALM(d) ? '' : ' hl'}" href="#szemtorna"><span class="ic">${ic('eye')}</span><span class="grow"><span class="t">${t('eye_move_t')}</span><span class="s">${t('eye_move_s')}</span><span class="meta">${t('eye_meta', { m: Math.round(EYEX_SEC / 60), n: EYEX.length })}</span></span>${ic('chev', 18)}</a>
+    <a class="rcard" href="#rutin-szem"><span class="ic">${ic('point')}</span><span class="grow"><span class="t">${C('routines', 'szem')[0]}</span><span class="s">${C('routines', 'szem')[1]}</span><span class="meta">${t('routine_meta', { m: Math.max(1, Math.round(RBY.szem.sec / 60)), n: RBY.szem.steps.length })}</span></span>${ic('chev', 18)}</a>
+    ${vidList('eyes', t('vid_eyes'))}
     ${L.videok ? `<div class="sec"><h2>${t('vid_trad_h')}</h2></div>${vidList('bdj', t('vid_bdj'))}${vidList('yjj', t('vid_yjj'))}` : ''}
     ${row('hand', t('hand_foot'), t('hf_row_s'), '#tudas-kezlab')}
     ${row('hand', t('tech_title'), t('tech_sub'), '#technikak')}
     ${disclaimer()}
   </section>`;
 };
+
+/* ================= SZEMTORNA (mozgásos, vezetett) ================= */
+// Két szem rajza, a tekintet iránya lépésenként animálva (csökkentett mozgás beállításnál állókép). Nincs gyógyító állítás.
+const eyeSvg = (anim) => `<svg class="eyesvg a-${anim}" viewBox="0 0 220 110" role="img" aria-label="${esc(t('eye_anim'))}">
+  ${[60, 160].map((x) => `<g transform="translate(${x} 55)"><ellipse rx="40" ry="24" class="ew"/><g class="iris"><circle r="15" class="ei"/><circle r="6.5" class="ep"/><circle cx="-4" cy="-5" r="2.6" fill="#fff" opacity=".8"/></g><rect class="lid" x="-42" y="-27" width="84" height="54" rx="27"/><ellipse rx="40" ry="24" class="eo"/></g>`).join('')}
+  <g class="hands"><path d="M10 100 Q20 30 60 22 Q100 30 104 100 Z"/><path d="M210 100 Q200 30 160 22 Q120 30 116 100 Z"/></g>
+  <circle class="target" cx="110" cy="55" r="5"/></svg>`;
+V.szemtorna = () => {
+  const X = C('eyex');
+  return `${top(t('eye_move_t'), t('eye_move_s'), 'gyakorlat-szemtorna')}
+  <div class="split"><div class="pad smain"><div class="card eyestage" id="eyestage">${eyeSvg(EYEX[0][2])}
+    <div class="sub" id="eystep" style="margin-top:8px">${t('step_of', { a: 1, b: EYEX.length })}</div>
+    <h2 class="display" id="eyt" style="font-size:24px;margin-top:2px">${X[EYEX[0][0]][0]}</h2>
+    <p class="s" id="eyd" style="color:var(--on);font-size:16px;line-height:24px">${X[EYEX[0][0]][1]}</p>
+    <div class="eyctl"><span class="eyleft" id="eyleft">${mmss(EYEX[0][1])}</span><div class="prog" style="flex:1"><i id="eyprog"></i></div></div>
+    <div class="btnrow" style="justify-content:center"><button type="button" class="iconbtn tonal" data-eye="prev" aria-label="${t('prev')}">${ic('back')}</button><button type="button" class="btn" data-eye="go" id="eygo">${ic('play', 16, 2)}${t('start')}</button><button type="button" class="iconbtn tonal" data-eye="next" aria-label="${t('next')}">${ic('chev')}</button></div>
+    <label class="swl" style="justify-content:center;margin-top:8px"><input class="switch" type="checkbox" data-pref="voice"${store.get('voice', false) ? ' checked' : ''}>${t('voice')}</label>
+  </div></div>
+  <section class="pad stack sside">
+    <div class="warnbox">${ic('warn', 18)}<span>${t('eye_safety')}</span></div>
+    <div class="card"><span class="tag">${t('routine_steps')}</span><ol class="eylist">${EYEX.map(([id, sec], i) => `<li><button type="button" data-eye-to="${i}"${i ? '' : ' aria-current="true"'}><span class="grow">${X[id][0]}</span><span class="sub">${mmss(sec)}</span></button></li>`).join('')}</ol></div>
+    <div class="card quiet"><div class="s">${t('eye_tip')}</div></div>
+    <a class="rcard" href="#rutin-szem"><span class="ic">${ic('point')}</span><span class="grow"><span class="t">${C('routines', 'szem')[0]}</span><span class="s">${C('routines', 'szem')[1]}</span></span>${ic('chev', 18)}</a>
+    ${vidList('eyes', t('vid_eyes'))}
+    ${disclaimer()}
+  </section></div>`;
+};
+function initEyes(signal) {
+  const X = C('eyex'); let i = 0, left = EYEX[0][1], run = false, iv = 0, last = 0;
+  const show = () => {
+    if (!$('#eyestage')) { clearInterval(iv); return; }
+    const [id, sec, anim] = EYEX[i];
+    $('#eystep').textContent = t('step_of', { a: i + 1, b: EYEX.length }); $('#eyt').textContent = X[id][0]; $('#eyd').textContent = X[id][1];
+    $('#eyleft').textContent = mmss(left); $('#eyprog').style.width = `${100 * (1 - left / sec)}%`;
+    const s = $('#eyestage svg'); s.setAttribute('class', `eyesvg a-${anim}${run ? '' : ' paused'}`);
+    $('#eygo').innerHTML = `${ic(run ? 'pause' : 'play', 16, 2)}${t(run ? 'pause' : 'start')}`;
+    $$('.eylist button').forEach((b, k) => b.toggleAttribute('aria-current', k === i));
+  };
+  const go = (k, keep) => { i = Math.max(0, Math.min(EYEX.length - 1, k)); left = EYEX[i][1]; if (keep && run) speak(X[EYEX[i][0]][2]); show(); };
+  const tick = () => { if (!$('#eyestage')) { clearInterval(iv); return; } const n = performance.now(); left -= (n - last) / 1000; last = n; if (left <= 0) { beep(660, .12); buzz(40); if (i >= EYEX.length - 1) { run = false; clearInterval(iv); left = 0; speak(t('eye_done')); $('#eyd').textContent = t('eye_done'); show(); return; } go(i + 1, true); } else { $('#eyleft').textContent = mmss(left); $('#eyprog').style.width = `${100 * (1 - left / EYEX[i][1])}%`; } };
+  $('#view').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-eye], [data-eye-to]'); if (!b) return;
+    if (b.dataset.eyeTo !== undefined) return go(+b.dataset.eyeTo, true);
+    const a = b.dataset.eye;
+    if (a === 'go') { audio(); if (run) { run = false; clearInterval(iv); } else { if (left <= 0) go(0); run = true; last = performance.now(); iv = setInterval(tick, 250); speak(X[EYEX[i][0]][2]); } show(); }
+    if (a === 'prev') go(i - 1, true); if (a === 'next') go(i + 1, true);
+  }, { signal });
+  signal.addEventListener('abort', () => { clearInterval(iv); try { speechSynthesis.cancel(); } catch (e) {} });
+  show();
+}
 
 /* ================= LEJÁTSZÓ (csukott szemmel is) ================= */
 const speak = (txt) => { if (!store.get('voice', false)) return; try { const u = new SpeechSynthesisUtterance(txt); u.lang = loc(); u.rate = 0.95; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (e) {} };
@@ -954,8 +1008,9 @@ function route() {
   if (name === 'test') initTest(sig);
   if (name === 'foto') initFoto(sig);
   if (name === 'pont') { initTimer(sig); initPont3D(sig, arg); }
-  if (name === 'gyakorlat') { initBreath(sig); if (arg === 'legzes') { const el = $('#legzes'); if (el) setTimeout(() => el.scrollIntoView({ block: 'start' }), 0); } }
+  if (name === 'gyakorlat') { initBreath(sig); if (arg === 'legzes' || arg === 'szemtorna') { const el = $(arg === 'legzes' ? '#legzes' : '#szemtorna-h'); if (el) setTimeout(() => el.scrollIntoView({ block: 'start' }), 0); } }
   if (name === 'rutin') initPlayer(sig, arg);
+  if (name === 'szemtorna') initEyes(sig);
   if (name === 'kijelzo') initKijelzo(sig);
   if (name === 'ma') tickIv = setInterval(() => { if (!document.hidden && !$('#sheetbox .sheet')) { const y = window.scrollY; applyTheme(); $('#view').innerHTML = V.ma(); window.scrollTo(0, y); } }, 30000);
   document.title = `${t(name === 'ma' ? 'app' : ({ szerv: 'organ_details', test: 'tab_test', pont: 'tab_test', gyakorlat: 'tab_prac', rutin: 'routine_label', technikak: 'tech_title', tudas: 'tab_know', elem: 'el_details', naplo: 'tab_log', beallitasok: 'settings_t', kijelzo: 'kij_open', foto: 'foto_t' })[name])} – ${t('app')}`;

@@ -117,10 +117,15 @@ const ROUT = [
   { id: 'kepernyo', icon: 'eye', steps: [['H-1', 30, 0], ['Eh-20', 60, 0], ['Kor-14', 45, 0], ['Véb-3', 60, 1], ['T-7', 40, 1]] },
   { id: 'utazas', icon: 'travel', steps: [['Szb-6', 120, 1], ['Gy-36', 60, 1]] },
   { id: 'emesztes', icon: 'food', steps: [['Bef-12', 60, 0], ['Gy-36', 60, 1], ['Szb-6', 40, 1], ['Lh-9', 40, 1]] },
-  { id: 'lampalaz', icon: 'emotion', steps: [['Szb-8', 40, 1], ['Sz-7', 60, 1], ['Bef-17', 45, 0]] }
+  { id: 'lampalaz', icon: 'emotion', steps: [['Szb-8', 40, 1], ['Sz-7', 60, 1], ['Bef-17', 45, 0]] },
+  // kínai szemtorna (a hagyományos iskolai szemtorna mintájára): szemöldök, belső szemzug, szem alatt, homlok, tarkó – két oldalon egyszerre
+  { id: 'szem', icon: 'eye', steps: [['H-2', 30, 0], ['H-1', 30, 0], ['Gy-2', 30, 0], ['Eh-14', 30, 0], ['Eh-20', 45, 0]] }
 ];
 ROUT.forEach((r) => { r.sec = r.steps.reduce((s, x) => s + x[1], 0); });
 const RBY = Object.fromEntries(ROUT.map((r) => [r.id, r]));
+/* mozgásos szemtorna: [azonosító, másodperc, animáció] – szöveg: c.eyex[id] = [cím, útmutatás, hangos vezetés] */
+const EYEX = [['palm', 45, 'palm'], ['blink', 20, 'blink'], ['updown', 30, 'updown'], ['side', 30, 'lr'], ['diag', 30, 'diag'], ['circle', 40, 'circle'], ['eight', 30, 'eight'], ['focus', 60, 'focus'], ['far', 20, 'far'], ['rest', 30, 'palm']];
+const EYEX_SEC = EYEX.reduce((s, x) => s + x[1], 0);
 const CYCST = { tap: { pairs: Object.entries(GEN), curve: true, c: 'var(--jade-t)', w: 2.5 }, szab: { pairs: Object.entries(CTRL), c: 'var(--ink)', w: 2.5 }, vissza: { pairs: Object.entries(CTRL).map(([a, b]) => [b, a]), c: 'var(--tuz)', w: 2.5, dash: '7 5' }, legy: { pairs: Object.entries(CTRL), c: 'var(--tuz)', w: 4.5 } };
 const LAYERS = [['', [['base', 'clock']]], ['g_know', [['elemek', 'elements'], ['kapcsolatok', 'book'], ['meridianok', 'body'], ['atlasz', 'point'], ['csontok', 'bone'], ['technikak', 'hand']]], ['g_prac', [['rutinok', 'hand'], ['mozgas', 'move'], ['legzes', 'breath'], ['taplalkozas', 'food']]], ['g_extra', [['erzelmek', 'emotion'], ['gyogynovenyek', 'herb'], ['evszak', 'season'], ['alvas', 'sleep']]]];
 const DEFAULT_LAYERS = { elemek: true, kapcsolatok: true, meridianok: true, atlasz: true, csontok: true, technikak: true, rutinok: true, mozgas: true, legzes: true, taplalkozas: true, erzelmek: false, gyogynovenyek: true, evszak: false, alvas: false, labujj: true, videok: true };
@@ -198,8 +203,8 @@ function daypart(d = now()) {
 const PAT_FIT = { calm: ['morning', 'day', 'evening', 'night'], even: ['morning', 'day', 'evening'], sleep: ['night'] };
 const PAT_DEF = { morning: 'even', day: 'even', evening: 'calm', night: 'sleep' };
 // Rutinok: mely napszakban illenek (ami nincs itt, az mindig); az emésztési rutin evési szünetben nem.
-const ROUT_FIT = { esti: ['evening', 'night'], reggel: ['morning'], kepernyo: ['morning', 'day', 'evening'], kez_reggel: ['morning', 'day'], kez_este: ['evening', 'night'], lab_este: ['evening', 'night'] };
-const ROUT_WHEN = { esti: 'fit_night', reggel: 'fit_morning', kepernyo: 'fit_day', emesztes: 'fit_meal', kez_reggel: 'fit_morning', kez_este: 'fit_night', lab_este: 'fit_night' };
+const ROUT_FIT = { szem: ['morning', 'day', 'evening'], esti: ['evening', 'night'], reggel: ['morning'], kepernyo: ['morning', 'day', 'evening'], kez_reggel: ['morning', 'day'], kez_este: ['evening', 'night'], lab_este: ['evening', 'night'] };
+const ROUT_WHEN = { szem: 'fit_day', esti: 'fit_night', reggel: 'fit_morning', kepernyo: 'fit_day', emesztes: 'fit_meal', kez_reggel: 'fit_morning', kez_este: 'fit_night', lab_este: 'fit_night' };
 const routFits = (id, d = now()) => (id !== 'emesztes' || EAT(d)) && (!ROUT_FIT[id] || ROUT_FIT[id].includes(daypart(d)));
 const mmss = (s) => { s = Math.max(0, Math.round(s)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
 const qt = (s) => lang === 'hu' ? `„${s}”` : `“${s}”`;

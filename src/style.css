@@ -395,3 +395,35 @@ nav.tabs a[aria-current=page] .ind{background:var(--cont);color:var(--acc)}
 .himg.big{width:100%;height:auto;max-height:calc(100vh - 220px);object-fit:contain;border-radius:var(--r-l);padding:10px}
 .hfig{margin:0}
 .hanl{font-family:'Noto Serif SC',serif}
+
+/* szemtorna: két szem, a tekintet iránya lépésenként */
+.eyestage{text-align:center}
+.eyesvg{width:100%;max-width:420px;height:auto;display:block;margin:0 auto}
+.eyesvg .ew{fill:#FBFAF7}.eyesvg .eo{fill:none;stroke:var(--on);stroke-width:2.5;opacity:.75}
+.eyesvg .ei{fill:var(--acc)}.eyesvg .ep{fill:#1C1B1A}
+.eyesvg .lid{fill:var(--surf2);transform:scaleY(0);transform-origin:0 0}
+.eyesvg .hands{fill:var(--acc);opacity:0}.eyesvg .target{fill:var(--on);opacity:0}
+.eyesvg .iris{animation:2.4s ease-in-out infinite alternate}
+.eyesvg.paused .iris,.eyesvg.paused .lid,.eyesvg.paused .hands,.eyesvg.paused .target{animation-play-state:paused}
+.a-updown .iris{animation-name:ey-ud}.a-lr .iris{animation-name:ey-lr}.a-diag .iris{animation:ey-dg 6s ease-in-out infinite}
+.a-circle .iris{animation:ey-ci 5s linear infinite}.a-eight .iris{animation:ey-8 6s linear infinite}
+.a-blink .lid{animation:ey-bl 1s ease-in-out infinite}
+.a-palm .lid{transform:scaleY(1)}.a-palm .hands{opacity:.85}
+.a-focus .iris{animation:ey-fo 4s ease-in-out infinite}.a-focus .target{opacity:.8;animation:ey-ft 4s ease-in-out infinite;transform-origin:110px 55px}
+.a-far .iris{transform:translateY(-3px) scale(.92)}
+@keyframes ey-ud{from{transform:translateY(-11px)}to{transform:translateY(11px)}}
+@keyframes ey-lr{from{transform:translateX(-20px)}to{transform:translateX(20px)}}
+@keyframes ey-dg{0%,100%{transform:translate(17px,-9px)}25%{transform:translate(-17px,9px)}50%{transform:translate(-17px,-9px)}75%{transform:translate(17px,9px)}}
+@keyframes ey-ci{0%{transform:translate(0,-11px)}25%{transform:translate(19px,0)}50%{transform:translate(0,11px)}75%{transform:translate(-19px,0)}100%{transform:translate(0,-11px)}}
+@keyframes ey-8{0%{transform:translate(0,0)}12.5%{transform:translate(12px,-8px)}25%{transform:translate(20px,0)}37.5%{transform:translate(12px,8px)}50%{transform:translate(0,0)}62.5%{transform:translate(-12px,-8px)}75%{transform:translate(-20px,0)}87.5%{transform:translate(-12px,8px)}100%{transform:translate(0,0)}}
+@keyframes ey-bl{0%,40%,100%{transform:scaleY(0)}55%,70%{transform:scaleY(1)}}
+@keyframes ey-fo{0%,40%{transform:scale(1)}50%,90%{transform:scale(.88)}}
+@keyframes ey-ft{0%,40%{transform:scale(2.2);opacity:.9}50%,90%{transform:scale(.6);opacity:.35}}
+.a-blink .lid,.a-palm .lid{transform-box:fill-box;transform-origin:50% 0}
+@media (prefers-reduced-motion:reduce){.eyesvg *{animation:none!important}}
+.eyctl{display:flex;align-items:center;gap:12px;margin-top:10px}.eyleft{font:700 22px 'Inter Tight',Inter,sans-serif;min-width:56px}
+.eylist{margin:6px 0 0;padding:0;list-style:none;counter-reset:ey}
+.eylist button{display:flex;gap:10px;width:100%;padding:9px 6px;border:0;border-bottom:1px solid var(--line);background:none;color:var(--on);font:inherit;text-align:left;cursor:pointer;counter-increment:ey}
+.eylist button::before{content:counter(ey) '.';color:var(--mut);min-width:20px}
+.eylist button[aria-current]{color:var(--acc);font-weight:700}
+.warnbox>svg{flex:none}
