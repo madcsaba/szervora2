@@ -1030,7 +1030,7 @@ const VID_ELEM = { fa: ['95n5Kr65qns'], tuz: ['BBssxev3AI4', 'xTLVC0mRx14', 'MOv
 // Kattintásra betöltött lejátszó: megnyitáskor semmi nem töltődik a YouTube-ról (bélyegkép sem); kattintásra
 // egy ablak tájékoztat, és csak a „Lejátszás itt” után (vagy ha a felhasználó ezt az eszközön megjegyeztette)
 // töltjük be a youtube-nocookie.com lejátszót. Bezáráskor a lejátszó eltűnik. A YouTube-link mindig megmarad.
-const VID_LONG = ['-3MURmGe5u4', '9x1ayfo-sHE', 'DvuTnwVUkVY', 'HKlE7hjF7OA', 'KwW3_aTLUCk', 'SlVNvea6RVo', 'YI0T9-4lkQM', 'xitoWazP9HQ'];
+const VID_LONG = ['OVOtIygTg4o', 'rWB5WhvT9II', '-3MURmGe5u4', '9x1ayfo-sHE', 'DvuTnwVUkVY', 'HKlE7hjF7OA', 'KwW3_aTLUCk', 'SlVNvea6RVo', 'YI0T9-4lkQM', 'xitoWazP9HQ'];
 const ytEmbed = (id) => `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&playsinline=1`;
 function videoSheet(id, title, play) {
   const tall = !VID_LONG.includes(id);
@@ -1075,12 +1075,18 @@ const vidPoint = (p) => vidRow(VID_PT[p.id], t('vid_point', { p: p.py, c: pc(p) 
 // „…minden baj elűzésére”), ezért az adatbázis állításként jelöli; az app a saját semleges nevét mutatja (c.vidnames.bdj).
 const VID_TRAD_NAME = ['-3MURmGe5u4', 'DvuTnwVUkVY'];
 // válogatott sorozatok; a megnevezések az app saját, semleges szövegei (lang: c.vidnames)
+// Szemvideók: a csatorna címei gyakran előnyt vagy betegséget említenek; az app mindig rövid, semleges, állítás nélküli
+// címet mutat (c.vidnames – teszt ellenőrzi). Az adatbázisban állításként jelölt, de a felhasználó döntése szerint
+// ismeretterjesztésként mégis bekerülő videók: VID_CLAIM_OK.
+const VID_CLAIM_OK = ['rWB5WhvT9II', '6Dla8NPxZHg', 'P1wkV2VNfDs'];
 const VID_SETS = {
   bdj: ['YI0T9-4lkQM', 'SlVNvea6RVo', 'xitoWazP9HQ', '-3MURmGe5u4', '9x1ayfo-sHE', 'KwW3_aTLUCk', 'V-gn3Z3NZFY', 'DvuTnwVUkVY'],
   yjj: ['bXZ0NIcLxtQ', 'xqCCDBuqKs4', 'u7TiOCokShk', 'CNJpy5T_uaI', 'J_QMYtxrSNI', '1q0q6rHUY5c'],
   morning: ['TdkvJaqwj84', 'Mo38mo0IR-A', 'U92eaQtkIYA', 'fU9lzG6PXcU', 'Vavzn6Vtp4k', 'QQ7S32_zGvs', 'otWuXf_l1y4', 'ArL8qw5FXJ8'],
   evening: ['O0OHRosCMtc', 'DC8jL-p28_4', '_YJfM4uDLlY', 'FEzn6D63QCc', 'VPgPf-q8DlU', 'mlkCpe5Mq84'],
-  eyes: ['gGdnK_pbvoQ', 'Ph43jYEKXH4', 'xXqt0f5Bguk', '-zOIBsH2QGA', 'QlghqeYtQUs'],
+  eyes: ['RI61vxT8C6M', 'tbaJgnx7PKs', 'O1LSTtSi5B8', 'U30FMJASzOc', 'MbAEgBTrI44', 'rxcYP3FmbyQ'],
+  eyes_move: ['OVOtIygTg4o', 'rWB5WhvT9II', 'hgz6HRDK01U', 'YBSHOdpmviA', 'T5W9HbV-38Y', 'Jh1xq06G7bI', 'RW1ObEpQ9Nc', '9Lj3e2fDwsU', '74mmFpVJs9I', '6Dla8NPxZHg', 'P1wkV2VNfDs', 'RJ7YZN8TYdI', 'eUt8TayP_b4', '0U2A6HGlh2U', 'Pbogoiy7U0Y'],
+  eyes_brow: ['NZ-qlag_2Ew', 'eOu_1wqbBe8', 'tH_iQ0QbqiQ', 'oEKsEkrM6Fc'],
   hand: ['HKlE7hjF7OA', 'XrQ6Ug8s-PY', 'IhUdx3hXnG4', 'vXoeLR23vHY', 'yWE0FnBcxZI', 'vWeRyj_XmmQ', '5zyMmPNNLiM', 'cPrH2LqNckI', 'rqO5KJO3OUk'],
   foot: ['hB8kSgZjjhY', 'NEoScJSByZA', 'oK32rV9XcN4', 'XJSEN6Cl658', 'PL6R5Qt7uKM', 'GAT7GkkfiiU', 'boGgIJUqpR4', 'G-db1Zy0m8I', 'mIe7saybeoo', 'GNDQSDWQprk', 'Rsd_lZvujUU', 'mlkCpe5Mq84']
 };
@@ -1491,7 +1497,7 @@ V.gyakorlat = (arg) => {
     <div class="sec" id="szemtorna-h"><h2>${t('eye_h')}</h2></div>
     <a class="rcard${CALM(d) ? '' : ' hl'}" href="#szemtorna"><span class="ic">${ic('eye')}</span><span class="grow"><span class="t">${t('eye_move_t')}</span><span class="s">${t('eye_move_s')}</span><span class="meta">${t('eye_meta', { m: Math.round(EYEX_SEC / 60), n: EYEX.length })}</span></span>${ic('chev', 18)}</a>
     <a class="rcard" href="#rutin-szem"><span class="ic">${ic('point')}</span><span class="grow"><span class="t">${C('routines', 'szem')[0]}</span><span class="s">${C('routines', 'szem')[1]}</span><span class="meta">${t('routine_meta', { m: Math.max(1, Math.round(RBY.szem.sec / 60)), n: RBY.szem.steps.length })}</span></span>${ic('chev', 18)}</a>
-    ${vidList('eyes', t('vid_eyes'))}
+    ${vidList('eyes_move', t('vid_eyes_move'))}${vidList('eyes', t('vid_eyes'))}
     ${L.videok ? `<div class="sec"><h2>${t('vid_trad_h')}</h2></div>${vidList('bdj', t('vid_bdj'))}${vidList('yjj', t('vid_yjj'))}` : ''}
     ${row('hand', t('hand_foot'), t('hf_row_s'), '#tudas-kezlab')}
     ${row('hand', t('tech_title'), t('tech_sub'), '#technikak')}
@@ -1521,7 +1527,7 @@ V.szemtorna = () => {
     <div class="card"><span class="tag">${t('routine_steps')}</span><ol class="eylist">${EYEX.map(([id, sec], i) => `<li><button type="button" data-eye-to="${i}"${i ? '' : ' aria-current="true"'}><span class="grow">${X[id][0]}</span><span class="sub">${mmss(sec)}</span></button></li>`).join('')}</ol></div>
     <div class="card quiet"><div class="s">${t('eye_tip')}</div></div>
     <a class="rcard" href="#rutin-szem"><span class="ic">${ic('point')}</span><span class="grow"><span class="t">${C('routines', 'szem')[0]}</span><span class="s">${C('routines', 'szem')[1]}</span></span>${ic('chev', 18)}</a>
-    ${vidList('eyes', t('vid_eyes'))}
+    ${vidList('eyes_move', t('vid_eyes_move'))}${vidList('eyes_brow', t('vid_eyes_brow'))}${vidList('eyes', t('vid_eyes'))}
     ${disclaimer()}
   </section></div>`;
 };
@@ -1570,7 +1576,7 @@ V.rutin = (id) => {
       <div id="pdots" class="pdots" aria-hidden="true"></div>
       <div class="ptoggles ph">${sw('sound', 'sound_t', true)}${sw('vibrate', 'vibrate_t', true)}${sw('voice', 'voice', false)}</div>
       <div id="pdone" class="pdone" hidden><div class="ptime">✓</div><p>${t('routine_done')}</p><div class="btnrow" style="justify-content:center"><button type="button" class="btn" data-act="pagain">${t('again')}</button><a class="btn tonal" href="#naplo">${t('tab_log')}</a></div></div>
-      <details class="pover ph"><summary>${t('how_h')} · ${t('routine_steps')}</summary><p class="s">${C('how', r.id)}</p>${warns.map((w) => `<div class="warnbox" style="margin-top:8px">${ic('warn', 18)}<span>${w}</span></div>`).join('')}<ol class="psteps">${r.steps.map(([pid, sec, bi]) => `<li><b>${C('area', pid)}</b><span class="sub"> · ${mmss(sec)}${bi ? ' · ' + t('side_left') + ' / ' + t('side_right') : ''}</span></li>`).join('')}</ol></details>${r.id === 'kepernyo' ? vidList('eyes', t('vid_eyes')) : ''}
+      <details class="pover ph"><summary>${t('how_h')} · ${t('routine_steps')}</summary><p class="s">${C('how', r.id)}</p>${warns.map((w) => `<div class="warnbox" style="margin-top:8px">${ic('warn', 18)}<span>${w}</span></div>`).join('')}<ol class="psteps">${r.steps.map(([pid, sec, bi]) => `<li><b>${C('area', pid)}</b><span class="sub"> · ${mmss(sec)}${bi ? ' · ' + t('side_left') + ' / ' + t('side_right') : ''}</span></li>`).join('')}</ol></details>${r.id === 'szem' ? vidList('eyes_brow', t('vid_eyes_brow')) + vidList('eyes', t('vid_eyes')) : ''}${r.id === 'kepernyo' ? vidList('eyes', t('vid_eyes')) : ''}
     </section>
   </div>`;
 };

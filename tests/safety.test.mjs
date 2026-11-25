@@ -270,7 +270,7 @@ test('videók: szervóra, hagyományos sorok, pontok, kéz és láb, napszak, k�
   await page.goto(`${URL_}#tudas-kezlab-lab`); await page.waitForSelector('[data-vset=foot]');
   assert.equal(await page.locator('[data-vset=foot] a').count(), 12);
   await page.goto(`${URL_}#rutin-kepernyo`); await page.waitForSelector('#player');
-  assert.equal(await page.locator('[data-vset=eyes] a').count(), 5);
+  assert.equal(await page.locator('[data-vset=eyes] a').count(), 6);
   const ma = await open({ sched: { bed: '22:30', wake: '07:00' }, hash: 'ma' });
   await ma.at(7.5); assert.ok(await ma.page.locator('[data-vset=morning]').count(), 'reggel: kilenc légzés');
   await ma.at(22.25); assert.ok(await ma.page.locator('[data-vset=evening]').count(), 'este: alvógyakorlatok');
@@ -291,6 +291,10 @@ test('a videónevek listái hossza egyezik a videókkal, és minden videó az ad
   const src = readFileSync(`${ROOT}src/views2.js`, 'utf8');
   const sets = JSON.parse(src.match(/const VID_SETS = (\{[\s\S]*?\n\});/)[1].replace(/(\w+):/g, '"$1":').replace(/'/g, '"'));
   const trad = JSON.parse(src.match(/const VID_TRAD_NAME = (\[[^\]]*\]);/)[1].replace(/'/g, '"'));
+  trad.push(...JSON.parse(src.match(/const VID_CLAIM_OK = (\[[^\]]*\]);/)[1].replace(/'/g, '"')));
+  // az app saját videócímei semlegesek: nincs bennük betegség vagy gyógyító ígéret
+  const BAD = /gyógy|betegs|rövidlát|öregszem|vérnyomás|méreganyag|javítja|javítás|eltüntet|cure|heal|disease|myopia|presbyopia|blood pressure|toxin|improve/i;
+  for (const l of ['hu', 'en']) for (const [k, names] of Object.entries(window.SZ_LANG[l].c.vidnames)) for (const n of names) assert.ok(!BAD.test(n), `${l} ${k}: semleges cím (${n})`);
   const db = Object.fromEntries(JSON.parse(readFileSync(`${ROOT}research/taichi-zidong/taichi_zidong_videok.json`, 'utf8')).map((r) => [r.id, r]));
   for (const [k, ids] of Object.entries(sets)) {
     for (const l of ['hu', 'en']) assert.equal(window.SZ_LANG[l].c.vidnames[k].length, ids.length, `${l} ${k}`);

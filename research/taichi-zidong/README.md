@@ -61,6 +61,7 @@ Alapelvek (a CLAUDE.md szabályai szerint):
 
 - **Mind a 9 pont beépítve (2026. november):** szervóra-sorozat (szervek oldala, Ma), hat gyógyító hang, Wudang öt elem qigong, Baduanjin és Yi Jin Jing (Gyakorlat → Hagyományos sorok), pontvideók (37 pont, 109 link), kéz- és lábvideók (Kéz és láb lap), napszakos listák (Ma: reggel kilenc légzés, este alvógyakorlatok), szemápolás (Képernyőszünet rutin). Kód: `src/views2.js` → `VID_SOUND`, `VID_ELEM`, `VID_CLOCK`, `VID_PT`, `VID_SETS`, `vidRow`, `vidList`; Beállítások → „Külső videók (YouTube)” réteg.
 - **Kivétel:** a Baduanjin 4. és 8. mozdulatának videócíme a mozdulat hagyományos kínai nevét viseli, ezért az adatbázis állításként jelöli (`VID_TRAD_NAME`); az app ezeknél is a saját semleges nevét mutatja. Minden más beépített videó állítás nélküli – ezt teszt ellenőrzi.
+- **Szemtorna (2026. november):** 25 szemvideó három listában (`eyes_move`, `eyes_brow`, `eyes`). A felhasználó döntése szerint azok is bekerülhettek, amelyek eredeti címe előnyt vagy betegséget említ (`VID_CLAIM_OK`); az app ezeknél is csak rövid, semleges címet mutat, és teszt ellenőrzi, hogy az app címeiben nincs betegség vagy gyógyító ígéret.
 - A beépített videók tartalmát a lektornak meg kell néznie (a válogatás csak a címek alapján készült).
 
 ### Javasolt sorrend
