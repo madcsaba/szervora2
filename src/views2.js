@@ -268,6 +268,7 @@ V.ma = () => {
     <div class="grid2">${later.map((x) => `<a class="tile big" href="#szerv-${slug(x.c)}"><div class="k">${String(x.s).padStart(2, '0')}:00 · ${elT(x.el).n}</div><div class="v">${orgN(x.c)}</div></a>`).join('')}</div>
     <div class="card quiet"><div class="s">${C('org', o.c)[2]}</div>${vidClock(o)}</div>
     ${vidDaypart(d)}
+    ${herbToday(d)}
     ${disclaimer()}
   </section></div>`;
 };
@@ -300,7 +301,7 @@ V.szerv = (code) => {
   if (L.taplalkozas) cards.push(nightOrg(o) ? `<div class="card quiet"><span class="tag">${t('tag_food')}</span><div style="display:flex;gap:10px;margin-top:4px"><span style="color:var(--mut)">${ic('nofood', 20)}</span><div class="s">${t('night_food', { t: fmtH(sched().eat0) })} <b>${e.foods}</b></div></div></div>` : row('food', t('taste_color', { t: e.taste, c: e.color.toLowerCase() }), e.foods, `#elem-${o.el}`, t('tag_food')));
   pts.forEach((p) => cards.push(row('hand', C('area', p.id), `${pc(p)} · ${ptT(p.id)[3]}`, `#pont-${p.s}`, t('tag_press'))));
   if (L.erzelmek) cards.push(`<div class="card"><span class="tag">${t('tag_emo')}</span><div class="t">${e.emo}</div><div class="s"><b>${t('in_balance')}</b> ${e.bal}</div><div class="s">${e.dis}</div></div>`);
-  if (L.gyogynovenyek) cards.push(`<div class="card"><span class="tag">${t('tag_tea')}</span><div class="t">${e.tea}</div><div class="s">${t('tea_note')}</div></div>`);
+  if (L.gyogynovenyek) cards.push(herbRows(herbsFor((h) => h.ch.includes(o.c)), t('herb_for_org', { o: orgN(o.c) })));
   return `${top(orgN(o.c), `${o.py} · ${o.yy} · ${e.n}`, 'ma')}
   <section class="pad stack dgrid">
     <div class="hero"><div class="han bgglyph" aria-hidden="true">${o.han}</div><div class="chips">${['hours', active ? 'active_now' : 'in_hm'].map((k) => `<span>${k === 'hours' ? t('hours', { w: win(o) }) : k === 'active_now' ? t('active_now') : (startIn >= 60 ? t('in_hm', { h: Math.floor(startIn / 60), m: startIn % 60 }) : t('in_m', { m: startIn }))}</span>`).join('')}<span>${t('pair', { o: orgN(pair.c) })}</span></div><p style="margin-top:12px">${C('org', o.c)[2]}</p></div>
@@ -657,10 +658,10 @@ function graphSvg(el) {
 }
 V.tudas = (arg) => {
   let tab = 'graf', el = KPATH.length ? KPATH[KPATH.length - 1] : orgAt(now()).el;
-  if (arg.startsWith('graf-') && ELK.includes(arg.slice(5))) el = arg.slice(5); else if (arg === 'lexikon' || arg === 'ciklusok' || arg === 'asztro') tab = arg; else if (arg === 'kezlab' || arg.startsWith('kezlab-')) tab = 'kezlab';
+  if (arg.startsWith('graf-') && ELK.includes(arg.slice(5))) el = arg.slice(5); else if (arg === 'lexikon' || arg === 'ciklusok' || arg === 'asztro') tab = arg; else if (arg === 'teak' || arg.startsWith('tea-')) tab = 'teak'; else if (arg === 'kezlab' || arg.startsWith('kezlab-')) tab = 'kezlab';
   if (tab === 'graf' && KPATH[KPATH.length - 1] !== el) KPATH = [...KPATH, el].slice(-6);
   const e = elT(el), mother = Object.keys(GEN).find((x) => GEN[x] === el), ctrlBy = Object.keys(CTRL).find((x) => CTRL[x] === el);
-  const tabs = `<div class="seg tabs" role="tablist" aria-label="${t('view')}">${[['graf', 'graph', `#tudas-graf-${el}`], ['lexikon', 'lexicon', '#tudas-lexikon'], ['ciklusok', 'cycles', '#tudas-ciklusok'], ['kezlab', 'hand_foot', '#tudas-kezlab'], ...(L.asztro ? [['asztro', 'astro', '#tudas-asztro']] : [])].map(([k, n, h]) => `<a role="tab" aria-selected="${k === tab}" href="${h}">${t(n)}</a>`).join('')}</div>`;
+  const tabs = `<div class="seg tabs" role="tablist" aria-label="${t('view')}">${[['graf', 'graph', `#tudas-graf-${el}`], ['lexikon', 'lexicon', '#tudas-lexikon'], ['ciklusok', 'cycles', '#tudas-ciklusok'], ['kezlab', 'hand_foot', '#tudas-kezlab'], ['teak', 'herbs_tab', '#tudas-teak'], ...(L.asztro ? [['asztro', 'astro', '#tudas-asztro']] : [])].map(([k, n, h]) => `<a role="tab" aria-selected="${k === tab}" href="${h}">${t(n)}</a>`).join('')}</div>`;
   let body = '';
   if (tab === 'graf') body = `<div class="split"><div class="pad smain">${graphSvg(el)}</div><section class="pad stack sside">
     <div class="sub">${t('graph_hint')}</div>
@@ -674,8 +675,52 @@ V.tudas = (arg) => {
   <div class="split"><div class="pad smain" id="cycfig">${cycleSvg(elemCyc)}</div><section class="pad stack sside"><div class="card" id="cyctext">${cycText()}</div></section></div>`;
   if (tab === 'asztro') body = astroView();
   if (tab === 'kezlab') body = kezlabView(arg.slice(7));
+  if (tab === 'teak') body = arg.startsWith('tea-') && HBY[arg.slice(4)] ? herbPage(HBY[arg.slice(4)]) : herbList();
   return `${top(t('tab_know'), t('know_sub'), '', settingsBtn())}<div class="pad">${tabs}</div>${body}<div class="pad">${disclaimer()}</div>`;
 };
+/* ================= TEÁK ÉS FŰSZEREK (Tudás → Teák) ================= */
+// Lista szűrőkkel és növényoldal: kép (közkincs botanikai rajz, ha van), a hagyományban, kínai jellemzők, elkészítés, figyelem, forrás.
+const hT = (id) => C('herbs', id);
+const herbImg = (h, cls = '') => (typeof HERB_IMG !== 'undefined' && HERB_IMG[h.id]) ? `<img class="himg ${cls}" src="${HERB_IMG[h.id]}" alt="${esc(t('herb_img_alt', { n: hT(h.id)[0] }))}" loading="lazy">` : `<span class="himg ${cls} noimg" aria-hidden="true">${ic('herb', 34)}</span>`;
+const herbChips = (h) => `${h.temp ? `<span class="echip">${C('htemp')[h.temp]}</span>` : ''}${herbEls(h).map((e) => `<span class="echip"><span class="dot" style="background:var(--${e})"></span>${elT(e).n}</span>`).join('')}${h.stim ? `<span class="echip">${t('herb_stim')}</span>` : ''}${h.calm ? `<span class="echip">${ic('moon', 13)} ${t('herb_calm')}</span>` : ''}`;
+let HFILT = 'all';
+const HF_FILTERS = () => [['all', t('all')], ['tcm', t('herb_tcm')], ['eu', t('herb_eu')], ['calm', t('herb_calm')], ['nocaf', t('herb_nostim')], ...ELK.map((k) => [k, elT(k).n])];
+const herbMatch = (h) => HFILT === 'all' || (HFILT === 'tcm' && h.temp) || (HFILT === 'eu' && !h.temp) || (HFILT === 'calm' && h.calm) || (HFILT === 'nocaf' && !h.stim) || herbEls(h).includes(HFILT);
+const herbCard = (h) => `<a class="card hcard" href="#tudas-tea-${h.id}" data-herb="${h.id}" data-stim="${h.stim ? 1 : 0}">${herbImg(h)}<span class="grow"><span class="t">${hT(h.id)[0]}</span><span class="s"><i>${h.lat}</i>${h.han ? ` · <span lang="zh-Hans">${h.han}</span>` : ''}</span><span class="chips">${herbChips(h)}</span><span class="s">${C('prep')[h.prep[0]][0]}${h.prep[2] ? ` · ${t('herb_min', { a: h.prep[2], b: h.prep[3] })}` : ''}</span></span></a>`;
+function herbList() {
+  const list = HERBS.filter(herbMatch), d = now(), fit = list.filter((h) => herbFits(h, d));
+  return `<div class="pad stack"><div class="card quiet"><div class="t">${t('herbs_h')}</div><div class="s">${t('herbs_intro')}</div></div></div>
+  <div class="pills" role="group" aria-label="${t('herb_filter')}">${HF_FILTERS().map(([k, n]) => `<button type="button" class="pill" data-act="hfilt" data-k="${k}" aria-pressed="${k === HFILT}">${n}</button>`).join('')}</div>
+  <section class="pad"><div class="sub" id="hcount">${t('herb_count', { n: list.length, f: fit.length })}</div><div class="dgrid hgrid" id="hlist">${list.map(herbCard).join('')}</div></section>`;
+}
+document.addEventListener('click', (e) => { const b = e.target.closest && e.target.closest('[data-act=hfilt]'); if (!b) return; HFILT = b.dataset.k; const v = $('#view'); const y = scrollY; v.innerHTML = V.tudas('teak'); scrollTo(0, y); });
+function herbPage(h) {
+  const x = hT(h.id), p = h.prep, P = C('prep'), els = herbEls(h), d = now();
+  const orgs = h.ch.map((c) => OBY[c]).filter(Boolean);
+  const how = (m, main) => `<div class="kv"><div class="k">${main ? t('herb_method') : t('herb_alt')}</div><div class="v"><b>${P[m][0]}</b> – ${P[m][1]}</div></div>`;
+  return `<div class="split"><div class="pad smain"><figure class="hfig">${herbImg(h, 'big')}${HERB_CR[h.id] ? `<figcaption class="note credit">${t('herb_img_cr', { c: HERB_CR[h.id] })}</figcaption>` : ''}</figure></div>
+  <section class="pad stack sside">
+    <div class="card"><a class="sub" href="#tudas-teak">← ${t('herbs_tab')}</a><h2 class="display" style="font-size:28px;margin-top:4px">${x[0]}</h2><div class="s"><i>${h.lat}</i>${h.han ? ` · <span class="hanl" lang="zh-Hans">${h.han}</span> ${h.py}` : ''} · ${C('hpart')[h.part]}</div><div class="chips">${herbChips(h)}</div>
+      ${herbFits(h, d) ? '' : `<div class="s othertime" style="margin-top:8px">${ic('moon', 14)} ${t('herb_not_now')}</div>`}</div>
+    <div class="card"><span class="tag">${t('pi_trad')}</span><p class="s" style="color:var(--on);margin:6px 0">${x[1]}</p>
+      ${h.temp ? `<div class="kv"><div class="k">${t('herb_temp')}</div><div class="v">${C('htemp')[h.temp]}</div></div><div class="kv"><div class="k">${t('herb_taste')}</div><div class="v">${h.taste.map((s) => `${C('htaste')[s]} (${elT(TASTE_EL[s]).n})`).join(', ')}</div></div>
+      <div class="kv"><div class="k">${t('herb_ch')}</div><div class="v">${orgs.map((o) => `<a href="#szerv-${slug(o.c)}">${orgN(o.c)}</a> <span class="sub">${win(o)}</span>`).join(' · ')}</div></div>` : `<div class="s">${t('herb_no_tcm')}</div>`}</div>
+    <div class="card"><span class="tag">${t('herb_prep')}</span><p class="s" style="color:var(--on);margin:6px 0">${x[2]}</p>
+      ${how(p[0], true)}${p[1] ? `<div class="kv"><div class="k">${t('herb_water')}</div><div class="v">${p[1]} °C</div></div>` : ''}${p[2] ? `<div class="kv"><div class="k">${t('herb_time')}</div><div class="v">${t('herb_min', { a: p[2], b: p[3] })}</div></div>` : ''}<div class="kv"><div class="k">${t('herb_amount')}</div><div class="v">${C('hamount')[p[4]]}</div></div>${h.alt ? how(h.alt, false) : ''}</div>
+    <div class="warnbox">${ic('warn', 18)}<span><b>${t('herb_safety')}:</b> ${x[3]} ${t('herb_general')}</span></div>
+    <div class="card quiet"><span class="tag">${t('herb_src')}</span><div class="s">${h.ema ? t('herb_src_ema', { m: h.ema }) + ' · ' : ''}Wikidata ${h.q}${h.temp ? ' · ' + t('herb_src_tcm') : ''}</div></div>
+    ${disclaimer()}
+  </section></div>`;
+}
+// Szerv / elem / Ma: illő teák (a réteg kikapcsolható; a napszakhoz nem illő teák nem kerülnek ajánlásba)
+const herbsFor = (pred, n = 3, d = now()) => HERBS.filter(pred).sort((a, b) => herbFits(b, d) - herbFits(a, d)).slice(0, n);
+const herbRows = (hs, title) => !L.gyogynovenyek || !hs.length ? '' : `<div class="card"><span class="tag">${title}</span><div class="list">${hs.map((h) => `<a class="li" href="#tudas-tea-${h.id}" data-herb="${h.id}" data-stim="${h.stim ? 1 : 0}">${herbImg(h, 'sm')}<span class="grow"><span class="t">${hT(h.id)[0]}</span><span class="s">${C('prep')[h.prep[0]][0]}${h.prep[2] ? ' · ' + t('herb_min', { a: h.prep[2], b: h.prep[3] }) : ''}</span></span>${ic('chev', 16)}</a>`).join('')}</div><div class="s" style="margin-top:6px">${t('tea_note')}</div></div>`;
+function herbToday(d) {
+  if (!L.gyogynovenyek) return '';
+  const sea = dialSeason(d), fit = HERBS.filter((h) => herbFits(h, d));
+  const pick = fit.filter((h) => herbEls(h).includes(sea)).concat(fit.filter((h) => CALM(d) && h.calm));
+  return pick.length ? herbRows([pick[(d.getDate()) % pick.length]], CALM(d) ? t('herb_today_eve') : t('herb_today', { e: elT(sea).n })) : '';
+}
 let elemCyc = 'tap';
 const cycText = () => { const c = C('cyc', elemCyc); return `<div class="t">${c[1]} <span class="sub">· ${c[2]}</span></div><p class="s" style="color:var(--on)">${c[3]}</p><p class="s">${c[4]}</p>`; };
 

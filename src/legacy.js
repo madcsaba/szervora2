@@ -13,7 +13,7 @@ V.elem = (k) => {
     <div class="grid2"><div class="card" style="padding:10px 12px"><span class="tag">${t('balanced')}</span><div style="font-size:14px;line-height:19px;margin-top:2px">${e.bal}</div></div><div class="card" style="padding:10px 12px"><span class="tag" style="color:var(--tuz-t)">${t('disturbed')}</span><div style="font-size:14px;line-height:19px;margin-top:2px">${e.dis}</div></div></div>
     ${L.taplalkozas ? `<div class="card"><span class="tag">${t('tag_food')}</span><div style="font-size:15px;font-weight:600;margin-top:2px">${t('taste_x', { t: e.taste })}</div><div style="font-size:14px;line-height:20px">${e.foods}</div><div style="font-size:13px;line-height:19px;color:var(--muted);margin-top:4px">${e.tfx}</div><div style="font-size:12px;font-weight:600;color:var(--jade-t);margin-top:6px;display:flex;align-items:center;gap:6px">${ic('clock', 14)}${t('eat_window', { a: fmtH(sched().wake), b: fmtH(sched().eat0) })}</div></div>` : ''}
     ${L.mozgas ? row('move', t('heal_sound', { s: snd[1] }), snd[0], `#gyakorlat-${slug(ELORG[k][0])}`, t('tag_move')) + vidElem(k) + vidSound(SOUND_OF[ELORG[k][0]]) : ''}
-    ${L.gyogynovenyek ? `<div class="card"><span class="tag">${t('tag_tea')}</span><div style="font-size:15px;font-weight:600">${e.tea}</div></div>` : ''}
+    ${herbRows(herbsFor((h) => herbEls(h).includes(k)), t('herb_for_el', { e: e.n }))}
     ${disclaimer()}
   </section>`;
 };

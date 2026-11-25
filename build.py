@@ -15,6 +15,13 @@ import base64 as _b64
 ANAT = ROOT / 'assets' / 'anatomy'
 anat_js = 'const ANAT_IMG = {' + ', '.join(f"{p.stem}: 'data:image/svg+xml;base64,{_b64.b64encode(p.read_bytes()).decode()}'" for p in sorted(ANAT.glob('*.svg'))) + '};'
 
+# Növényrajzok (assets/herbs: közkincs botanikai rajzok kicsinyítve, forrás: assets/herbs/README.md és credits.json)
+import json as _json
+HERBD = ROOT / 'assets' / 'herbs'
+_cr = _json.loads((HERBD / 'credits.json').read_text(encoding='utf8')) if (HERBD / 'credits.json').exists() else {}
+anat_js += '\nconst HERB_IMG = {' + ', '.join(f"{p.stem}: 'data:image/jpeg;base64,{_b64.b64encode(p.read_bytes()).decode()}'" for p in sorted(HERBD.glob('*.jpg'))) + '};'
+anat_js += '\nconst HERB_CR = ' + _json.dumps({k: v['credit'] for k, v in _cr.items()}, ensure_ascii=False) + ';'
+
 v2 = read('views2.js') + '\n'
 mark = '/* ================= útválasztó ================= */'
 assert v2.count(mark) == 1, 'views2.js: az útválasztó jelölő pontosan egyszer szerepeljen'

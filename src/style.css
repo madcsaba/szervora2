@@ -383,3 +383,15 @@ nav.tabs a[aria-current=page] .ind{background:var(--cont);color:var(--acc)}
 .pcats{margin:8px 0 0}.pcats dt{font-weight:700;font-size:14px;margin-top:8px}.pcats dd{margin:2px 0 0;font-size:13px;line-height:19px;color:var(--mut)}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.chips .echip{text-decoration:none;color:var(--on);background:var(--surf2);gap:5px}
 .ptrad{margin-top:10px}.ptrad summary{cursor:pointer;font-weight:700}
+
+/* teák és fűszerek */
+.hgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-top:8px}
+.hcard{display:flex;gap:12px;align-items:flex-start;text-decoration:none;color:inherit}
+.hcard .grow{display:flex;flex-direction:column;gap:3px;min-width:0}
+.hcard .chips{margin-top:2px}
+.himg{width:72px;height:96px;flex:none;border-radius:12px;object-fit:cover;background:#F4EFE3;display:flex;align-items:center;justify-content:center;color:var(--mut)}
+.himg.noimg{background:var(--surf2)}
+.himg.sm{width:40px;height:52px;border-radius:8px}
+.himg.big{width:100%;height:auto;max-height:calc(100vh - 220px);object-fit:contain;border-radius:var(--r-l);padding:10px}
+.hfig{margin:0}
+.hanl{font-family:'Noto Serif SC',serif}

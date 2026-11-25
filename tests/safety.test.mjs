@@ -376,6 +376,48 @@ test('pontok: legalább 70 a testen, mindegyiknél teljes háttérinfó mindkét
   await ctx.close();
 });
 
+test('teák: legalább 40 növény teljes adatokkal, állítás nélkül; este csak nem élénkítő tea; kikapcsolható', async () => {
+  const { page, ctx, errors, at } = await open({ hash: 'tudas-teak' });
+  await at(10);
+  const L = await page.evaluate(() => ['hu', 'en'].map((lg) => { const c = window.SZ_LANG[lg].c; return { herbs: c.herbs, prep: c.prep, amount: c.hamount }; }));
+  const ids = Object.keys(L[0].herbs);
+  assert.ok(ids.length >= 40, `legalább 40 növény (${ids.length})`);
+  assert.deepEqual(Object.keys(L[1].herbs).sort(), [...ids].sort());
+  const CLAIM = /gyógyít|meggyógy|kezeli a|megelőzi|betegség ellen|\bcures?\b|\btreats?\b|\bprevents?\b|\bheals?\b/i;
+  for (const lg of L) for (const id of ids) {
+    const h = lg.herbs[id];
+    assert.equal(h.length, 4, `${id}: név, hagyomány, elkészítés, figyelem`);
+    assert.ok(h.every((x) => x && x.length > 3), `${id}: minden mező kitöltve`);
+    assert.ok(!CLAIM.test(h[1] + ' ' + h[2]), `${id}: nincs gyógyító állítás (${h[1]})`);
+  }
+  assert.ok(await page.locator('.hcard').count() >= 40, 'lista');
+  await page.click('[data-act=hfilt][data-k=calm]');
+  const calm = await page.locator('.hcard').count();
+  assert.ok(calm > 3 && calm < 40, `esti szűrő (${calm})`);
+  assert.equal(await page.locator('.hcard[data-stim="1"]').count(), 0, 'esti teák között nincs élénkítő');
+  await page.goto(`${URL_}#tudas-tea-edeskomeny`); await page.waitForSelector('.warnbox');
+  assert.match(await page.textContent('.warnbox'), /Várandósság/);
+  assert.match(await page.textContent('#view'), /Forrázás/);
+  assert.match(await page.textContent('#view'), /EMA/);
+  // este (lecsendesedési sáv) a Ma nézet teája nem élénkítő, és az ajánlás előtt nem jelenik meg
+  assert.deepEqual(errors, []);
+  await ctx.close();
+  const eve = await open({ hash: 'ma' });
+  for (const x of [20.75, 21.5, 23, 2]) {
+    await eve.at(x);
+    const herb = eve.page.locator('#view .dside [data-herb]');
+    assert.equal(await herb.count(), 1, `${x} – esti tea a Ma nézetben`);
+    assert.equal(await herb.getAttribute('data-stim'), '0', `${x} – nem élénkítő`);
+    assert.ok(await eve.page.evaluate(() => { const h = document.querySelector('#view .hero'), y = document.querySelector('#view .dside [data-herb]'); return !!(h.compareDocumentPosition(y) & Node.DOCUMENT_POSITION_FOLLOWING); }), 'a lecsendesedés marad az első');
+  }
+  assert.deepEqual(eve.errors, []);
+  await eve.ctx.close();
+  const off = await open({ hash: 'ma', layers: { gyogynovenyek: false } });
+  await off.at(21.5);
+  assert.equal(await off.page.locator('#view [data-herb]').count(), 0, 'kikapcsolt rétegnél nincs teaajánlás');
+  await off.ctx.close();
+});
+
 test('a lecsendesedés az első, bármilyen check-in mellett', async () => {
   const exp = expected(22, 7);
   for (const x of [20.5, 22, 23.5, 0, 2.5, 4.5]) {
