@@ -82,10 +82,11 @@ const VID_SETS = {
   hand: ['HKlE7hjF7OA', 'XrQ6Ug8s-PY', 'IhUdx3hXnG4', 'vXoeLR23vHY', 'yWE0FnBcxZI', 'vWeRyj_XmmQ', '5zyMmPNNLiM', 'cPrH2LqNckI', 'rqO5KJO3OUk'],
   foot: ['hB8kSgZjjhY', 'NEoScJSByZA', 'oK32rV9XcN4', 'XJSEN6Cl658', 'PL6R5Qt7uKM', 'GAT7GkkfiiU', 'boGgIJUqpR4', 'G-db1Zy0m8I', 'mIe7saybeoo', 'GNDQSDWQprk', 'Rsd_lZvujUU', 'mlkCpe5Mq84']
 };
-function vidList(key, title) {
+function vidList(key, title, max = 0) {
   if (!L.videok) return '';
-  const names = C('vidnames')[key];
-  return `<div class="card vidlist" data-vset="${key}"><span class="tag">${t('vid_tag')}</span><div class="t">${title}</div><div class="s">${t('vid_ext')}</div><ol>${VID_SETS[key].map((id, i) => `<li>${vidLink(id, `${ic('play', 14, 2.2)}<span>${names[i]}</span>`)}</li>`).join('')}</ol></div>`;
+  const names = C('vidnames')[key], li = (id, i) => `<li>${vidLink(id, `${ic('play', 14, 2.2)}<span>${names[i]}</span>`)}</li>`, ids = VID_SETS[key];
+  const cut = max && ids.length > max + 1 ? max : ids.length;
+  return `<div class="card vidlist" data-vset="${key}"><span class="tag">${t('vid_tag')}</span><div class="t">${title}</div><div class="s">${t('vid_ext')}</div><ol>${ids.slice(0, cut).map(li).join('')}</ol>${cut < ids.length ? `<details class="vmore"><summary>${t('vid_more', { n: ids.length - cut })}</summary><ol start="${cut + 1}">${ids.slice(cut).map((id, k) => li(id, k + cut)).join('')}</ol></details>` : ''}</div>`;
 }
 const vidDaypart = (d) => { const dp = daypart(d); return dp === 'morning' ? vidList('morning', t('vid_morning')) : dp === 'evening' || dp === 'night' ? vidList('evening', t('vid_evening')) : ''; };
 
@@ -464,37 +465,50 @@ V.pont = (s) => {
 };
 
 /* ================= GYAKORLAT ================= */
+/* Gyakorlat oldal: felül ajánlás + témakör-csempék (saját vonalrajzok), alatta tagolt szakaszok; hosszú videólisták összecsukva */
+const GILL = {
+  rutin: '<circle cx="32" cy="11" r="6"/><path d="M21 60V35q0-11 11-13 11 2 11 13v25M21 31l-9 15M43 31l9 15"/><circle cx="32" cy="31" r="3" class="f"/><circle cx="26" cy="46" r="3" class="f"/><circle cx="38" cy="46" r="3" class="f"/>',
+  legzes: '<circle cx="32" cy="32" r="8"/><circle cx="32" cy="32" r="16" opacity=".6"/><circle cx="32" cy="32" r="25" opacity=".3"/><path d="M6 32h8M50 32h8"/>',
+  chikung: '<circle cx="32" cy="12" r="5"/><path d="M32 18v22M32 24L19 9M32 24l13-15M32 40l-9 19M32 40l9 19"/><path d="M14 6q18-8 36 0" opacity=".5"/>',
+  szem: '<path d="M6 32s10-15 26-15 26 15 26 15-10 15-26 15S6 32 6 32z"/><circle cx="32" cy="32" r="8"/><circle cx="32" cy="32" r="3" class="f"/><path d="M14 14l4 5M50 14l-4 5M32 9v6" opacity=".5"/>',
+  kezlab: '<path d="M22 34V14a3 3 0 0 1 6 0v16M28 30V9a3 3 0 0 1 6 0v21M34 30V12a3 3 0 0 1 6 0v20M40 32V18a3 3 0 0 1 6 0v18c0 12-6 20-15 20-7 0-11-4-14-10l-6-11a3 3 0 0 1 5-3l4 5"/><circle cx="33" cy="42" r="3" class="f"/>',
+  tech: '<path d="M14 50c8-2 12-8 14-16l2-10a4 4 0 0 1 8 1l-1 9h11a4 4 0 0 1 0 8H36"/><circle cx="44" cy="16" r="6" opacity=".6"/><circle cx="44" cy="16" r="2.5" class="f"/>'
+};
+const gill = (k, cls = '') => `<svg class="gill ${cls}" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${GILL[k]}</svg>`;
+const gsec = (id, k, title, sub, body) => `<section class="gsec" id="g-${id}"><header class="gsech" style="--tc:var(--${({ rutin: 'acc', legzes: 'fem', chikung: 'fa', szem: 'fa', kezlab: 'tuz', tech: 'fold' })[k]})">${gill(k, 'sm')}<div><h2>${title}</h2><p class="sub">${sub}</p></div></header>${body}</section>`;
 V.gyakorlat = (arg) => {
   const d = now(), o = orgAt(d), snd = C('snd', SOUND_OF[o.c]), rec = recommend(d, lastCheckin());
   const rcard = (r, hl) => { const rt = C('routines', r.id); return `<a class="rcard${hl ? ' hl' : ''}" href="#rutin-${r.id}"><span class="ic">${ic(r.icon)}</span><span class="grow"><span class="t">${rt[0]}</span><span class="s">${rt[1]}</span><span class="meta">${t('routine_meta', { m: Math.max(1, Math.round(r.sec / 60)), n: r.steps.length })}</span></span><span class="playdot">${ic('play', 18, 2.2)}</span></a>`; };
+  const rest = ROUT.filter((r) => r.id !== rec.id && r.id !== 'szem'), fit = rest.filter((r) => routFits(r.id, d)), other = rest.filter((r) => !routFits(r.id, d));
+  const tiles = [['rutinok', 'rutin', t('g_rout'), t('g_rout_n', { n: fit.length + 1 })], ...(L.legzes ? [['legzes', 'legzes', t('breath_h'), t('pat_' + PAT_DEF[daypart(d)])]] : []), ...(L.mozgas || L.videok ? [['chikung', 'chikung', t('g_qi'), t('g_qi_s')]] : []), ['szem', 'szem', t('eye_h'), t('eye_meta', { m: Math.round(EYEX_SEC / 60), n: EYEX.length })], ['kezlab', 'kezlab', t('hand_foot'), t('g_hf_s')], ['tech', 'tech', t('tech_title'), t('g_tech_s')]];
+  const TC = { rutin: 'acc', legzes: 'fem', chikung: 'fa', szem: 'fa', kezlab: 'tuz', tech: 'fold' };
+  if (L.legzes) { const dp = daypart(d), pats = Object.keys(PATS).filter((k) => PAT_FIT[k].includes(dp)); if (!pats.includes(brPat) || !brUser) brPat = PAT_DEF[dp]; }
   return `${top(t('tab_prac'), t('prac_sub'), '', settingsBtn())}
-  <section class="pad stack dgrid">
-    <div class="sec"><h2>${t('recommended')}</h2></div>
-    ${rcard(rec.r, true)}
-    ${(() => {
-      // a napszakhoz illő rutinok elöl, a többi összecsukva, jelölve, mikorra valók
-      const rest = ROUT.filter((r) => r.id !== rec.id && r.id !== 'szem'), fit = rest.filter((r) => routFits(r.id, d)), other = rest.filter((r) => !routFits(r.id, d));
-      return `<div class="sec"><h2>${t('routines_h')}</h2><span>${fit.length + 1}</span></div>${fit.map((r) => rcard(r)).join('')}`
-        + (other.length ? `<details class="othertime"><summary><span class="t">${t('other_time')}</span><span class="sub">${other.length}</span></summary><div class="stack">${other.map((r) => rcard(r).replace('<span class="meta">', `<span class="meta"><span class="when">${t(ROUT_WHEN[r.id] || 'fit_any')}</span> · `)).join('')}</div></details>` : '');
-    })()}
-    ${L.legzes ? (() => { const dp = daypart(d), pats = Object.keys(PATS).filter((k) => PAT_FIT[k].includes(dp)); if (!pats.includes(brPat) || !brUser) brPat = PAT_DEF[dp]; return ''; })() + `<div class="card" id="legzes" style="--bc:var(--acc);--bl:var(--cont)">
-      <div class="sec" style="padding:0"><h2>${t('breath_h')}</h2><span id="brcount">${t('cycles_n', { n: brCycles })}</span></div>
+  <div class="pad gtop">
+    <div class="gnow"><div class="sec" style="padding:0 0 6px"><h2>${t('recommended')}</h2></div>${rcard(rec.r, true)}</div>
+    <nav class="gtiles" aria-label="${t('g_nav')}">${tiles.map(([id, k, n, sub]) => `<a class="gtile" href="#gyakorlat-${id}" style="--tc:var(--${TC[k]})">${gill(k)}<span class="t">${n}</span><span class="s">${sub}</span></a>`).join('')}</nav>
+  </div>
+  <div class="pad gbody">
+  ${gsec('rutinok', 'rutin', t('g_rout'), t('g_rout_sub'), `<div class="ggrid">${fit.map((r) => rcard(r)).join('')}</div>`
+    + (other.length ? `<details class="othertime"><summary><span class="t">${t('other_time')}</span><span class="sub">${other.length}</span></summary><div class="ggrid">${other.map((r) => rcard(r).replace('<span class="meta">', `<span class="meta"><span class="when">${t(ROUT_WHEN[r.id] || 'fit_any')}</span> · `)).join('')}</div></details>` : ''))}
+  ${L.legzes ? gsec('legzes', 'legzes', t('breath_h'), t('g_breath_sub'), `<div class="ggrid"><div class="card" id="legzes" style="--bc:var(--acc);--bl:var(--cont)">
+      <div class="sec" style="padding:0"><h2>${t('rhythm')}</h2><span id="brcount">${t('cycles_n', { n: brCycles })}</span></div>
       <div class="seg" style="margin-top:10px" role="group" aria-label="${t('rhythm')}">${Object.keys(PATS).filter((k) => PAT_FIT[k].includes(daypart(d))).map((k) => `<button type="button" data-act="pat" data-k="${k}" aria-pressed="${k === brPat}">${t('pat_' + k)}</button>`).join('')}</div>
       <div class="breath"><div class="r1"></div><div class="r2"></div><div class="core" id="core"><div id="phase" style="font-size:16px;font-weight:600">${t('ready')}</div><div class="n" id="num">${PATS[brPat][0][1]}</div></div></div>
       <p id="brhint" class="s" style="text-align:center;margin:12px 0 0">${t('exhale_hint', { s: snd[1] })}</p>
       <div style="margin-top:12px"><div style="display:flex;justify-content:space-between" class="sub"><span id="brcyc">${t('cyc_of', { a: 0, b: brCycles })}</span><span id="brleft"></span></div><div class="prog"><i id="brprog"></i></div></div>
       <div class="btnrow" style="justify-content:center"><button type="button" class="btn" data-act="brgo" id="brgo">${ic('play', 16, 2)}${t('start')}</button><button type="button" class="btn tonal" data-act="brstop">${t('finish')}</button><button type="button" class="btn tonal" data-act="brcyc" aria-label="${t('cycle_toggle')}"><span id="brcycl">${brCycles}×</span></button></div>
-    </div>` : ''}
-    ${L.mozgas ? `<div class="card"><span class="tag">${t('qigong_tag')}</span><div class="t" style="font-size:18px">${snd[0]}: ${qt(snd[1])}</div><p class="s" style="font-size:15px;line-height:22px;color:var(--on)">${snd[2]}</p><p class="s">${t('qigong_rep')}</p>${vidSound(SOUND_OF[o.c])}</div>` : ''}
-    <div class="sec" id="szemtorna-h"><h2>${t('eye_h')}</h2></div>
-    <a class="rcard${CALM(d) ? '' : ' hl'}" href="#szemtorna"><span class="ic">${ic('eye')}</span><span class="grow"><span class="t">${t('eye_move_t')}</span><span class="s">${t('eye_move_s')}</span><span class="meta">${t('eye_meta', { m: Math.round(EYEX_SEC / 60), n: EYEX.length })}</span></span>${ic('chev', 18)}</a>
+    </div><div class="card quiet"><div class="t">${t('g_breath_how')}</div><p class="s" style="color:var(--on)">${t('g_breath_txt')}</p></div></div>`) : ''}
+  ${L.mozgas || L.videok ? gsec('chikung', 'chikung', t('g_qi'), t('g_qi_sub'), `<div class="ggrid c3">${L.mozgas ? `<div class="card"><span class="tag">${t('qigong_tag')}</span><div class="t" style="font-size:18px">${snd[0]}: ${qt(snd[1])}</div><p class="s" style="font-size:15px;line-height:22px;color:var(--on)">${snd[2]}</p><p class="s">${t('qigong_rep')}</p>${vidSound(SOUND_OF[o.c])}</div>` : ''}${vidList('bdj', t('vid_bdj'), 3)}${vidList('yjj', t('vid_yjj'), 3)}</div>`) : ''}
+  ${gsec('szem', 'szem', t('eye_h'), t('g_eye_sub'), `<div class="ggrid"><a class="rcard eyecard${CALM(d) ? '' : ' hl'}" href="#szemtorna"><span class="eyemini">${eyeSvg('lr')}</span><span class="grow"><span class="t">${t('eye_move_t')}</span><span class="s">${t('eye_move_s')}</span><span class="meta">${t('eye_meta', { m: Math.round(EYEX_SEC / 60), n: EYEX.length })}</span></span>${ic('chev', 18)}</a>
     <a class="rcard" href="#rutin-szem"><span class="ic">${ic('point')}</span><span class="grow"><span class="t">${C('routines', 'szem')[0]}</span><span class="s">${C('routines', 'szem')[1]}</span><span class="meta">${t('routine_meta', { m: Math.max(1, Math.round(RBY.szem.sec / 60)), n: RBY.szem.steps.length })}</span></span>${ic('chev', 18)}</a>
-    ${vidList('eyes_move', t('vid_eyes_move'))}${vidList('eyes', t('vid_eyes'))}
-    ${L.videok ? `<div class="sec"><h2>${t('vid_trad_h')}</h2></div>${vidList('bdj', t('vid_bdj'))}${vidList('yjj', t('vid_yjj'))}` : ''}
-    ${row('hand', t('hand_foot'), t('hf_row_s'), '#tudas-kezlab')}
-    ${row('hand', t('tech_title'), t('tech_sub'), '#technikak')}
-    ${disclaimer()}
-  </section>`;
+    ${vidList('eyes_move', t('vid_eyes_move'), 3)}${vidList('eyes', t('vid_eyes'), 3)}</div>`)}
+  <div class="ggrid gmore">
+    <a class="card glink" id="g-kezlab" href="#tudas-kezlab" style="--tc:var(--tuz)">${typeof ANAT_IMG !== 'undefined' && ANAT_IMG.hand ? `<img class="gimg" src="${ANAT_IMG.hand}" alt="" aria-hidden="true">` : gill('kezlab')}<span class="grow"><span class="t">${t('hand_foot')}</span><span class="s">${t('hf_row_s')}</span></span>${ic('chev', 18)}</a>
+    <a class="card glink" id="g-tech" href="#technikak" style="--tc:var(--fold)">${gill('tech')}<span class="grow"><span class="t">${t('tech_title')}</span><span class="s">${t('tech_sub')}</span></span>${ic('chev', 18)}</a>
+  </div>
+  ${disclaimer()}
+  </div>`;
 };
 
 /* ================= SZEMTORNA (mozgásos, vezetett) ================= */
@@ -1014,7 +1028,7 @@ function route() {
   if (name === 'test') initTest(sig);
   if (name === 'foto') initFoto(sig);
   if (name === 'pont') { initTimer(sig); initPont3D(sig, arg); }
-  if (name === 'gyakorlat') { initBreath(sig); if (arg === 'legzes' || arg === 'szemtorna') { const el = $(arg === 'legzes' ? '#legzes' : '#szemtorna-h'); if (el) setTimeout(() => el.scrollIntoView({ block: 'start' }), 0); } }
+  if (name === 'gyakorlat') { initBreath(sig); if (arg) { const el = $('#g-' + ({ szemtorna: 'szem' }[arg] || arg)) || $('#' + arg); if (el) setTimeout(() => el.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }), 0); } }
   if (name === 'rutin') initPlayer(sig, arg);
   if (name === 'szemtorna') initEyes(sig);
   if (name === 'kijelzo') initKijelzo(sig);

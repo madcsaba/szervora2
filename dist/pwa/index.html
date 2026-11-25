@@ -468,6 +468,36 @@ nav.tabs a[aria-current=page] .ind{background:var(--cont);color:var(--acc)}
 .eylist button[aria-current]{color:var(--acc);font-weight:700}
 .warnbox>svg{flex:none}
 
+/* Gyakorlat: témakör-csempék, tagolt szakaszok */
+.gtop{display:grid;gap:14px}
+.gtiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.gtile{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:12px;border-radius:var(--r-l);background:color-mix(in srgb,var(--tc) 16%,var(--surf));color:var(--on);text-decoration:none;min-height:104px;transition:transform .15s}
+.gtile:hover{transform:translateY(-2px)}
+.gtile .gill{width:40px;height:40px;color:var(--tc);margin-bottom:4px}
+.gtile .t{font:700 14px/1.2 'Inter Tight',Inter,sans-serif}.gtile .s{font-size:11.5px;color:var(--mut);line-height:1.3}
+.gill .f{fill:currentColor;stroke:none}
+.gbody{display:flex;flex-direction:column;gap:26px}
+.gsec{display:flex;flex-direction:column;gap:10px;scroll-margin-top:16px}
+.gsech{display:flex;align-items:center;gap:12px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.gsech .gill.sm{width:44px;height:44px;flex:none;padding:6px;border-radius:14px;color:var(--tc);background:color-mix(in srgb,var(--tc) 16%,transparent)}
+.gsech h2{margin:0;font:700 20px 'Inter Tight',Inter,sans-serif}.gsech .sub{margin:2px 0 0}
+.ggrid{display:grid;gap:10px;align-items:start}
+.vmore{margin-top:4px}.vmore summary{cursor:pointer;font-weight:600;font-size:14px;color:var(--acc);padding:6px 4px;list-style:none}.vmore summary::-webkit-details-marker{display:none}
+.vmore summary::before{content:'+ '}.vmore[open] summary::before{content:'− '}
+.eyecard .eyemini{width:86px;flex:none}.eyecard .eyemini .eyesvg{max-width:86px}
+.glink{display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit;scroll-margin-top:16px}
+.glink .gill{width:52px;height:52px;flex:none;color:var(--tc)}
+.glink .gimg{width:52px;height:64px;object-fit:cover;object-position:50% 20%;flex:none;border-radius:12px;background:#F4EFE3;filter:grayscale(1) sepia(.28)}
+.glink .t{display:block;font-weight:700}.glink .s{display:block;font-size:13px;color:var(--mut)}
+@media (min-width:1024px){
+  .gtop{grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);align-items:stretch}
+  .gnow .rcard{min-height:calc(100% - 34px)}
+  .ggrid{grid-template-columns:1fr 1fr}
+  .gtile{min-height:120px}
+}
+.gbody{margin-top:22px}
+@media (min-width:1280px){.ggrid.c3{grid-template-columns:repeat(3,1fr)}}
+
 </style>
 </head>
 <body>
@@ -805,6 +835,7 @@ Object.assign(window.SZ_LANG.hu.ui, {
   herbs_tab: 'Teák', herbs_h: 'Teák és fűszerek', herbs_intro: 'Hétköznapi konyhai és teanövények a kínai és az európai hagyományból. Nem gyógyszerek, és nem helyettesítik az orvosi kezelést; a figyelmeztetéseket mindig olvasd el.', herb_filter: 'Szűrés', herb_tcm: 'Kínai hagyomány', herb_eu: 'Európai hagyomány', herb_calm: 'Esti tea', herb_nostim: 'Nem élénkítő', herb_stim: 'Élénkítő', herb_count: '{n} növény · ebből {f} illik most a napszakhoz', herb_min: '{a}–{b} perc', herb_method: 'Módszer', herb_alt: 'Másképp', herb_water: 'Víz', herb_time: 'Áztatás / főzés', herb_amount: 'Mennyiség', herb_prep: 'Elkészítés', herb_safety: 'Figyelem', herb_general: 'Gyógyszer szedése, várandósság, szoptatás vagy krónikus betegség esetén előbb kérdezd meg orvosodat vagy gyógyszerészedet.', herb_temp: 'Hőhatás', herb_taste: 'Íz (elem)', herb_ch: 'Csatornák (szerv · idő)', herb_no_tcm: 'Ez a növény az európai hagyományból ismert; klasszikus kínai besorolása nincs, ezért nem kötjük elemhez és csatornához.', herb_src: 'Forrás', herb_src_ema: 'Biztonsági adatok: EMA gyógynövény-monográfia ({m})', herb_src_tcm: 'kínai besorolás: hagyományos kínai gyógynövénytan, átfogalmazva', herb_img_alt: '{n} – botanikai rajz', herb_img_cr: 'Rajz: {c}', herb_not_now: 'Most nem ajánljuk: élénkítő, vagy nem esti tea.', herb_for_org: 'Teák – {o}', herb_for_el: 'Teák – {e} elem', herb_today: 'Az évszak teája ({e})', herb_today_eve: 'Esti tea',
   eye_h: 'Szemtorna', eye_meta: '{m} perc · {n} lépés', eye_move_t: 'Szemtorna – mozgásos', eye_move_s: 'Tenyér a szemre, pislogás, tekintetmozgatás, közel–távol: képernyőmunka közben, óránként', eye_anim: 'A két szem rajza a lépés tekintetirányával', eye_safety: 'Lassan, erőltetés nélkül. A kontaktlencsét a pontnyomás előtt vedd ki. Szemműtét után, zöld hályog vagy szemgyulladás esetén előbb kérdezd meg szemorvosodat. Ha szédülsz vagy fáj, hagyd abba. A szemtorna nem helyettesíti a szemvizsgálatot.', eye_tip: 'Képernyő előtt jó szokás a „20–20–20”: 20 percenként nézz 20 másodpercig legalább 6 méterre. A szemtorna rövid szünetnek való, nem kell egyszerre mindent végigcsinálni.', eye_done: 'Kész. Pislogj néhányat, és nézz körül nyugodtan.',
   vid_eyes_move: 'Szemtorna videók', vid_eyes_brow: 'Szemöldök és homlok – videók',
+  g_nav: 'Témakörök', g_rout: 'Pontmasszázs-rutinok', g_rout_n: '{n} rutin most', g_rout_sub: 'Vezetett pontnyomás lépésenként, a napszakhoz igazítva', g_breath_sub: 'Egyenletes ritmus, hosszabb kilégzés – a napszakhoz illő ütemmel', g_breath_how: 'Hogyan?', g_breath_txt: 'Ülj vagy feküdj kényelmesen, a vállad legyen laza. Orron át lélegezz be, a kilégzés legyen hosszabb és csendesebb. Ha szédülsz, térj vissza a természetes légzéshez.', g_qi: 'Chi kung és mozgás', g_qi_s: 'Hat hang, Baduanjin', g_qi_sub: 'A szerv órájához illő gyógyító hang és hagyományos mozgássorok', g_eye_sub: 'Vezetett szemtorna, kínai pontnyomásos szemtorna és videók', g_hf_s: 'Ujjak, lábujjak', g_tech_s: 'Fogások, cun-mérce', vid_more: 'További {n} videó',
   theme: 'Téma', th_auto: 'Napszak szerint', th_light: 'Világos', th_dark: 'Sötét', guidance_h: 'Vezetés', in_m: '{m} perc múlva', kij_open: 'Kijelző mód', kij_sub: 'Képernyőkímélő töltés közben: óra, szerv, élő meridián', kij_full: 'Teljes képernyő', kij_full_no: 'A teljes képernyőt itt nem engedi a böngésző.', kij_next: 'Utána: {o} · {h}:00', kij_tap: 'Koppints a vezérlőkhöz', kij_wake_ok: 'A képernyő ébren marad, amíg ez a lap nyitva van.', kij_wake_no: 'A böngésző itt nem tartja ébren a képernyőt. Nyisd meg a lapot külön fülön, vagy állítsd hosszabbra a képernyő kikapcsolását.', voice: 'Hangos vezetés (felolvasás)', content_h: 'Tartalmi rétegek',
   sched_h: 'Napirend', sched_s: 'Ebből számoljuk az esti evési szünetet (lefekvés előtt 3 órától ébredésig) és a lecsendesedést (lefekvés előtt másfél órától).', sched_bed: 'Szokásos lefekvés', sched_wake: 'Szokásos ébredés', sched_save: 'Mentés', sched_clear: 'Alapérték', sched_sum: 'Evési szünet: {e}–{w} · Lecsendesedés: {c}-tól', sched_def: 'Még nem adtad meg. Ma {s}-kor van naplemente ({p}, a készülék órája szerint), ebből az alap lefekvés {b}, ébredés {w}.', sched_tz: 'a készülék időzónája', sched_own: 'A saját napirended alapján.', sched_err: 'Adj meg lefekvést és ébredést; az alvásidő 4 és 14 óra között legyen.', sched_local: 'A napirendet csak ezen az eszközön tároljuk.', sched_saved: 'Elmentve.',
 });
@@ -1193,6 +1224,7 @@ Object.assign(window.SZ_LANG.en.ui, {
   herbs_tab: 'Teas', herbs_h: 'Teas and spices', herbs_intro: 'Everyday kitchen and tea plants from Chinese and European tradition. They are not medicines and do not replace medical treatment; always read the cautions.', herb_filter: 'Filter', herb_tcm: 'Chinese tradition', herb_eu: 'European tradition', herb_calm: 'Evening tea', herb_nostim: 'Not enlivening', herb_stim: 'Enlivening', herb_count: '{n} plants · {f} suit the time of day now', herb_min: '{a}–{b} min', herb_method: 'Method', herb_alt: 'Alternatively', herb_water: 'Water', herb_time: 'Steeping / simmering', herb_amount: 'Amount', herb_prep: 'Preparation', herb_safety: 'Caution', herb_general: 'If you take medication, are pregnant, breastfeeding or have a chronic illness, ask your doctor or pharmacist first.', herb_temp: 'Thermal nature', herb_taste: 'Taste (element)', herb_ch: 'Channels (organ · time)', herb_no_tcm: 'This plant comes from European tradition; it has no classical Chinese classification, so it is not linked to an element or channel.', herb_src: 'Source', herb_src_ema: 'Safety data: EMA herbal monograph ({m})', herb_src_tcm: 'Chinese classification: traditional Chinese herbal lore, paraphrased', herb_img_alt: '{n} – botanical drawing', herb_img_cr: 'Drawing: {c}', herb_not_now: 'Not suggested now: enlivening, or not an evening tea.', herb_for_org: 'Teas – {o}', herb_for_el: 'Teas – {e} element', herb_today: 'Tea of the season ({e})', herb_today_eve: 'Evening tea',
   eye_h: 'Eye exercises', eye_meta: '{m} min · {n} steps', eye_move_t: 'Eye exercises – movement', eye_move_s: 'Palms over the eyes, blinking, gaze movements, near and far: hourly during screen work', eye_anim: 'Drawing of both eyes showing the gaze of the step', eye_safety: 'Slowly, without straining. Remove contact lenses before point pressure. After eye surgery, with glaucoma or eye inflammation, ask your eye doctor first. Stop if you feel dizzy or pain. Eye exercises do not replace an eye examination.', eye_tip: 'At a screen, “20–20–20” is a good habit: every 20 minutes look at least 6 metres away for 20 seconds. The exercises are meant as a short break; you do not have to do them all at once.', eye_done: 'Done. Blink a few times and look around calmly.',
   vid_eyes_move: 'Eye exercise videos', vid_eyes_brow: 'Brows and forehead – videos',
+  g_nav: 'Topics', g_rout: 'Acupressure routines', g_rout_n: '{n} routines now', g_rout_sub: 'Guided point pressure step by step, matched to the time of day', g_breath_sub: 'Even rhythm, longer out-breath – paced for the time of day', g_breath_how: 'How?', g_breath_txt: 'Sit or lie comfortably with relaxed shoulders. Breathe in through the nose and make the out-breath longer and quieter. If you feel dizzy, return to natural breathing.', g_qi: 'Qigong and movement', g_qi_s: 'Six sounds, Baduanjin', g_qi_sub: 'The healing sound of the current organ time and traditional movement sets', g_eye_sub: 'Guided eye exercises, Chinese point-pressure eye exercises and videos', g_hf_s: 'Fingers, toes', g_tech_s: 'Grips, cun measure', vid_more: '{n} more videos',
   theme: 'Theme', th_auto: 'By time of day', th_light: 'Light', th_dark: 'Dark', guidance_h: 'Guidance', in_m: 'in {m} min', kij_open: 'Display mode', kij_sub: 'A screensaver while charging: clock, organ, live meridian', kij_full: 'Full screen', kij_full_no: 'The browser does not allow full screen here.', kij_next: 'Next: {o} · {h}:00', kij_tap: 'Tap for controls', kij_wake_ok: 'The screen stays on while this page is open.', kij_wake_no: 'The browser cannot keep the screen on here. Open the page in its own tab, or set a longer screen timeout.', voice: 'Spoken guidance (read aloud)', content_h: 'Content layers',
   sched_h: 'Daily rhythm', sched_s: 'Used to set the evening eating pause (from 3 hours before bed until waking) and the wind-down (from 1.5 hours before bed).', sched_bed: 'Usual bedtime', sched_wake: 'Usual wake-up', sched_save: 'Save', sched_clear: 'Default', sched_sum: 'Eating pause: {e}–{w} · Wind-down from {c}', sched_def: 'Not set yet. Sunset today is at {s} ({p}, from your device clock), so the default bedtime is {b}, wake-up {w}.', sched_tz: 'your device time zone', sched_own: 'Based on your own rhythm.', sched_err: 'Enter a bedtime and wake-up; sleep should be between 4 and 14 hours.', sched_local: 'Your rhythm is stored on this device only.', sched_saved: 'Saved.',
 });
@@ -1870,10 +1902,11 @@ const VID_SETS = {
   hand: ['HKlE7hjF7OA', 'XrQ6Ug8s-PY', 'IhUdx3hXnG4', 'vXoeLR23vHY', 'yWE0FnBcxZI', 'vWeRyj_XmmQ', '5zyMmPNNLiM', 'cPrH2LqNckI', 'rqO5KJO3OUk'],
   foot: ['hB8kSgZjjhY', 'NEoScJSByZA', 'oK32rV9XcN4', 'XJSEN6Cl658', 'PL6R5Qt7uKM', 'GAT7GkkfiiU', 'boGgIJUqpR4', 'G-db1Zy0m8I', 'mIe7saybeoo', 'GNDQSDWQprk', 'Rsd_lZvujUU', 'mlkCpe5Mq84']
 };
-function vidList(key, title) {
+function vidList(key, title, max = 0) {
   if (!L.videok) return '';
-  const names = C('vidnames')[key];
-  return `<div class="card vidlist" data-vset="${key}"><span class="tag">${t('vid_tag')}</span><div class="t">${title}</div><div class="s">${t('vid_ext')}</div><ol>${VID_SETS[key].map((id, i) => `<li>${vidLink(id, `${ic('play', 14, 2.2)}<span>${names[i]}</span>`)}</li>`).join('')}</ol></div>`;
+  const names = C('vidnames')[key], li = (id, i) => `<li>${vidLink(id, `${ic('play', 14, 2.2)}<span>${names[i]}</span>`)}</li>`, ids = VID_SETS[key];
+  const cut = max && ids.length > max + 1 ? max : ids.length;
+  return `<div class="card vidlist" data-vset="${key}"><span class="tag">${t('vid_tag')}</span><div class="t">${title}</div><div class="s">${t('vid_ext')}</div><ol>${ids.slice(0, cut).map(li).join('')}</ol>${cut < ids.length ? `<details class="vmore"><summary>${t('vid_more', { n: ids.length - cut })}</summary><ol start="${cut + 1}">${ids.slice(cut).map((id, k) => li(id, k + cut)).join('')}</ol></details>` : ''}</div>`;
 }
 const vidDaypart = (d) => { const dp = daypart(d); return dp === 'morning' ? vidList('morning', t('vid_morning')) : dp === 'evening' || dp === 'night' ? vidList('evening', t('vid_evening')) : ''; };
 
@@ -2252,37 +2285,50 @@ V.pont = (s) => {
 };
 
 /* ================= GYAKORLAT ================= */
+/* Gyakorlat oldal: felül ajánlás + témakör-csempék (saját vonalrajzok), alatta tagolt szakaszok; hosszú videólisták összecsukva */
+const GILL = {
+  rutin: '<circle cx="32" cy="11" r="6"/><path d="M21 60V35q0-11 11-13 11 2 11 13v25M21 31l-9 15M43 31l9 15"/><circle cx="32" cy="31" r="3" class="f"/><circle cx="26" cy="46" r="3" class="f"/><circle cx="38" cy="46" r="3" class="f"/>',
+  legzes: '<circle cx="32" cy="32" r="8"/><circle cx="32" cy="32" r="16" opacity=".6"/><circle cx="32" cy="32" r="25" opacity=".3"/><path d="M6 32h8M50 32h8"/>',
+  chikung: '<circle cx="32" cy="12" r="5"/><path d="M32 18v22M32 24L19 9M32 24l13-15M32 40l-9 19M32 40l9 19"/><path d="M14 6q18-8 36 0" opacity=".5"/>',
+  szem: '<path d="M6 32s10-15 26-15 26 15 26 15-10 15-26 15S6 32 6 32z"/><circle cx="32" cy="32" r="8"/><circle cx="32" cy="32" r="3" class="f"/><path d="M14 14l4 5M50 14l-4 5M32 9v6" opacity=".5"/>',
+  kezlab: '<path d="M22 34V14a3 3 0 0 1 6 0v16M28 30V9a3 3 0 0 1 6 0v21M34 30V12a3 3 0 0 1 6 0v20M40 32V18a3 3 0 0 1 6 0v18c0 12-6 20-15 20-7 0-11-4-14-10l-6-11a3 3 0 0 1 5-3l4 5"/><circle cx="33" cy="42" r="3" class="f"/>',
+  tech: '<path d="M14 50c8-2 12-8 14-16l2-10a4 4 0 0 1 8 1l-1 9h11a4 4 0 0 1 0 8H36"/><circle cx="44" cy="16" r="6" opacity=".6"/><circle cx="44" cy="16" r="2.5" class="f"/>'
+};
+const gill = (k, cls = '') => `<svg class="gill ${cls}" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${GILL[k]}</svg>`;
+const gsec = (id, k, title, sub, body) => `<section class="gsec" id="g-${id}"><header class="gsech" style="--tc:var(--${({ rutin: 'acc', legzes: 'fem', chikung: 'fa', szem: 'fa', kezlab: 'tuz', tech: 'fold' })[k]})">${gill(k, 'sm')}<div><h2>${title}</h2><p class="sub">${sub}</p></div></header>${body}</section>`;
 V.gyakorlat = (arg) => {
   const d = now(), o = orgAt(d), snd = C('snd', SOUND_OF[o.c]), rec = recommend(d, lastCheckin());
   const rcard = (r, hl) => { const rt = C('routines', r.id); return `<a class="rcard${hl ? ' hl' : ''}" href="#rutin-${r.id}"><span class="ic">${ic(r.icon)}</span><span class="grow"><span class="t">${rt[0]}</span><span class="s">${rt[1]}</span><span class="meta">${t('routine_meta', { m: Math.max(1, Math.round(r.sec / 60)), n: r.steps.length })}</span></span><span class="playdot">${ic('play', 18, 2.2)}</span></a>`; };
+  const rest = ROUT.filter((r) => r.id !== rec.id && r.id !== 'szem'), fit = rest.filter((r) => routFits(r.id, d)), other = rest.filter((r) => !routFits(r.id, d));
+  const tiles = [['rutinok', 'rutin', t('g_rout'), t('g_rout_n', { n: fit.length + 1 })], ...(L.legzes ? [['legzes', 'legzes', t('breath_h'), t('pat_' + PAT_DEF[daypart(d)])]] : []), ...(L.mozgas || L.videok ? [['chikung', 'chikung', t('g_qi'), t('g_qi_s')]] : []), ['szem', 'szem', t('eye_h'), t('eye_meta', { m: Math.round(EYEX_SEC / 60), n: EYEX.length })], ['kezlab', 'kezlab', t('hand_foot'), t('g_hf_s')], ['tech', 'tech', t('tech_title'), t('g_tech_s')]];
+  const TC = { rutin: 'acc', legzes: 'fem', chikung: 'fa', szem: 'fa', kezlab: 'tuz', tech: 'fold' };
+  if (L.legzes) { const dp = daypart(d), pats = Object.keys(PATS).filter((k) => PAT_FIT[k].includes(dp)); if (!pats.includes(brPat) || !brUser) brPat = PAT_DEF[dp]; }
   return `${top(t('tab_prac'), t('prac_sub'), '', settingsBtn())}
-  <section class="pad stack dgrid">
-    <div class="sec"><h2>${t('recommended')}</h2></div>
-    ${rcard(rec.r, true)}
-    ${(() => {
-      // a napszakhoz illő rutinok elöl, a többi összecsukva, jelölve, mikorra valók
-      const rest = ROUT.filter((r) => r.id !== rec.id && r.id !== 'szem'), fit = rest.filter((r) => routFits(r.id, d)), other = rest.filter((r) => !routFits(r.id, d));
-      return `<div class="sec"><h2>${t('routines_h')}</h2><span>${fit.length + 1}</span></div>${fit.map((r) => rcard(r)).join('')}`
-        + (other.length ? `<details class="othertime"><summary><span class="t">${t('other_time')}</span><span class="sub">${other.length}</span></summary><div class="stack">${other.map((r) => rcard(r).replace('<span class="meta">', `<span class="meta"><span class="when">${t(ROUT_WHEN[r.id] || 'fit_any')}</span> · `)).join('')}</div></details>` : '');
-    })()}
-    ${L.legzes ? (() => { const dp = daypart(d), pats = Object.keys(PATS).filter((k) => PAT_FIT[k].includes(dp)); if (!pats.includes(brPat) || !brUser) brPat = PAT_DEF[dp]; return ''; })() + `<div class="card" id="legzes" style="--bc:var(--acc);--bl:var(--cont)">
-      <div class="sec" style="padding:0"><h2>${t('breath_h')}</h2><span id="brcount">${t('cycles_n', { n: brCycles })}</span></div>
+  <div class="pad gtop">
+    <div class="gnow"><div class="sec" style="padding:0 0 6px"><h2>${t('recommended')}</h2></div>${rcard(rec.r, true)}</div>
+    <nav class="gtiles" aria-label="${t('g_nav')}">${tiles.map(([id, k, n, sub]) => `<a class="gtile" href="#gyakorlat-${id}" style="--tc:var(--${TC[k]})">${gill(k)}<span class="t">${n}</span><span class="s">${sub}</span></a>`).join('')}</nav>
+  </div>
+  <div class="pad gbody">
+  ${gsec('rutinok', 'rutin', t('g_rout'), t('g_rout_sub'), `<div class="ggrid">${fit.map((r) => rcard(r)).join('')}</div>`
+    + (other.length ? `<details class="othertime"><summary><span class="t">${t('other_time')}</span><span class="sub">${other.length}</span></summary><div class="ggrid">${other.map((r) => rcard(r).replace('<span class="meta">', `<span class="meta"><span class="when">${t(ROUT_WHEN[r.id] || 'fit_any')}</span> · `)).join('')}</div></details>` : ''))}
+  ${L.legzes ? gsec('legzes', 'legzes', t('breath_h'), t('g_breath_sub'), `<div class="ggrid"><div class="card" id="legzes" style="--bc:var(--acc);--bl:var(--cont)">
+      <div class="sec" style="padding:0"><h2>${t('rhythm')}</h2><span id="brcount">${t('cycles_n', { n: brCycles })}</span></div>
       <div class="seg" style="margin-top:10px" role="group" aria-label="${t('rhythm')}">${Object.keys(PATS).filter((k) => PAT_FIT[k].includes(daypart(d))).map((k) => `<button type="button" data-act="pat" data-k="${k}" aria-pressed="${k === brPat}">${t('pat_' + k)}</button>`).join('')}</div>
       <div class="breath"><div class="r1"></div><div class="r2"></div><div class="core" id="core"><div id="phase" style="font-size:16px;font-weight:600">${t('ready')}</div><div class="n" id="num">${PATS[brPat][0][1]}</div></div></div>
       <p id="brhint" class="s" style="text-align:center;margin:12px 0 0">${t('exhale_hint', { s: snd[1] })}</p>
       <div style="margin-top:12px"><div style="display:flex;justify-content:space-between" class="sub"><span id="brcyc">${t('cyc_of', { a: 0, b: brCycles })}</span><span id="brleft"></span></div><div class="prog"><i id="brprog"></i></div></div>
       <div class="btnrow" style="justify-content:center"><button type="button" class="btn" data-act="brgo" id="brgo">${ic('play', 16, 2)}${t('start')}</button><button type="button" class="btn tonal" data-act="brstop">${t('finish')}</button><button type="button" class="btn tonal" data-act="brcyc" aria-label="${t('cycle_toggle')}"><span id="brcycl">${brCycles}×</span></button></div>
-    </div>` : ''}
-    ${L.mozgas ? `<div class="card"><span class="tag">${t('qigong_tag')}</span><div class="t" style="font-size:18px">${snd[0]}: ${qt(snd[1])}</div><p class="s" style="font-size:15px;line-height:22px;color:var(--on)">${snd[2]}</p><p class="s">${t('qigong_rep')}</p>${vidSound(SOUND_OF[o.c])}</div>` : ''}
-    <div class="sec" id="szemtorna-h"><h2>${t('eye_h')}</h2></div>
-    <a class="rcard${CALM(d) ? '' : ' hl'}" href="#szemtorna"><span class="ic">${ic('eye')}</span><span class="grow"><span class="t">${t('eye_move_t')}</span><span class="s">${t('eye_move_s')}</span><span class="meta">${t('eye_meta', { m: Math.round(EYEX_SEC / 60), n: EYEX.length })}</span></span>${ic('chev', 18)}</a>
+    </div><div class="card quiet"><div class="t">${t('g_breath_how')}</div><p class="s" style="color:var(--on)">${t('g_breath_txt')}</p></div></div>`) : ''}
+  ${L.mozgas || L.videok ? gsec('chikung', 'chikung', t('g_qi'), t('g_qi_sub'), `<div class="ggrid c3">${L.mozgas ? `<div class="card"><span class="tag">${t('qigong_tag')}</span><div class="t" style="font-size:18px">${snd[0]}: ${qt(snd[1])}</div><p class="s" style="font-size:15px;line-height:22px;color:var(--on)">${snd[2]}</p><p class="s">${t('qigong_rep')}</p>${vidSound(SOUND_OF[o.c])}</div>` : ''}${vidList('bdj', t('vid_bdj'), 3)}${vidList('yjj', t('vid_yjj'), 3)}</div>`) : ''}
+  ${gsec('szem', 'szem', t('eye_h'), t('g_eye_sub'), `<div class="ggrid"><a class="rcard eyecard${CALM(d) ? '' : ' hl'}" href="#szemtorna"><span class="eyemini">${eyeSvg('lr')}</span><span class="grow"><span class="t">${t('eye_move_t')}</span><span class="s">${t('eye_move_s')}</span><span class="meta">${t('eye_meta', { m: Math.round(EYEX_SEC / 60), n: EYEX.length })}</span></span>${ic('chev', 18)}</a>
     <a class="rcard" href="#rutin-szem"><span class="ic">${ic('point')}</span><span class="grow"><span class="t">${C('routines', 'szem')[0]}</span><span class="s">${C('routines', 'szem')[1]}</span><span class="meta">${t('routine_meta', { m: Math.max(1, Math.round(RBY.szem.sec / 60)), n: RBY.szem.steps.length })}</span></span>${ic('chev', 18)}</a>
-    ${vidList('eyes_move', t('vid_eyes_move'))}${vidList('eyes', t('vid_eyes'))}
-    ${L.videok ? `<div class="sec"><h2>${t('vid_trad_h')}</h2></div>${vidList('bdj', t('vid_bdj'))}${vidList('yjj', t('vid_yjj'))}` : ''}
-    ${row('hand', t('hand_foot'), t('hf_row_s'), '#tudas-kezlab')}
-    ${row('hand', t('tech_title'), t('tech_sub'), '#technikak')}
-    ${disclaimer()}
-  </section>`;
+    ${vidList('eyes_move', t('vid_eyes_move'), 3)}${vidList('eyes', t('vid_eyes'), 3)}</div>`)}
+  <div class="ggrid gmore">
+    <a class="card glink" id="g-kezlab" href="#tudas-kezlab" style="--tc:var(--tuz)">${typeof ANAT_IMG !== 'undefined' && ANAT_IMG.hand ? `<img class="gimg" src="${ANAT_IMG.hand}" alt="" aria-hidden="true">` : gill('kezlab')}<span class="grow"><span class="t">${t('hand_foot')}</span><span class="s">${t('hf_row_s')}</span></span>${ic('chev', 18)}</a>
+    <a class="card glink" id="g-tech" href="#technikak" style="--tc:var(--fold)">${gill('tech')}<span class="grow"><span class="t">${t('tech_title')}</span><span class="s">${t('tech_sub')}</span></span>${ic('chev', 18)}</a>
+  </div>
+  ${disclaimer()}
+  </div>`;
 };
 
 /* ================= SZEMTORNA (mozgásos, vezetett) ================= */
@@ -3137,7 +3183,7 @@ function route() {
   if (name === 'test') initTest(sig);
   if (name === 'foto') initFoto(sig);
   if (name === 'pont') { initTimer(sig); initPont3D(sig, arg); }
-  if (name === 'gyakorlat') { initBreath(sig); if (arg === 'legzes' || arg === 'szemtorna') { const el = $(arg === 'legzes' ? '#legzes' : '#szemtorna-h'); if (el) setTimeout(() => el.scrollIntoView({ block: 'start' }), 0); } }
+  if (name === 'gyakorlat') { initBreath(sig); if (arg) { const el = $('#g-' + ({ szemtorna: 'szem' }[arg] || arg)) || $('#' + arg); if (el) setTimeout(() => el.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }), 0); } }
   if (name === 'rutin') initPlayer(sig, arg);
   if (name === 'szemtorna') initEyes(sig);
   if (name === 'kijelzo') initKijelzo(sig);
