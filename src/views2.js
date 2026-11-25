@@ -208,11 +208,26 @@ function skyAt(x, rise, set) {
 const lum = (h) => { const [r, g, b] = hex2(h).map((v) => { v /= 255; return v <= 0.04 ? v / 12.9 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
 const inkOn = (h) => lum(h) > 0.36 ? '#1C1B1A' : '#FFFFFF';
 const EL_HAN = { fa: '木', tuz: '火', fold: '土', fem: '金', viz: '水' };
-function yinYang(r, rot) {
-  const h = r / 2;
-  return `<g transform="translate(180 180) rotate(${r1(rot)})" pointer-events="none"><circle r="${r + 2}" style="fill:var(--surf)"/><circle r="${r}" fill="#22201E"/>
-    <path d="M0 ${-r}A${r} ${r} 0 0 1 0 ${r}A${h} ${h} 0 0 1 0 0A${h} ${h} 0 0 0 0 ${-r}Z" fill="#F4EFE6"/>
-    <circle cy="${-h}" r="${r1(r * 0.14)}" fill="#22201E"/><circle cy="${h}" r="${r1(r * 0.14)}" fill="#F4EFE6"/></g>`;
+// Spidron yin-yang (Erdély Dániel spidronja): hatszögből befelé csavarodó gyűrűk, mindegyikben 6 db 120°-os egyenlő szárú
+// és 6 egyenlő oldalú háromszög; gyűrűnként 1/√3-ra kicsinyül és 30°-ot fordul. A hat kar felváltva yang (világos) és
+// yin (sötét); a gyűrűk befelé a tápláló ciklus sorrendjében az öt elem színét kapják. Lassan forog (csökkentett mozgásnál áll).
+function yinYang(r, rot, pal, curEl) {
+  const EL = ['fa', 'tuz', 'fold', 'fem', 'viz'], K = 7, q = 1 / Math.sqrt(3);
+  const P = (k, i) => { const a = (k * 30 + i * 60 - 90) * Math.PI / 180, rr = r * Math.pow(q, k); return [r1(rr * Math.cos(a)), r1(rr * Math.sin(a))]; };
+  const tri = (a, b, c, fill, op) => `<path d="M${a}L${b}L${c}Z" fill="${fill}" fill-opacity="${op}" stroke="${fill}" stroke-width=".4"/>`;
+  let g = '';
+  for (let k = -1; k < K; k++) {                                  // a k = −1 gyűrű tölti ki a kör szélét
+    const col = pal[EL[(k + 1) % 5]];
+    for (let i = 0; i < 6; i++) {
+      const yang = i % 2 === 0, a = P(k, i), b = P(k, (i + 1) % 6), c = P(k + 1, i), dd = P(k + 1, (i + 1) % 6);
+      const light = mixHex(col, '#FFFFFF', 0.55), dark = mixHex(col, '#1C1B1A', 0.55);
+      g += tri(a, b, c, yang ? light : dark, 1);                     // 120°-os egyenlő szárú
+      g += tri(b, dd, c, yang ? mixHex(light, col, 0.35) : mixHex(dark, col, 0.25), 1);   // egyenlő oldalú
+    }
+  }
+  return `<g transform="translate(180 180) rotate(${r1(rot)})" pointer-events="none"><circle r="${r + 3}" style="fill:var(--surf)"/>
+    <g class="spidron"><clipPath id="spclip"><circle r="${r}"/></clipPath><g clip-path="url(#spclip)"><circle r="${r}" fill="${mixHex(pal.viz, '#1C1B1A', 0.6)}"/>${g}</g></g>
+    <circle r="${r1(r * 0.13)}" fill="${pal[curEl]}" stroke="#fff" stroke-width="1.5"/></g>`;
 }
 function dayArc(d) {
   const cx = 180, cy = 180, RO = 177, RT = 153, R = 147, RI = 62, x0 = hOf(d), cur = ORG.indexOf(orgAt(d));
@@ -242,7 +257,7 @@ function dayArc(d) {
       <circle cx="${ex}" cy="${ey}" r="9" fill="${ink}" opacity=".16"/><text x="${ex}" y="${r1(ey + 4.2)}" font-size="11.5" font-family="'Noto Serif SC',serif">${EL_HAN[o.el]}</text></g></a>`;
     if (MYB.includes(i)) { const [qx, qy] = pt(RI + 5, mid); s += `<circle cx="${qx}" cy="${qy}" r="3.2" fill="${ink}" pointer-events="none"><title>${esc(t('my_windows'))}</title></circle>`; }
   });
-  s += yinYang(RI - 10, ang(noon) - 90);
+  s += yinYang(RI - 8, ang(noon) - 90, pal, ORG[cur].el);
   // „most” mutató felül, az óragyűrűn át
   s += `<path d="M${cx} ${cy - R + 1} l-6 -9 h12 z" style="fill:var(--on)" pointer-events="none"/><line x1="${cx}" y1="${cy - R - 8}" x2="${cx}" y2="${cy - RO - 3}" style="stroke:var(--on)" stroke-width="3" stroke-linecap="round" pointer-events="none"/>`;
   return `<svg class="dial" viewBox="-4 -4 368 368" role="img" aria-label="${esc(t('arc_label'))}" style="width:100%;display:block;margin:0 auto;overflow:visible;font-family:Inter,sans-serif">${s}</svg>`;
@@ -972,7 +987,9 @@ const glGo = (tr, i) => { const n = tr.children.length; i = Math.max(0, Math.min
 document.addEventListener('click', (e) => { const b = e.target.closest && e.target.closest('[data-gl], [data-gl-to]'); if (!b) return; const tr = b.closest('.gloss').querySelector('.gtrack'); glGo(tr, b.dataset.glTo !== undefined ? +b.dataset.glTo : (tr._gt ?? glIdx(tr)) + +b.dataset.gl); });
 document.addEventListener('keydown', (e) => { if (!e.target.classList || !e.target.classList.contains('gtrack')) return; if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); glGo(e.target, (e.target._gt ?? glIdx(e.target)) + (e.key === 'ArrowRight' ? 1 : -1)); } });
 document.addEventListener('scroll', (e) => { const tr = e.target; if (!tr.classList || !tr.classList.contains('gtrack')) return; const i = glIdx(tr); if (tr._gt !== undefined) { if (i === tr._gt && Math.abs(tr.scrollLeft - i * tr.clientWidth) < 2) tr._gt = undefined; return; } glMark(tr, i); }, true);
-document.addEventListener('scrollend', (e) => { const tr = e.target; if (!tr.classList || !tr.classList.contains('gtrack')) return; tr._gt = undefined; glMark(tr, glIdx(tr)); }, true);
+// görgetés vége: gombos/billentyűs lapozásnál a cél a mérvadó (ha a görgetés megszakadt, odaugrunk); kézi húzásnál a helyzet
+document.addEventListener('scrollend', (e) => { const tr = e.target; if (!tr.classList || !tr.classList.contains('gtrack')) return; if (tr._gt !== undefined) { const g = tr._gt; tr._gt = undefined; if (glIdx(tr) !== g) tr.scrollTo({ left: g * tr.clientWidth, behavior: 'auto' }); glMark(tr, g); return; } glMark(tr, glIdx(tr)); }, true);
+['pointerdown', 'wheel', 'touchstart'].forEach((ev) => document.addEventListener(ev, (e) => { const tr = e.target.closest && e.target.closest('.gtrack'); if (tr) tr._gt = undefined; }, { capture: true, passive: true }));
 function astroView() {
   const b = getBirth(); if (!b || astroEdit) return `<section class="pad stack"><div class="card quiet"><div class="t">${t('astro_intro_h')}</div><div class="s">${t('astro_intro')}</div></div>${astroGloss()}${astroForm(b)}<p class="note">${t('astro_note')}</p></section>`;
   const z = bazi(b), A = C('astro'), dmEl = sEl(z.dm), d = now(), a = astroToday(d);

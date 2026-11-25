@@ -457,3 +457,8 @@ nav.tabs a[aria-current=page] .ind{background:var(--cont);color:var(--acc)}
 }
 .gbody{margin-top:22px}
 @media (min-width:1280px){.ggrid.c3{grid-template-columns:repeat(3,1fr)}}
+
+/* spidron yin-yang a kör közepén: lassú forgás */
+.spidron{animation:spid 90s linear infinite;transform-origin:0 0}
+@keyframes spid{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spidron{animation:none}}
