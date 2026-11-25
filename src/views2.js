@@ -775,7 +775,9 @@ V.tudas = (arg) => {
 /* ================= TEÁK ÉS FŰSZEREK (Tudás → Teák) ================= */
 // Lista szűrőkkel és növényoldal: kép (közkincs botanikai rajz, ha van), a hagyományban, kínai jellemzők, elkészítés, figyelem, forrás.
 const hT = (id) => C('herbs', id);
-const herbImg = (h, cls = '') => (typeof HERB_IMG !== 'undefined' && HERB_IMG[h.id]) ? `<img class="himg ${cls}" src="${HERB_IMG[h.id]}" alt="${esc(t('herb_img_alt', { n: hT(h.id)[0] }))}" loading="lazy">` : `<span class="himg ${cls} noimg" aria-hidden="true">${ic('herb', 34)}</span>`;
+// ugyanaz a növény (Camellia sinensis) – egy tábla
+const HERB_SAME = { feketetea: 'zoldtea' }, hImgId = (h) => HERB_IMG[h.id] ? h.id : HERB_SAME[h.id];
+const herbImg = (h, cls = '') => (typeof HERB_IMG !== 'undefined' && HERB_IMG[hImgId(h)]) ? `<img class="himg ${cls}" src="${HERB_IMG[hImgId(h)]}" alt="${esc(t('herb_img_alt', { n: hT(h.id)[0] }))}" loading="lazy">` : `<span class="himg ${cls} noimg" aria-hidden="true">${ic('herb', 34)}</span>`;
 const herbChips = (h) => `${h.temp ? `<span class="echip">${C('htemp')[h.temp]}</span>` : ''}${herbEls(h).map((e) => `<span class="echip"><span class="dot" style="background:var(--${e})"></span>${elT(e).n}</span>`).join('')}${h.stim ? `<span class="echip">${t('herb_stim')}</span>` : ''}${h.calm ? `<span class="echip">${ic('moon', 13)} ${t('herb_calm')}</span>` : ''}`;
 let HFILT = 'all';
 const HF_FILTERS = () => [['all', t('all')], ['tcm', t('herb_tcm')], ['eu', t('herb_eu')], ['calm', t('herb_calm')], ['nocaf', t('herb_nostim')], ...ELK.map((k) => [k, elT(k).n])];
@@ -792,7 +794,7 @@ function herbPage(h) {
   const x = hT(h.id), p = h.prep, P = C('prep'), els = herbEls(h), d = now();
   const orgs = h.ch.map((c) => OBY[c]).filter(Boolean);
   const how = (m, main) => `<div class="kv"><div class="k">${main ? t('herb_method') : t('herb_alt')}</div><div class="v"><b>${P[m][0]}</b> – ${P[m][1]}</div></div>`;
-  return `<div class="split"><div class="pad smain"><figure class="hfig">${herbImg(h, 'big')}${HERB_CR[h.id] ? `<figcaption class="note credit">${t('herb_img_cr', { c: HERB_CR[h.id] })}</figcaption>` : ''}</figure></div>
+  return `<div class="split"><div class="pad smain"><figure class="hfig">${herbImg(h, 'big')}${HERB_CR[hImgId(h)] ? `<figcaption class="note credit">${t('herb_img_cr', { c: HERB_CR[hImgId(h)] })}</figcaption>` : ''}</figure></div>
   <section class="pad stack sside">
     <div class="card"><a class="sub" href="#tudas-teak">← ${t('herbs_tab')}</a><h2 class="display" style="font-size:28px;margin-top:4px">${x[0]}</h2><div class="s"><i>${h.lat}</i>${h.han ? ` · <span class="hanl" lang="zh-Hans">${h.han}</span> ${h.py}` : ''} · ${C('hpart')[h.part]}</div><div class="chips">${herbChips(h)}</div>
       ${herbFits(h, d) ? '' : `<div class="s othertime" style="margin-top:8px">${ic('moon', 14)} ${t('herb_not_now')}</div>`}</div>

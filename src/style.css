@@ -462,3 +462,6 @@ nav.tabs a[aria-current=page] .ind{background:var(--cont);color:var(--acc)}
 .spidron{animation:spid 90s linear infinite;transform-origin:0 0}
 @keyframes spid{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.spidron{animation:none}}
+.himg.big{max-width:min(100%,300px);max-height:none;margin:0 auto;display:block;padding:0;box-shadow:0 2px 12px rgba(0,0,0,.18)}
+.hfig{text-align:center;padding:16px;border-radius:var(--r-l);background:#F4EFE3}
+.hfig .credit{color:#6b6257}

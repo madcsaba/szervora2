@@ -10,7 +10,7 @@ Az app Tudás → Teák lapja (`src/core.js`: `HERBS`; szövegek: `lang/*.js` �
 | Nevek (tudományos, magyar, kínai), azonosító | Wikidata (CC0) | A növényoldalon a Q-azonosító. |
 | Kínai hagyományos besorolás (hőhatás, íz, csatornák) | A kínai hagyományos gyógynövénytan általánosan ismert besorolása | Csak a kínai hagyományban is ismert növényeknél; átfogalmazva, tájékoztató jelleggel. |
 | Magyar névhasználat, népi hagyomány, elkészítés ellenőrzése | Gyógynövény Szövetség és Terméktanács (gyszt.hu), naturportal.hu, tudatosvasarlo.hu | Csak ellenőrzésre; szöveget nem vettünk át. |
-| Rajzok | Wikimedia Commons, közkincs botanikai táblák | Lásd `assets/herbs/README.md`. |
+| Rajzok | plantillustrations.org – közkincs botanikai táblák (1775–1914, USDA) | 40 növény; lásd `assets/herbs/README.md` és `credits.json`. |
 
 ## Szabályok (teszt ellenőrzi: `tests/safety.test.mjs`)
 
