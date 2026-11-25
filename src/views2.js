@@ -233,6 +233,25 @@ function yinYang(r, rot, pal, curEl, seaEl, sky, night) {
     <g class="spidron"><clipPath id="spclip"><circle r="${r}"/></clipPath><g clip-path="url(#spclip)"><circle r="${r}" fill="${mixHex(pal[curEl], '#1C1B1A', 0.6)}"/>${g}</g></g>
     <circle r="${r1(r * 0.13)}" fill="${pal[curEl]}" stroke="${mixHex(sky, '#FFFFFF', 0.5)}" stroke-width="1.5"/></g>`;
 }
+/* Ji King réteg: a 12 holdhexagram (shí'èr xiāoxī guà) a 12 kettősórán. Éjféltől (子, 复) alulról nő a yang,
+   délben (午, 姤) fordul, és alulról nő a yin. Ágszám = ((kezdőóra + 1) / 2) mod 12. Kulturális réteg, ajánlást nem befolyásol. */
+const HEX12 = [24, 19, 11, 34, 43, 1, 44, 33, 12, 20, 23, 2], HEX12_HAN = ['复', '临', '泰', '大壮', '夬', '乾', '姤', '遁', '否', '观', '剥', '坤'];
+const hexLines = (b) => [0, 1, 2, 3, 4, 5].map((k) => b < 6 ? k <= b : k > b - 6);   // alulról felfelé; true = yang
+function hexGlyph(pt, mid, b, ink, on) {
+  const a = mid * Math.PI / 180, tx = Math.cos(a), ty = Math.sin(a), w = 6.6, gap = 1.5;
+  let g = '';
+  hexLines(b).forEach((yang, k) => {
+    const [x, y] = pt(132.5 + k * 2.35 - (on ? 1.5 : 0), mid), seg = (u0, u1) => `M${r1(x + tx * u0)} ${r1(y + ty * u0)}L${r1(x + tx * u1)} ${r1(y + ty * u1)}`;
+    g += yang ? seg(-w, w) : seg(-w, -gap) + seg(gap, w);
+  });
+  return `<path d="${g}" stroke="${ink}" stroke-width="1.25" stroke-linecap="butt" fill="none" opacity="${on ? 0.85 : 0.42}" pointer-events="none" class="hex12"/>`;
+}
+function ichRow(o) {
+  const b = ((o.s + 1) / 2) % 12, [py, nm] = C('hex12')[b], up = b < 6, y = up ? b + 1 : b - 5;
+  const mini = `<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" style="vertical-align:-3px">${hexLines(b).map((yang, k) => { const yy = 14 - k * 2.4; return yang ? `<path d="M1 ${yy}H15" stroke="currentColor" stroke-width="1.4"/>` : `<path d="M1 ${yy}H6.6M9.4 ${yy}H15" stroke="currentColor" stroke-width="1.4"/>`; }).join('')}</svg>`;
+  const desc = y === 6 ? t(up ? 'ich_top_yang' : 'ich_top_yin') : t((up ? 'ich_up' : 'ich_down') + (y === 1 ? '1' : ''), { y });
+  return `<div class="s" style="margin-top:8px">${mini} <span style="font-family:'Noto Serif SC',serif">${HEX12_HAN[b]}</span> ${esc(py)} · ${esc(nm)} (${t('ich_no', { n: HEX12[b] })}) – ${esc(desc)}</div><div class="s" style="opacity:.75">${t('ich_note')}</div>`;
+}
 function dayArc(d) {
   const cx = 180, cy = 180, RO = 177, RT = 153, R = 147, RI = 62, x0 = hOf(d), cur = ORG.indexOf(orgAt(d));
   const ang = (x) => (x - x0) * 15;                                         // óra → fok, felülről, órajárás szerint
@@ -259,6 +278,7 @@ function dayArc(d) {
     s += `<a href="#szerv-${slug(o.c)}" data-dial="${i}" aria-label="${esc(orgN(o.c))}, ${t('hours', { w: win(o) })}"><path d="M${out.m} ${out.a} L${inn.m} ${inn.a} Z" fill="${fill}" style="stroke:var(--bg)" stroke-width="${on ? 2.5 : 1.5}"/>
       <g pointer-events="none" fill="${ink}" text-anchor="middle"><text class="dn" x="${nx}" y="${r1(ny)}" font-size="${fs}" font-weight="${on ? 800 : 700}">${esc(nm)}</text><text x="${kx}" y="${r1(ky)}" font-size="7" opacity=".85">${esc(KW[o.c])}</text>
       <circle cx="${ex}" cy="${ey}" r="9" fill="${ink}" opacity=".16"/><text x="${ex}" y="${r1(ey + 4.2)}" font-size="11.5" font-family="'Noto Serif SC',serif">${EL_HAN[o.el]}</text></g></a>`;
+    if (L.iching) s += hexGlyph(pt, mid, (((o.s + 1) / 2) % 12), ink, on);
     if (MYB.includes(i)) { const [qx, qy] = pt(RI + 5, mid); s += `<circle cx="${qx}" cy="${qy}" r="3.2" fill="${ink}" pointer-events="none"><title>${esc(t('my_windows'))}</title></circle>`; }
   });
   const hNow = hOf(d), isNight = hNow < rise - 0.5 || hNow > set + 0.8;
@@ -293,7 +313,7 @@ V.ma = () => {
     ${!EAT(d) ? `<div class="row flat"><span class="ic">${ic('nofood')}</span><span class="grow"><span class="t">${t('eat_pause', { t: fmtH(sched(d).wake) })}</span><span class="s">${t('eat_pause_s')}</span></span></div>` : ''}
     <div class="sec"><h2>${t('later')}</h2></div>
     <div class="grid2">${later.map((x) => `<a class="tile big" href="#szerv-${slug(x.c)}"><div class="k">${String(x.s).padStart(2, '0')}:00 · ${elT(x.el).n}</div><div class="v">${orgN(x.c)}</div></a>`).join('')}</div>
-    <div class="card quiet"><div class="s">${C('org', o.c)[2]}</div>${vidClock(o)}</div>
+    <div class="card quiet"><div class="s">${C('org', o.c)[2]}</div>${L.iching ? ichRow(o) : ''}${vidClock(o)}</div>
     ${vidDaypart(d)}
     ${herbToday(d)}
     ${disclaimer()}
@@ -875,7 +895,7 @@ V.beallitasok = () => {
       <div><div class="flabel">${ic('body', 16)} ${t('model')}</div>${seg('model', [['f', t('female')], ['m', t('male')]], MODEL)}</div></div>
     ${schedCard()}
     <div class="sec"><h2>${t('guidance_h')}</h2></div><div class="list">${sw('sound', 'sound_t', true)}${sw('vibrate', 'vibrate_t', true)}${sw('voice', 'voice', false)}${sw('vidembed', 'vid_embed_pref', false)}</div>
-    <div class="sec"><h2>${t('content_h')}</h2></div><div class="list">${['mozgas', 'legzes', 'taplalkozas', 'csontok', 'erzelmek', 'gyogynovenyek', 'asztro', 'labujj', 'videok'].map(ly).join('')}</div>
+    <div class="sec"><h2>${t('content_h')}</h2></div><div class="list">${['mozgas', 'legzes', 'taplalkozas', 'csontok', 'erzelmek', 'gyogynovenyek', 'asztro', 'iching', 'labujj', 'videok'].map(ly).join('')}</div>
     ${row('screen', t('kij_open'), t('kij_sub'), '#kijelzo')}
     ${row('hand', t('tech_title'), t('tech_sub'), '#technikak')}
     <button type="button" class="btn tonal" data-act="lyreset">${t('reset_layers')}</button>
