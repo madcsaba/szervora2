@@ -72,6 +72,7 @@
     what_do: 'MIT CSINÁLJ', where_exact: 'HOL PONTOSAN', breath_cue: 'Nyomj kilégzéskor, engedj belégzéskor.', point_ref: 'Pont: {c}', how_h: 'Így haladsz', segment: 'Szakasz'
   },
   c: {
+    hex12: [["Fù", "Visszatérés"], ["Lín", "Közeledés"], ["Tài", "Béke"], ["Dà Zhuàng", "A nagy ereje"], ["Guài", "Áttörés"], ["Qián", "Az alkotó"], ["Gòu", "Találkozás"], ["Dùn", "Visszavonulás"], ["Pǐ", "Pangás"], ["Guān", "Szemlélődés"], ["Bō", "Lebomlás"], ["Kūn", "A befogadó"]],
     org_kw: { Eh: 'alvás', M: 'mély alvás', T: 'nyugodt légzés', Vab: 'ébredés', Gy: 'reggeli', Lh: 'koncentráció', Sz: 'ebéd, pihenő', 'Véb': 'rendszerezés', H: 'munka, víz', V: 'lassítás', Szb: 'kapcsolatok', Hm: 'készülődés' },
     org: {
       Eh: ['Epehólyag', 'Epehólyag', 'Mély alvás ideje. A hagyomány szerint ilyenkor érlelődnek a döntések.'],
@@ -338,6 +339,7 @@ Object.assign(window.SZ_LANG.hu.c.how, { fesz: 'Kezdd a mellkas közepén, szel�
 
 /* ---- asztrológia réteg ---- */
 Object.assign(window.SZ_LANG.hu.ui, {
+  ly_iching: "Ji King a körön", lyd_iching: "A 12 holdhexagram (shí'èr xiāoxī guà): a yang és a yin napi váltakozása; kulturális réteg", ich_up: "{y} yang vonal alulról – a yang nő", ich_up1: "egy yang vonal alul – a yang visszatér", ich_down1: "egy yin vonal alul – a yin megjelenik", ich_down: "{y} yin vonal alulról – a yin nő", ich_top_yang: "csupa yang – a yang tetőzik", ich_top_yin: "csupa yin – a yin tetőzik", ich_no: "{n}. hexagram", ich_note: "A Ji King hagyományos megfeleltetése a 12 kettősórához; kulturális réteg, nem ajánlás.",
   astro: 'Asztrológia', ly_asztro: 'Kínai asztrológia', lyd_asztro: 'Négy oszlop, napmester, a nap jellege',
   astro_today_tag: 'Ma az égi naptárban', astro_today_t: '{r} nap · {o}', good_for: 'Ajánlott', avoid: 'Kerülendő',
   astro_intro_h: 'Ugyanaz a 12 ág, ugyanaz az öt elem', astro_intro: 'A kínai óra 12 állatjegye pontosan a szervóra 12 kétórás ablaka, az égi törzsek pedig az öt elem yin és yang változatai. A születési adataidból kiszámoljuk a négy oszlopot (év, hónap, nap, óra), és megmutatjuk, hogyan kapcsolódnak a meridiánokhoz.',

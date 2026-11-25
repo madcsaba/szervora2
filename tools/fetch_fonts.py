@@ -19,7 +19,7 @@ UA = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chr
 # A felületen használt kínai írásjegyek: elemek és szervek, valamint az asztrológia
 # égi törzsei és földi ágai.
 HAN = ('心木火土金水胆肝肺大肠胃脾小膀胱肾包三焦' + '甲乙丙丁戊己庚辛壬癸' + '子丑寅卯辰巳午未申酉戌亥'
-       + '米三丘中丰临云井交人仑会俞元兑公关内冲列劳厉合后听命商四墟复外大天太委孔孙宗宫少尺山巨府庭心悬手承攒敦昆明曲最期极枢柱梁椎气池泉泣泽海涌渊渚溜溪照犊环申白百睛神突窍章竹缺肝肠肩肺肾胃脉脘脾膈膻至血行谷足跳身车迎里钟门间阙阳阴际陵隆隐颊风香髃髎鱼鼻丁八叶姜子小杞枣枸桂桑椒玫瑰生皮眼紫红绿肉胡芫花苏英茉茴茶荷荽莉菊蒲薄角陈麦黄龙')  # elemek, szervek, törzsek, ágak; pont- és teanevek
+       + '泰壮夬乾姤遁否观剥坤' + '米三丘中丰临云井交人仑会俞元兑公关内冲列劳厉合后听命商四墟复外大天太委孔孙宗宫少尺山巨府庭心悬手承攒敦昆明曲最期极枢柱梁椎气池泉泣泽海涌渊渚溜溪照犊环申白百睛神突窍章竹缺肝肠肩肺肾胃脉脘脾膈膻至血行谷足跳身车迎里钟门间阙阳阴际陵隆隐颊风香髃髎鱼鼻丁八叶姜子小杞枣枸桂桑椒玫瑰生皮眼紫红绿肉胡芫花苏英茉茴茶荷荽莉菊蒲薄角陈麦黄龙')  # elemek, szervek, törzsek, ágak; pont- és teanevek
 CHARS = (''.join(chr(c) for c in range(0x20, 0x7f)) + ''.join(chr(c) for c in range(0xa0, 0x100))
          + 'ŐőŰűĀāĒēĪīŌōŪūǍǎĚěǏǐǑǒǓǔǕǖǗǘǙǚǛǜ‐–—‘’‚“”„•…′″‹›€←↑→↓−✓')
 SOURCES = [
