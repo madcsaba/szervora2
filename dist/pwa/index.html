@@ -2034,25 +2034,29 @@ const lum = (h) => { const [r, g, b] = hex2(h).map((v) => { v /= 255; return v <
 const inkOn = (h) => lum(h) > 0.36 ? '#1C1B1A' : '#FFFFFF';
 const EL_HAN = { fa: '木', tuz: '火', fold: '土', fem: '金', viz: '水' };
 // Spidron yin-yang (Erdély Dániel spidronja): hatszögből befelé csavarodó gyűrűk, mindegyikben 6 db 120°-os egyenlő szárú
-// és 6 egyenlő oldalú háromszög; gyűrűnként 1/√3-ra kicsinyül és 30°-ot fordul. A hat kar felváltva yang (világos) és
-// yin (sötét); a gyűrűk befelé a tápláló ciklus sorrendjében az öt elem színét kapják. Lassan forog (csökkentett mozgásnál áll).
-function yinYang(r, rot, pal, curEl) {
-  const EL = ['fa', 'tuz', 'fold', 'fem', 'viz'], K = 7, q = 1 / Math.sqrt(3);
+// és 6 egyenlő oldalú háromszög; gyűrűnként 1/√3-ra kicsinyül és 30°-ot fordul. A hat kar felváltva yang (világos) és yin (sötét).
+// Színe: a gyűrűk felváltva a most aktív szerv (meridián) elemét és az évszak uralkodó elemét kapják (ha egyezik: az „anya”
+// elemet a tápláló ciklusban); az egészet a napszak égboltszíne árnyalja – nappal világosabb, hajnalban/alkonyatkor meleg,
+// éjjel sötétebb. A közepe az aktív elem. Lassan forog (csökkentett mozgásnál áll).
+function yinYang(r, rot, pal, curEl, seaEl, sky, night) {
+  const K = 7, q = 1 / Math.sqrt(3), mother = Object.keys(GEN).find((x) => GEN[x] === curEl);
+  const second = seaEl === curEl ? mother : seaEl;
   const P = (k, i) => { const a = (k * 30 + i * 60 - 90) * Math.PI / 180, rr = r * Math.pow(q, k); return [r1(rr * Math.cos(a)), r1(rr * Math.sin(a))]; };
-  const tri = (a, b, c, fill, op) => `<path d="M${a}L${b}L${c}Z" fill="${fill}" fill-opacity="${op}" stroke="${fill}" stroke-width=".4"/>`;
+  const tri = (a, b, c, fill) => `<path d="M${a}L${b}L${c}Z" fill="${fill}" stroke="${fill}" stroke-width=".4"/>`;
+  const L = night ? 0.22 : 0.55, D = night ? 0.68 : 0.42;          // éjjel a yang is tompább, a yin mélyebb
   let g = '';
-  for (let k = -1; k < K; k++) {                                  // a k = −1 gyűrű tölti ki a kör szélét
-    const col = pal[EL[(k + 1) % 5]];
+  for (let k = -1; k < K; k++) {                                     // a k = −1 gyűrű tölti ki a kör szélét
+    const base = mixHex(pal[(k + 1) % 2 ? second : curEl], sky, night ? 0.3 : 0.18);
+    const light = mixHex(base, '#FFFFFF', L), dark = mixHex(base, '#1C1B1A', D);
     for (let i = 0; i < 6; i++) {
       const yang = i % 2 === 0, a = P(k, i), b = P(k, (i + 1) % 6), c = P(k + 1, i), dd = P(k + 1, (i + 1) % 6);
-      const light = mixHex(col, '#FFFFFF', 0.55), dark = mixHex(col, '#1C1B1A', 0.55);
-      g += tri(a, b, c, yang ? light : dark, 1);                     // 120°-os egyenlő szárú
-      g += tri(b, dd, c, yang ? mixHex(light, col, 0.35) : mixHex(dark, col, 0.25), 1);   // egyenlő oldalú
+      g += tri(a, b, c, yang ? light : dark);                                                   // 120°-os egyenlő szárú
+      g += tri(b, dd, c, yang ? mixHex(light, base, 0.35) : mixHex(dark, base, 0.25));          // egyenlő oldalú
     }
   }
-  return `<g transform="translate(180 180) rotate(${r1(rot)})" pointer-events="none"><circle r="${r + 3}" style="fill:var(--surf)"/>
-    <g class="spidron"><clipPath id="spclip"><circle r="${r}"/></clipPath><g clip-path="url(#spclip)"><circle r="${r}" fill="${mixHex(pal.viz, '#1C1B1A', 0.6)}"/>${g}</g></g>
-    <circle r="${r1(r * 0.13)}" fill="${pal[curEl]}" stroke="#fff" stroke-width="1.5"/></g>`;
+  return `<g transform="translate(180 180) rotate(${r1(rot)})" pointer-events="none" class="spwrap" data-el="${curEl}" data-sea="${seaEl}"><circle r="${r + 3}" style="fill:var(--surf)"/>
+    <g class="spidron"><clipPath id="spclip"><circle r="${r}"/></clipPath><g clip-path="url(#spclip)"><circle r="${r}" fill="${mixHex(pal[curEl], '#1C1B1A', 0.6)}"/>${g}</g></g>
+    <circle r="${r1(r * 0.13)}" fill="${pal[curEl]}" stroke="${mixHex(sky, '#FFFFFF', 0.5)}" stroke-width="1.5"/></g>`;
 }
 function dayArc(d) {
   const cx = 180, cy = 180, RO = 177, RT = 153, R = 147, RI = 62, x0 = hOf(d), cur = ORG.indexOf(orgAt(d));
@@ -2082,7 +2086,8 @@ function dayArc(d) {
       <circle cx="${ex}" cy="${ey}" r="9" fill="${ink}" opacity=".16"/><text x="${ex}" y="${r1(ey + 4.2)}" font-size="11.5" font-family="'Noto Serif SC',serif">${EL_HAN[o.el]}</text></g></a>`;
     if (MYB.includes(i)) { const [qx, qy] = pt(RI + 5, mid); s += `<circle cx="${qx}" cy="${qy}" r="3.2" fill="${ink}" pointer-events="none"><title>${esc(t('my_windows'))}</title></circle>`; }
   });
-  s += yinYang(RI - 8, ang(noon) - 90, pal, ORG[cur].el);
+  const hNow = hOf(d), isNight = hNow < rise - 0.5 || hNow > set + 0.8;
+  s += yinYang(RI - 8, ang(noon) - 90, pal, ORG[cur].el, sea, skyAt(hNow, rise, set), isNight);
   // „most” mutató felül, az óragyűrűn át
   s += `<path d="M${cx} ${cy - R + 1} l-6 -9 h12 z" style="fill:var(--on)" pointer-events="none"/><line x1="${cx}" y1="${cy - R - 8}" x2="${cx}" y2="${cy - RO - 3}" style="stroke:var(--on)" stroke-width="3" stroke-linecap="round" pointer-events="none"/>`;
   return `<svg class="dial" viewBox="-4 -4 368 368" role="img" aria-label="${esc(t('arc_label'))}" style="width:100%;display:block;margin:0 auto;overflow:visible;font-family:Inter,sans-serif">${s}</svg>`;
