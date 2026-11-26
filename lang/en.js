@@ -72,6 +72,7 @@
     what_do: 'WHAT TO DO', where_exact: 'EXACTLY WHERE', breath_cue: 'Press as you breathe out, ease off as you breathe in.', point_ref: 'Point: {c}', how_h: 'How it flows', segment: 'Segment'
   },
   c: {
+    hex12: [["Fù", "Return"], ["Lín", "Approach"], ["Tài", "Peace"], ["Dà Zhuàng", "Great Power"], ["Guài", "Breakthrough"], ["Qián", "The Creative"], ["Gòu", "Coming to Meet"], ["Dùn", "Retreat"], ["Pǐ", "Standstill"], ["Guān", "Contemplation"], ["Bō", "Splitting Apart"], ["Kūn", "The Receptive"]],
     org_kw: { Eh: 'sleep', M: 'deep sleep', T: 'calm breathing', Vab: 'waking', Gy: 'breakfast', Lh: 'focus', Sz: 'lunch, rest', 'Véb': 'sorting', H: 'work, water', V: 'slowing down', Szb: 'connection', Hm: 'getting ready' },
     org: {
       Eh: ['Gallbladder', 'Gallbladder', 'Time for deep sleep. Traditionally, decisions mature now.'],
@@ -339,6 +340,7 @@ Object.assign(window.SZ_LANG.en.c.how, { fesz: 'Begin at the centre of the chest
 
 /* ---- astrology layer ---- */
 Object.assign(window.SZ_LANG.en.ui, {
+  ly_iching: "I Ching on the dial", lyd_iching: "The 12 sovereign hexagrams (shí'èr xiāoxī guà): the daily alternation of yang and yin; a cultural layer", ich_up: "{y} yang lines from below – yang grows", ich_up1: "one yang line at the bottom – yang returns", ich_down1: "one yin line at the bottom – yin appears", ich_down: "{y} yin lines from below – yin grows", ich_top_yang: "all yang – yang at its peak", ich_top_yin: "all yin – yin at its peak", ich_no: "hexagram {n}", ich_note: "The traditional I Ching correspondence to the 12 double hours; a cultural layer, not a recommendation.",
   astro: 'Astrology', ly_asztro: 'Chinese astrology', lyd_asztro: 'Four pillars, day master, nature of the day',
   astro_today_tag: 'Today in the Chinese almanac', astro_today_t: '{r} day · {o}', good_for: 'Good for', avoid: 'Avoid',
   astro_intro_h: 'The same 12 branches, the same five elements', astro_intro: 'The 12 animals of the Chinese hours are exactly the 12 two-hour windows of the organ clock, and the heavenly stems are the yin and yang forms of the five elements. From your birth data we calculate the four pillars (year, month, day, hour) and show how they connect to the meridians.',
